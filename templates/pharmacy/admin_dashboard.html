@@ -1,0 +1,1524 @@
+﻿{% extends "admin/base_admin.html" %}
+
+{% block title %}Pharmacy Command Centre | MEDIVERA{% endblock %}
+{% block breadcrumb %}Pharmacy Command Centre{% endblock %}
+
+{% block extra_css %}
+<style>
+/* =========================================================
+   MEDIVERA PHARMACY ADMIN COMMAND CENTRE
+   Premium Charcoal / Orange / White
+========================================================= */
+
+:root {
+    --ph-bg: #111316;
+    --ph-panel: #191c21;
+    --ph-panel-2: #20242b;
+    --ph-border: rgba(255,255,255,.075);
+    --ph-text: #f5f5f5;
+    --ph-muted: #9299a5;
+    --ph-orange: #ff8a24;
+    --ph-orange-light: #ffb15c;
+    --ph-green: #31c48d;
+    --ph-red: #ff5c64;
+    --ph-blue: #5a9cff;
+    --ph-radius: 18px;
+}
+
+.pharmacy-dashboard {
+    color: var(--ph-text);
+    width: 100%;
+}
+
+.pharmacy-dashboard * {
+    box-sizing: border-box;
+}
+
+.pharmacy-hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 32px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255,138,36,.19);
+    border-radius: 23px;
+    background:
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(255,138,36,.18),
+            transparent 35%
+        ),
+        linear-gradient(120deg,#202329,#15171b 75%);
+}
+
+.pharmacy-hero::after {
+    content: "";
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    right: 9%;
+    top: -130px;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 25px rgba(255,255,255,.015),
+        0 0 0 50px rgba(255,255,255,.012);
+    pointer-events: none;
+}
+
+.pharmacy-hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.pharmacy-eyebrow {
+    color: var(--ph-orange-light);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.pharmacy-hero h1 {
+    font-size: clamp(25px,3vw,36px);
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 10px;
+    color: #fff;
+}
+
+.pharmacy-hero p {
+    max-width: 590px;
+    color: #b3b8c1;
+    font-size: 13px;
+    line-height: 1.8;
+    margin: 0;
+}
+
+.pharmacy-hero-icon {
+    position: relative;
+    z-index: 1;
+    width: 88px;
+    height: 88px;
+    flex: 0 0 88px;
+    display: grid;
+    place-items: center;
+    border-radius: 24px;
+    color: var(--ph-orange);
+    font-size: 43px;
+    background: rgba(255,138,36,.12);
+    border: 1px solid rgba(255,138,36,.25);
+    box-shadow: 0 15px 40px rgba(0,0,0,.2);
+}
+
+.pharmacy-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 19px;
+}
+
+.pharmacy-section-title {
+    color: #fff;
+    font-size: 17px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.pharmacy-section-subtitle {
+    color: var(--ph-muted);
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+.pharmacy-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 39px;
+    padding: 0 16px;
+    border-radius: 11px;
+    text-decoration: none;
+    color: #171717;
+    background: var(--ph-orange);
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid var(--ph-orange);
+    transition: .2s ease;
+}
+
+.pharmacy-action:hover {
+    background: var(--ph-orange-light);
+    color: #171717;
+    transform: translateY(-2px);
+}
+
+.pharmacy-action.secondary {
+    background: #242830;
+    border-color: var(--ph-border);
+    color: #e7e8eb;
+}
+
+.pharmacy-action.secondary:hover {
+    border-color: var(--ph-orange);
+    color: var(--ph-orange-light);
+    background: #292d35;
+}
+
+.pharmacy-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4,minmax(0,1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.pharmacy-kpi {
+    position: relative;
+    overflow: hidden;
+    min-height: 137px;
+    padding: 20px;
+    border-radius: var(--ph-radius);
+    background: linear-gradient(145deg,#202329,#181b20);
+    border: 1px solid var(--ph-border);
+    box-shadow: 0 10px 30px rgba(0,0,0,.12);
+    transition: transform .2s,border-color .2s;
+}
+
+.pharmacy-kpi:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255,138,36,.35);
+}
+
+.pharmacy-kpi::after {
+    content: "";
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    right: -34px;
+    bottom: -42px;
+    background: var(--kpi-glow,rgba(255,138,36,.09));
+}
+
+.pharmacy-kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.pharmacy-kpi-label {
+    color: var(--ph-muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.pharmacy-kpi-icon {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    color: var(--kpi-color,var(--ph-orange));
+    background: var(--kpi-glow,rgba(255,138,36,.12));
+    font-size: 17px;
+}
+
+.pharmacy-kpi-value {
+    font-size: 29px;
+    font-weight: 800;
+    letter-spacing: -.8px;
+    color: #fff;
+    line-height: 1.1;
+}
+
+.pharmacy-kpi-note {
+    color: #858d99;
+    font-size: 10px;
+    margin-top: 8px;
+}
+
+.pharmacy-kpi.orange {
+    --kpi-color: #ff9a3c;
+    --kpi-glow: rgba(255,138,36,.13);
+}
+
+.pharmacy-kpi.green {
+    --kpi-color: #31c48d;
+    --kpi-glow: rgba(49,196,141,.12);
+}
+
+.pharmacy-kpi.blue {
+    --kpi-color: #65a7ff;
+    --kpi-glow: rgba(101,167,255,.12);
+}
+
+.pharmacy-kpi.red {
+    --kpi-color: #ff646d;
+    --kpi-glow: rgba(255,100,109,.12);
+}
+
+.pharmacy-content-grid {
+    display: grid;
+    grid-template-columns: minmax(0,1.65fr) minmax(260px,.85fr);
+    gap: 17px;
+    margin-bottom: 20px;
+}
+
+.pharmacy-panel {
+    min-width: 0;
+    padding: 21px;
+    background: linear-gradient(145deg,#1d2026,#191c21);
+    border: 1px solid var(--ph-border);
+    border-radius: var(--ph-radius);
+    box-shadow: 0 10px 30px rgba(0,0,0,.11);
+}
+
+.pharmacy-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 19px;
+}
+
+.pharmacy-panel-header h3 {
+    margin: 0;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.pharmacy-panel-header p {
+    margin: 6px 0 0;
+    color: var(--ph-muted);
+    font-size: 10px;
+}
+
+.pharmacy-chart-wrap {
+    width: 100%;
+    height: 250px;
+    position: relative;
+}
+
+.pharmacy-chart-wrap canvas {
+    max-width: 100%;
+}
+
+.pharmacy-stock-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.pharmacy-stock-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 13px;
+    border-bottom: 1px solid var(--ph-border);
+}
+
+.pharmacy-stock-item:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.pharmacy-stock-info {
+    min-width: 0;
+}
+
+.pharmacy-stock-name {
+    color: #eceef2;
+    font-size: 12px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.pharmacy-stock-meta {
+    color: #858d99;
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+.pharmacy-stock-count {
+    flex-shrink: 0;
+    color: var(--ph-orange-light);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.pharmacy-alert-grid {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 13px;
+    margin-bottom: 20px;
+}
+
+.pharmacy-alert {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 16px;
+    background: #1d2026;
+    border: 1px solid var(--ph-border);
+    border-radius: 15px;
+}
+
+.pharmacy-alert-icon {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    font-size: 17px;
+}
+
+.pharmacy-alert.danger .pharmacy-alert-icon {
+    color: var(--ph-red);
+    background: rgba(255,92,100,.12);
+}
+
+.pharmacy-alert.warning .pharmacy-alert-icon {
+    color: var(--ph-orange-light);
+    background: rgba(255,138,36,.12);
+}
+
+.pharmacy-alert.success .pharmacy-alert-icon {
+    color: var(--ph-green);
+    background: rgba(49,196,141,.12);
+}
+
+.pharmacy-alert strong {
+    display: block;
+    color: #fff;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.pharmacy-alert span {
+    display: block;
+    color: var(--ph-muted);
+    font-size: 10px;
+    margin-top: 3px;
+}
+
+.pharmacy-table-wrap {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.pharmacy-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 690px;
+}
+
+.pharmacy-table th {
+    padding: 12px 11px;
+    color: #8f98a5;
+    font-size: 9px;
+    font-weight: 800;
+    text-align: left;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--ph-border);
+}
+
+.pharmacy-table td {
+    padding: 14px 11px;
+    color: #dce0e6;
+    font-size: 11px;
+    border-bottom: 1px solid rgba(255,255,255,.045);
+    vertical-align: middle;
+}
+
+.pharmacy-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.pharmacy-table tbody tr:hover {
+    background: rgba(255,255,255,.018);
+}
+
+.pharmacy-patient {
+    color: #fff;
+    font-weight: 700;
+}
+
+.pharmacy-small {
+    display: block;
+    margin-top: 4px;
+    color: #818a96;
+    font-size: 9px;
+}
+
+.pharmacy-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 9px;
+    border-radius: 30px;
+    font-size: 9px;
+    font-weight: 800;
+    white-space: nowrap;
+    background: #292d34;
+    color: #dce0e6;
+}
+
+.pharmacy-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.pharmacy-status.requested {
+    color: #ffb45c;
+    background: rgba(255,180,92,.10);
+}
+
+.pharmacy-status.approved,
+.pharmacy-status.delivered {
+    color: #31c48d;
+    background: rgba(49,196,141,.10);
+}
+
+.pharmacy-status.processing,
+.pharmacy-status.ready {
+    color: #65a7ff;
+    background: rgba(101,167,255,.10);
+}
+
+.pharmacy-status.rejected,
+.pharmacy-status.cancelled {
+    color: #ff6b73;
+    background: rgba(255,107,115,.10);
+}
+
+.pharmacy-view-link {
+    color: var(--ph-orange-light);
+    font-weight: 800;
+    text-decoration: none;
+    font-size: 10px;
+}
+
+.pharmacy-view-link:hover {
+    color: #fff;
+}
+
+.pharmacy-empty {
+    padding: 27px 12px;
+    text-align: center;
+    color: #9299a5;
+    font-size: 11px;
+}
+
+.pharmacy-empty-icon {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 25px;
+    opacity: .6;
+}
+
+.pharmacy-delivery-list {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+}
+
+.pharmacy-delivery-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.pharmacy-delivery-name {
+    color: #e8eaf0;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.pharmacy-delivery-value {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.pharmacy-progress {
+    width: 100%;
+    height: 6px;
+    margin-top: 8px;
+    border-radius: 20px;
+    background: #30343c;
+    overflow: hidden;
+}
+
+.pharmacy-progress span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--ph-orange);
+}
+
+.pharmacy-footer-note {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 19px;
+    padding: 15px 17px;
+    border-radius: 13px;
+    background: rgba(255,138,36,.055);
+    border: 1px solid rgba(255,138,36,.13);
+    color: #aeb4bd;
+    font-size: 10px;
+}
+
+.pharmacy-footer-note strong {
+    color: var(--ph-orange-light);
+}
+
+@media(max-width:1100px) {
+    .pharmacy-kpi-grid {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+
+    .pharmacy-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width:650px) {
+    .pharmacy-hero {
+        padding: 23px 19px;
+    }
+
+    .pharmacy-hero-icon {
+        width: 58px;
+        height: 58px;
+        flex-basis: 58px;
+        font-size: 27px;
+        border-radius: 17px;
+    }
+
+    .pharmacy-kpi-grid {
+        gap: 10px;
+    }
+
+    .pharmacy-kpi {
+        min-height: 120px;
+        padding: 14px;
+    }
+
+    .pharmacy-kpi-value {
+        font-size: 24px;
+    }
+
+    .pharmacy-alert-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pharmacy-panel {
+        padding: 15px;
+    }
+}
+
+@media(max-width:390px) {
+    .pharmacy-hero-icon {
+        display: none;
+    }
+
+    .pharmacy-kpi-label {
+        font-size: 9px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pharmacy-dashboard">
+
+    <!-- =================================================
+         HERO
+    ================================================== -->
+
+    <section class="pharmacy-hero">
+
+        <div class="pharmacy-hero-content">
+
+            <div class="pharmacy-eyebrow">
+                MEDIVERA HEALTHCARE OPERATIONS
+            </div>
+
+            <h1>Pharmacy Command Centre</h1>
+
+            <p>
+                Manage medicine orders, monitor inventory,
+                coordinate bedside deliveries and maintain
+                reliable pharmacy operations from one
+                centralized workspace.
+            </p>
+
+        </div>
+
+        <div class="pharmacy-hero-icon" aria-hidden="true">
+            ✚
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         PAGE TOOLBAR
+    ================================================== -->
+
+    <div class="pharmacy-toolbar">
+
+        <div>
+            <h2 class="pharmacy-section-title">
+                Pharmacy Overview
+            </h2>
+
+            <div class="pharmacy-section-subtitle">
+                Live operational information from the MEDIVERA database
+            </div>
+        </div>
+
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+
+            <a
+                href="{{ url_for('pharmacy.admin_orders') }}"
+                class="pharmacy-action secondary"
+            >
+                View All Orders →
+            </a>
+
+            {% if is_super_admin %}
+            <a href="{{ url_for('pharmacy.admin_members') }}"
+               class="pharmacy-action">
+                Manage Admin Members
+            </a>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         KPI CARDS
+    ================================================== -->
+
+    {% set os = dashboard.order_stats %}
+    {% set inv = dashboard.inventory_stats %}
+    {% set rev = dashboard.revenue_stats %}
+
+    <section class="pharmacy-kpi-grid">
+
+        <article class="pharmacy-kpi orange">
+
+            <div class="pharmacy-kpi-top">
+                <span class="pharmacy-kpi-label">
+                    TOTAL ORDERS
+                </span>
+                <span class="pharmacy-kpi-icon">▤</span>
+            </div>
+
+            <div class="pharmacy-kpi-value">
+                {{ os.total_orders or 0 }}
+            </div>
+
+            <div class="pharmacy-kpi-note">
+                All registered pharmacy orders
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-kpi blue">
+
+            <div class="pharmacy-kpi-top">
+                <span class="pharmacy-kpi-label">
+                    TODAY'S ORDERS
+                </span>
+                <span class="pharmacy-kpi-icon">◷</span>
+            </div>
+
+            <div class="pharmacy-kpi-value">
+                {{ os.todays_orders or 0 }}
+            </div>
+
+            <div class="pharmacy-kpi-note">
+                Orders placed today
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-kpi red">
+
+            <div class="pharmacy-kpi-top">
+                <span class="pharmacy-kpi-label">
+                    PENDING ORDERS
+                </span>
+                <span class="pharmacy-kpi-icon">!</span>
+            </div>
+
+            <div class="pharmacy-kpi-value">
+                {{ os.pending_orders or 0 }}
+            </div>
+
+            <div class="pharmacy-kpi-note">
+                Awaiting pharmacist review
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-kpi green">
+
+            <div class="pharmacy-kpi-top">
+                <span class="pharmacy-kpi-label">
+                    MEDICINE CATALOGUE
+                </span>
+                <span class="pharmacy-kpi-icon">✚</span>
+            </div>
+
+            <div class="pharmacy-kpi-value">
+                {{ inv.total_medicines or 0 }}
+            </div>
+
+            <div class="pharmacy-kpi-note">
+                Medicine inventory records
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-kpi blue">
+
+            <div class="pharmacy-kpi-top">
+                <span class="pharmacy-kpi-label">
+                    TOTAL STOCK UNITS
+                </span>
+                <span class="pharmacy-kpi-icon">▦</span>
+            </div>
+
+            <div class="pharmacy-kpi-value">
+                {{ inv.total_units or 0 }}
+            </div>
+
+            <div class="pharmacy-kpi-note">
+                Units currently recorded
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-kpi orange">
+
+            <div class="pharmacy-kpi-top">
+                <span class="pharmacy-kpi-label">
+                    STOCK VALUATION
+                </span>
+                <span class="pharmacy-kpi-icon">₹</span>
+            </div>
+
+            <div class="pharmacy-kpi-value"
+                 style="font-size:23px">
+                ₹{{ "%.2f"|format(inv.stock_value or 0) }}
+            </div>
+
+            <div class="pharmacy-kpi-note">
+                Current quantity × unit price
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-kpi green">
+
+            <div class="pharmacy-kpi-top">
+                <span class="pharmacy-kpi-label">
+                    DELIVERED ORDER VALUE
+                </span>
+                <span class="pharmacy-kpi-icon">₹</span>
+            </div>
+
+            <div class="pharmacy-kpi-value"
+                 style="font-size:23px">
+                ₹{{ "%.2f"|format(rev.delivered_order_value or 0) }}
+            </div>
+
+            <div class="pharmacy-kpi-note">
+                Value of delivered orders
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-kpi red">
+
+            <div class="pharmacy-kpi-top">
+                <span class="pharmacy-kpi-label">
+                    OUT OF STOCK
+                </span>
+                <span class="pharmacy-kpi-icon">!</span>
+            </div>
+
+            <div class="pharmacy-kpi-value">
+                {{ inv.out_of_stock or 0 }}
+            </div>
+
+            <div class="pharmacy-kpi-note">
+                Medicines requiring replenishment
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =================================================
+         STOCK ALERTS
+    ================================================== -->
+
+    <div class="pharmacy-toolbar">
+
+        <div>
+            <h2 class="pharmacy-section-title">
+                Inventory Health
+            </h2>
+
+            <div class="pharmacy-section-subtitle">
+                Important medicine stock and expiry indicators
+            </div>
+        </div>
+
+    </div>
+
+    <section class="pharmacy-alert-grid">
+
+        <article class="pharmacy-alert danger">
+
+            <div class="pharmacy-alert-icon">!</div>
+
+            <div>
+                <strong>
+                    {{ inv.out_of_stock or 0 }}
+                </strong>
+                <span>Out of stock</span>
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-alert warning">
+
+            <div class="pharmacy-alert-icon">◷</div>
+
+            <div>
+                <strong>
+                    {{ inv.low_stock or 0 }}
+                </strong>
+                <span>Low stock</span>
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-alert warning">
+
+            <div class="pharmacy-alert-icon">▣</div>
+
+            <div>
+                <strong>
+                    {{ inv.expiring_soon or 0 }}
+                </strong>
+                <span>Expiring within 90 days</span>
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =================================================
+         CHARTS AND LOW STOCK
+    ================================================== -->
+
+    <section class="pharmacy-content-grid">
+
+        <article class="pharmacy-panel">
+
+            <div class="pharmacy-panel-header">
+
+                <div>
+                    <h3>Weekly Pharmacy Activity</h3>
+                    <p>Order volume over the last seven days</p>
+                </div>
+
+                <span class="pharmacy-status processing">
+                    LAST 7 DAYS
+                </span>
+
+            </div>
+
+            <div class="pharmacy-chart-wrap">
+                <canvas id="pharmacyActivityChart"></canvas>
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-panel">
+
+            <div class="pharmacy-panel-header">
+
+                <div>
+                    <h3>Low Stock Medicines</h3>
+                    <p>Items approaching their reorder level</p>
+                </div>
+
+            </div>
+
+            <div class="pharmacy-stock-list">
+
+                {% for item in dashboard.low_stock_items %}
+
+                    <div class="pharmacy-stock-item">
+
+                        <div class="pharmacy-stock-info">
+
+                            <div class="pharmacy-stock-name">
+                                {{ item.item_name }}
+                            </div>
+
+                            <div class="pharmacy-stock-meta">
+                                Reorder level:
+                                {{ item.reorder_level or 10 }}
+                                {{ item.unit }}
+                            </div>
+
+                        </div>
+
+                        <div class="pharmacy-stock-count">
+                            {{ item.quantity }}
+                            {{ item.unit }}
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="pharmacy-empty">
+                        <span class="pharmacy-empty-icon">✓</span>
+                        No low-stock medicines found.
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =================================================
+         RECENT ORDERS
+    ================================================== -->
+
+    <article class="pharmacy-panel"
+             style="margin-bottom:20px">
+
+        <div class="pharmacy-panel-header">
+
+            <div>
+                <h3>Recent Pharmacy Orders</h3>
+                <p>Latest patient medicine requests</p>
+            </div>
+
+            <a
+                href="{{ url_for('pharmacy.admin_orders') }}"
+                class="pharmacy-view-link"
+            >
+                VIEW ALL →
+            </a>
+
+        </div>
+
+        <div class="pharmacy-table-wrap">
+
+            <table class="pharmacy-table">
+
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Patient</th>
+                        <th>Delivery</th>
+                        <th>Order Value</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for order in dashboard.recent_orders %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                #{{ order.pharmacy_order_id }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            <span class="pharmacy-patient">
+                                {{ order.first_name }}
+                                {{ order.last_name }}
+                            </span>
+
+                            <span class="pharmacy-small">
+                                {{ order.phone or 'No phone recorded' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ order.delivery_method }}
+
+                            {% if order.delivery_location %}
+                                <span class="pharmacy-small">
+                                    {{ order.delivery_location }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            ₹{{ "%.2f"|format(order.subtotal or 0) }}
+                        </td>
+
+                        <td>
+                            <span class="pharmacy-status {{ order.order_status|lower }}">
+                                {{ order.order_status }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ order.ordered_at.strftime('%d %b %Y') if order.ordered_at else '—' }}
+
+                            <span class="pharmacy-small">
+                                {{ order.ordered_at.strftime('%I:%M %p') if order.ordered_at else '' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <a
+                                class="pharmacy-view-link"
+                                href="{{ url_for('pharmacy.admin_order_detail', order_id=order.pharmacy_order_id) }}"
+                            >
+                                DETAILS →
+                            </a>
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+                        <td colspan="7">
+
+                            <div class="pharmacy-empty">
+                                <span class="pharmacy-empty-icon">▤</span>
+                                No pharmacy orders have been placed yet.
+                            </div>
+
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </article>
+
+
+    <!-- =================================================
+         DELIVERY AND ORDER BREAKDOWN
+    ================================================== -->
+
+    <section class="pharmacy-content-grid">
+
+        <article class="pharmacy-panel">
+
+            <div class="pharmacy-panel-header">
+
+                <div>
+                    <h3>Delivery Channels</h3>
+                    <p>Breakdown by patient delivery preference</p>
+                </div>
+
+            </div>
+
+            <div class="pharmacy-delivery-list">
+
+                {% set delivery_total = dashboard.delivery_breakdown|sum(attribute='order_count') %}
+
+                {% for item in dashboard.delivery_breakdown %}
+
+                    <div>
+
+                        <div class="pharmacy-delivery-row">
+
+                            <span class="pharmacy-delivery-name">
+                                {{ item.delivery_method }}
+                            </span>
+
+                            <span class="pharmacy-delivery-value">
+                                {{ item.order_count }}
+                            </span>
+
+                        </div>
+
+                        <div class="pharmacy-progress">
+
+                            <span
+                                style="width:{{ ((item.order_count / delivery_total * 100) if delivery_total else 0)|round(1) }}%"
+                            ></span>
+
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="pharmacy-empty">
+                        No delivery activity recorded.
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-panel">
+
+            <div class="pharmacy-panel-header">
+
+                <div>
+                    <h3>Order Status Overview</h3>
+                    <p>Current distribution of pharmacy orders</p>
+                </div>
+
+            </div>
+
+            <div class="pharmacy-stock-list">
+
+                {% for item in dashboard.status_breakdown %}
+
+                    <div class="pharmacy-stock-item">
+
+                        <div class="pharmacy-stock-info">
+
+                            <div class="pharmacy-stock-name">
+                                {{ item.order_status }}
+                            </div>
+
+                        </div>
+
+                        <div class="pharmacy-stock-count">
+                            {{ item.order_count }}
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="pharmacy-empty">
+                        No order status information available.
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =================================================
+         EXPIRY MONITORING
+    ================================================== -->
+
+    <section class="pharmacy-content-grid">
+
+        <article class="pharmacy-panel">
+
+            <div class="pharmacy-panel-header">
+
+                <div>
+                    <h3>Expiring Medicines</h3>
+                    <p>Expiry dates within the next 90 days</p>
+                </div>
+
+            </div>
+
+            <div class="pharmacy-stock-list">
+
+                {% for item in dashboard.expiring_items %}
+
+                    <div class="pharmacy-stock-item">
+
+                        <div class="pharmacy-stock-info">
+
+                            <div class="pharmacy-stock-name">
+                                {{ item.item_name }}
+                            </div>
+
+                            <div class="pharmacy-stock-meta">
+                                Expires:
+                                {{ item.expiry_date.strftime('%d %b %Y') if item.expiry_date else 'Not recorded' }}
+                            </div>
+
+                        </div>
+
+                        <div class="pharmacy-stock-count">
+                            {{ item.quantity }}
+                            {{ item.unit }}
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="pharmacy-empty">
+                        <span class="pharmacy-empty-icon">✓</span>
+                        No medicines expiring within 90 days.
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </article>
+
+
+        <article class="pharmacy-panel">
+
+            <div class="pharmacy-panel-header">
+
+                <div>
+                    <h3>Expired Medicines</h3>
+                    <p>Items requiring immediate stock review</p>
+                </div>
+
+            </div>
+
+            <div class="pharmacy-stock-list">
+
+                {% for item in dashboard.expired_items %}
+
+                    <div class="pharmacy-stock-item">
+
+                        <div class="pharmacy-stock-info">
+
+                            <div class="pharmacy-stock-name">
+                                {{ item.item_name }}
+                            </div>
+
+                            <div class="pharmacy-stock-meta">
+                                Expired:
+                                {{ item.expiry_date.strftime('%d %b %Y') if item.expiry_date else 'Unknown' }}
+                            </div>
+
+                        </div>
+
+                        <div style="color:#ff646d;font-size:11px;font-weight:800">
+                            {{ item.quantity }} {{ item.unit }}
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="pharmacy-empty">
+                        <span class="pharmacy-empty-icon">✓</span>
+                        No expired medicines found.
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =================================================
+         FOOTER INFORMATION
+    ================================================== -->
+
+    <div class="pharmacy-footer-note">
+
+        <span>
+            <strong>MEDIVERA Pharmacy</strong>
+            &nbsp;|&nbsp; Intelligent medicine management
+        </span>
+
+        <span>
+            Stock is not deducted at order request.
+            Dispensing workflow will handle stock transactions.
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CHART.JS
+====================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const activityCanvas =
+        document.getElementById("pharmacyActivityChart");
+
+    if (!activityCanvas || typeof Chart === "undefined") {
+        return;
+    }
+
+    const activityData = [
+        {% for item in dashboard.daily_activity %}
+            {
+                date: "{{ item.order_date.strftime('%d %b') if item.order_date else '' }}",
+                count: {{ item.order_count or 0 }}
+            }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const labels = activityData.map(item => item.date);
+    const values = activityData.map(item => item.count);
+
+    new Chart(activityCanvas, {
+
+        type: "line",
+
+        data: {
+
+            labels: labels,
+
+            datasets: [{
+
+                label: "Orders",
+
+                data: values,
+
+                borderColor: "#ff922e",
+
+                backgroundColor: "rgba(255,146,46,.12)",
+
+                borderWidth: 3,
+
+                fill: true,
+
+                tension: .38,
+
+                pointRadius: 4,
+
+                pointHoverRadius: 6,
+
+                pointBackgroundColor: "#ff922e",
+
+                pointBorderColor: "#191c21"
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+                    display: false
+                },
+
+                tooltip: {
+                    backgroundColor: "#111316",
+                    titleColor: "#fff",
+                    bodyColor: "#ffb15c",
+                    padding: 12,
+                    displayColors: false
+                }
+
+            },
+
+            scales: {
+
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: "#9299a5",
+                        font: {
+                            size: 10
+                        }
+                    }
+                },
+
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0,
+                        color: "#9299a5",
+                        font: {
+                            size: 10
+                        }
+                    },
+                    grid: {
+                        color: "rgba(255,255,255,.055)"
+                    }
+                }
+
+            }
+
+        }
+
+    });
+
+});
+</script>
+{% endblock %}

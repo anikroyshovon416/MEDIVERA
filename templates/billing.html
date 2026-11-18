@@ -1,0 +1,464 @@
+{% extends "base.html" %}
+
+{% block title %}Billing Management | MediCare+{% endblock %}
+{% block breadcrumb %}Finance / Billing{% endblock %}
+{% block page_heading %}Billing Management{% endblock %}
+{% block page_subtitle %}Manage patient bills, payments and outstanding balances.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .billing-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .billing-stat {
+        background: #fff;
+        border: 1px solid #e9e2d8;
+        border-radius: 13px;
+        padding: 20px;
+    }
+
+    .billing-stat small {
+        color: #817773;
+        display: block;
+        margin-bottom: 9px;
+        font-size: 13px;
+    }
+
+    .billing-stat strong {
+        font-size: 25px;
+        color: #382d30;
+    }
+
+    .billing-layout {
+        display: grid;
+        grid-template-columns: minmax(280px, .85fr) minmax(0, 2fr);
+        gap: 22px;
+        align-items: start;
+    }
+
+    .billing-panel {
+        background: #fff;
+        border: 1px solid #e9e2d8;
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 22px;
+    }
+
+    .billing-panel h3 {
+        color: #542c37;
+        margin: 0 0 19px;
+        font-size: 18px;
+    }
+
+    .billing-field {
+        margin-bottom: 15px;
+    }
+
+    .billing-field label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #514747;
+    }
+
+    .billing-field .form-control {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .billing-search {
+        display: flex;
+        gap: 9px;
+        margin-bottom: 18px;
+    }
+
+    .billing-search input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .billing-table-wrap {
+        overflow-x: auto;
+    }
+
+    .billing-table {
+        width: 100%;
+        min-width: 850px;
+        border-collapse: collapse;
+    }
+
+    .billing-table th,
+    .billing-table td {
+        padding: 13px 11px;
+        text-align: left;
+        border-bottom: 1px solid #eee8e1;
+        font-size: 13px;
+        vertical-align: middle;
+    }
+
+    .billing-table th {
+        background: #f7f3ed;
+        color: #5b3a40;
+        font-weight: 700;
+    }
+
+    .billing-table td {
+        color: #514949;
+    }
+
+    .billing-status {
+        display: inline-block;
+        border-radius: 20px;
+        padding: 5px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: capitalize;
+    }
+
+    .billing-paid {
+        color: #267443;
+        background: #e5f3e9;
+    }
+
+    .billing-pending {
+        color: #93661c;
+        background: #fff2d8;
+    }
+
+    .billing-failed {
+        color: #a13e35;
+        background: #f8e8e6;
+    }
+
+    .billing-refunded {
+        color: #405b91;
+        background: #e8edf7;
+    }
+
+    .billing-actions {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+    }
+
+    .billing-actions form {
+        margin: 0;
+    }
+
+    .billing-actions .btn {
+        padding: 7px 10px;
+        font-size: 11px;
+        border: 0;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .billing-edit-btn {
+        background: #eee8dc;
+        color: #594334;
+    }
+
+    .billing-delete-btn {
+        background: #f8e8e6;
+        color: #a13e35;
+    }
+
+    .billing-empty {
+        padding: 35px 15px !important;
+        text-align: center !important;
+        color: #888 !important;
+    }
+
+    .billing-submit {
+        width: 100%;
+    }
+
+    @media(max-width: 1100px) {
+        .billing-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .billing-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media(max-width: 600px) {
+        .billing-stats {
+            gap: 10px;
+        }
+
+        .billing-stat {
+            padding: 14px;
+        }
+
+        .billing-search {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- BILLING SUMMARY -->
+<div class="billing-stats">
+
+    <div class="billing-stat">
+        <small>Total Bills</small>
+        <strong>{{ total_bills }}</strong>
+    </div>
+
+    <div class="billing-stat">
+        <small>Total Billed Amount</small>
+        <strong>₹{{ "%.2f"|format(total_revenue|float) }}</strong>
+    </div>
+
+    <div class="billing-stat">
+        <small>Collected Payments</small>
+        <strong>₹{{ "%.2f"|format(collected_amount|float) }}</strong>
+    </div>
+
+    <div class="billing-stat">
+        <small>Outstanding Amount</small>
+        <strong>₹{{ "%.2f"|format(pending_amount|float) }}</strong>
+    </div>
+
+</div>
+
+
+<div class="billing-layout">
+
+    <!-- CREATE BILL -->
+    <section class="billing-panel">
+
+        <h3>+ Create New Bill</h3>
+
+        <form action="{{ url_for('add_bill') }}" method="POST">
+
+            <div class="billing-field">
+                <label for="appointment_id">Select Appointment *</label>
+
+                <select
+                    name="appointment_id"
+                    id="appointment_id"
+                    class="form-control"
+                    required
+                >
+                    <option value="">Choose an appointment</option>
+
+                    {% for appointment in available_appointments %}
+                    <option value="{{ appointment.appointment_id }}">
+                        #{{ appointment.appointment_id }}
+                        — {{ appointment.patient_name }}
+                        — {{ appointment.appointment_date }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+            <div class="billing-field">
+                <label for="total_amount">Total Amount (₹) *</label>
+
+                <input
+                    type="number"
+                    name="total_amount"
+                    id="total_amount"
+                    class="form-control"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="Enter bill amount"
+                    required
+                >
+            </div>
+
+
+            <div class="billing-field">
+                <label for="payment_method">Payment Method *</label>
+
+                <select
+                    name="payment_method"
+                    id="payment_method"
+                    class="form-control"
+                    required
+                >
+                    <option value="">Select method</option>
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                    <option value="upi">UPI</option>
+                    <option value="insurance">Insurance</option>
+                </select>
+            </div>
+
+
+            <div class="billing-field">
+                <label for="payment_status">Initial Payment Status</label>
+
+                <select
+                    name="payment_status"
+                    id="payment_status"
+                    class="form-control"
+                    required
+                >
+                    <option value="pending" selected>Pending</option>
+                    <option value="paid">Paid in Full</option>
+                </select>
+            </div>
+
+
+            <button type="submit" class="btn billing-submit">
+                Create Bill
+            </button>
+
+        </form>
+
+        <p style="font-size:12px;color:#817773;margin-top:14px;">
+            A bill can only be created once for each appointment.
+        </p>
+
+    </section>
+
+
+    <!-- BILLING RECORDS -->
+    <section class="billing-panel">
+
+        <h3>Billing Records</h3>
+
+        <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:17px;">
+            <small><strong>Paid:</strong> {{ paid_bills }}</small>
+            <small><strong>Pending:</strong> {{ pending_bills }}</small>
+        </div>
+
+
+        <!-- SEARCH -->
+        <form
+            action="{{ url_for('billing') }}"
+            method="GET"
+            class="billing-search"
+        >
+
+            <input
+                type="text"
+                name="search"
+                class="form-control"
+                placeholder="Search bill ID, appointment, patient or status..."
+                value="{{ search_query }}"
+            >
+
+            <button type="submit" class="btn">Search</button>
+
+            {% if search_query %}
+            <a href="{{ url_for('billing') }}" class="btn billing-edit-btn">
+                Clear
+            </a>
+            {% endif %}
+
+        </form>
+
+
+        <!-- BILL TABLE -->
+        <div class="billing-table-wrap">
+
+            <table class="billing-table">
+
+                <thead>
+                    <tr>
+                        <th>Bill ID</th>
+                        <th>Patient</th>
+                        <th>Appointment</th>
+                        <th>Total</th>
+                        <th>Paid</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for bill in bills %}
+
+                    <tr>
+
+                        <td><strong>#{{ bill.bill_id }}</strong></td>
+
+                        <td>
+                            {{ bill.patient_name or 'Unknown' }}
+                        </td>
+
+                        <td>#{{ bill.appointment_id }}</td>
+
+                        <td>
+                            ₹{{ "%.2f"|format(bill.total_amount|float) }}
+                        </td>
+
+                        <td>
+                            ₹{{ "%.2f"|format(bill.total_paid|float) }}
+                        </td>
+
+                        <td>
+                            {{ bill.payment_method|replace('_', ' ')|title }}
+                        </td>
+
+                        <td>
+                            <span class="billing-status billing-{{ bill.payment_status }}">
+                                {{ bill.payment_status }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="billing-actions">
+
+                                <a
+                                    href="{{ url_for('edit_bill', bill_id=bill.bill_id) }}"
+                                    class="btn billing-edit-btn"
+                                >
+                                    View / Edit
+                                </a>
+
+                                <form
+                                    action="{{ url_for('delete_bill', bill_id=bill.bill_id) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this bill and its payment history?');"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="btn billing-delete-btn"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="8" class="billing-empty">
+                            No billing records found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

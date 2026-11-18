@@ -1,0 +1,96 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Backups and database exports
+*backup*
+*.bak
+*.dump
+*.sqlite3
+
+# Private files
+uploads/
+instance/
+
+# MEDIVERA private data and uploaded documents
+/instance/
+/uploads/
+/static/uploads/
+**/uploads/
+**/private_uploads/
+**/patient_documents/
+
+# Project backups and generated exports
+/backups/
+.medivera-backups/
+*.sql.bak
+*.log
+
+# Local database and sensitive exports
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+
+# Legacy standalone application (not used by run.py)
+/app.py
+/config.py
+
+# Previous foundation snapshot
+/MEDIVERA_FOUNDATION_PHASE1/
+
+# Historical source backups
+*.bak
+*.before*
+*_backup.py
+*_backup_*.py
+
+# Internal development audit and installation scripts
+*_audit.py
+*_audit.txt
+laboratory_blueprint_audit.txt
+laboratory_routes_audit.txt
+install_diagnostic_catalogue.py
+lab_foundation_install.py
+pharmacy_next_audit.py
+pharmacy_schema_audit.py
+
+# Previous foundation documentation and unused asset/template overlay
+/README_PHASE1.md
+/app/templates/
+/app/static/
+
+# Local development test helpers
+/lab_catalogue_helper_test.py

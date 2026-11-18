@@ -1,0 +1,195 @@
+
+{% extends "base.html" %}
+
+{% block title %}Laboratory Dashboard | MEDIVERA{% endblock %}
+{% block breadcrumb %}Laboratory Dashboard{% endblock %}
+{% block body_class %}laboratory-body{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/laboratory.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="lab-page">
+
+    <header class="lab-heading">
+        <div>
+            <div class="lab-eyebrow">MEDIVERA · DIAGNOSTICS</div>
+            <h1>Laboratory Overview</h1>
+            <p>Manage laboratory orders, process tests and maintain accurate patient results.</p>
+        </div>
+
+        <div class="lab-heading-actions">
+            <a href="{{ url_for('laboratory.technician_tests') }}"
+               class="lab-btn lab-btn-primary">
+                + Open Test Queue
+            </a>
+        </div>
+    </header>
+
+    <section class="lab-stats">
+
+        <article class="lab-stat" style="--stat-color:#ff922e">
+            <div class="lab-stat-top">
+                <span class="lab-stat-label">Total Tests</span>
+                <span class="lab-stat-icon">⚗</span>
+            </div>
+            <strong class="lab-stat-value">
+                {{ statistics.total_tests or 0 }}
+            </strong>
+            <span class="lab-stat-note">All laboratory orders</span>
+        </article>
+
+        <article class="lab-stat" style="--stat-color:#ffb44d">
+            <div class="lab-stat-top">
+                <span class="lab-stat-label">Pending Tests</span>
+                <span class="lab-stat-icon">◷</span>
+            </div>
+            <strong class="lab-stat-value">
+                {{ statistics.pending_tests or 0 }}
+            </strong>
+            <span class="lab-stat-note">Awaiting result entry or verification</span>
+        </article>
+
+        <article class="lab-stat" style="--stat-color:#25c281">
+            <div class="lab-stat-top">
+                <span class="lab-stat-label">Completed Tests</span>
+                <span class="lab-stat-icon">✓</span>
+            </div>
+            <strong class="lab-stat-value">
+                {{ statistics.completed_tests or 0 }}
+            </strong>
+            <span class="lab-stat-note">Verified and published results</span>
+        </article>
+
+        <article class="lab-stat" style="--stat-color:#ef5350">
+            <div class="lab-stat-top">
+                <span class="lab-stat-label">Cancelled Tests</span>
+                <span class="lab-stat-icon">×</span>
+            </div>
+            <strong class="lab-stat-value">
+                {{ statistics.cancelled_tests or 0 }}
+            </strong>
+            <span class="lab-stat-note">Cancelled laboratory orders</span>
+        </article>
+
+    </section>
+
+    <section class="lab-card">
+        <div class="lab-card-header">
+            <div>
+                <h2 class="lab-card-title">Pending Laboratory Queue</h2>
+                <p class="lab-card-subtitle">
+                    Test orders requiring laboratory attention
+                </p>
+            </div>
+
+            <a href="{{ url_for('laboratory.technician_tests') }}"
+               class="lab-btn lab-btn-secondary">
+                View All →
+            </a>
+        </div>
+
+        {% if pending_tests %}
+        <div class="lab-table-wrap">
+            <table class="lab-table">
+                <thead>
+                    <tr>
+                        <th>Test</th>
+                        <th>Patient</th>
+                        <th>Ordering Doctor</th>
+                        <th>Test Date</th>
+                        <th>Charge</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for test in pending_tests %}
+                    <tr>
+                        <td>
+                            <span class="lab-test-name">
+                                {{ test.test_name }}
+                            </span>
+                            <span class="lab-test-id">
+                                LAB-{{ "%05d"|format(test.test_id) }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="lab-person">
+                                {{ test.patient_name }}
+                            </span>
+                            <span class="lab-muted">
+                                {{ test.patient_phone or "No phone" }}
+                            </span>
+                        </td>
+
+                        <td>{{ test.doctor_name }}</td>
+
+                        <td>
+                            {{ test.test_date.strftime('%d %b %Y, %I:%M %p')
+                               if test.test_date else '—' }}
+                        </td>
+
+                        <td class="lab-price">
+                            ₹{{ "%.2f"|format(test.test_charge or 0) }}
+                        </td>
+
+                        <td>
+                            <span class="lab-status lab-status-pending">
+                                Pending
+                            </span>
+                        </td>
+
+                        <td>
+                            <a href="{{ url_for(
+                                'laboratory.technician_test_details',
+                                test_id=test.test_id
+                            ) }}" class="lab-btn lab-btn-primary">
+                                Open
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+        <div class="lab-empty">
+            <div class="lab-empty-icon">✓</div>
+            <strong>Laboratory queue is clear</strong>
+            No pending laboratory orders are currently available.
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="lab-card">
+        <div class="lab-card-header">
+            <div>
+                <h2 class="lab-card-title">Laboratory Guidelines</h2>
+                <p class="lab-card-subtitle">Important operational reminders</p>
+            </div>
+        </div>
+
+        <div class="lab-grid-2">
+            <div class="lab-info-box">
+                <strong>Accurate result entry</strong><br>
+                Enter results exactly as provided by the authorised testing
+                process. Include units and relevant observations.
+            </div>
+
+            <div class="lab-warning-box">
+                <strong>Doctor verification required</strong><br>
+                Saving a result does not publish it. The ordering doctor must
+                review and verify the result before it becomes visible to
+                the patient.
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

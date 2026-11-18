@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}My Account | MEDIVERA{% endblock %}
+{% block breadcrumb %}My Account{% endblock %}
+
+{% block extra_css %}
+<style>
+.account-page { max-width: 1000px; color: #f5f5f5; }
+.account-heading { margin-bottom: 24px; }
+.account-muted { color: #a5a7aa; }
+.account-card {
+    margin-bottom: 20px; padding: 25px;
+    border: 1px solid #30343a; border-radius: 16px;
+    background: linear-gradient(145deg, #22262b, #191c20);
+    box-shadow: 0 12px 30px rgba(0,0,0,.16);
+}
+.account-identity { display: flex; align-items: center; gap: 17px; margin-bottom: 23px; }
+.account-avatar {
+    display: grid; place-items: center; flex: 0 0 66px;
+    width: 66px; height: 66px; border-radius: 18px;
+    color: #fff; background: linear-gradient(135deg, #f47721, #a9440c);
+    font-size: 27px; font-weight: 800;
+}
+.account-identity h2 { margin: 0 0 5px; }
+.account-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.account-field {
+    min-width: 0; padding: 15px;
+    border: 1px solid #30343a; border-radius: 11px;
+    background: #1a1e22;
+}
+.account-field small { display: block; margin-bottom: 7px; color: #a5a7aa; font-size: 11px; }
+.account-field strong { overflow-wrap: anywhere; font-size: 14px; }
+.account-status { color: #43d49a; }
+.account-role-list { display: flex; flex-wrap: wrap; gap: 9px; }
+.account-role {
+    padding: 7px 11px; border: 1px solid rgba(244,119,33,.25);
+    border-radius: 30px; color: #ffad72;
+    background: rgba(244,119,33,.09);
+    font-size: 11px; font-weight: 700;
+}
+@media (max-width: 600px) {
+    .account-grid { grid-template-columns: 1fr; }
+    .account-card { padding: 18px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="account-page">
+    <header class="account-heading">
+        <h1>My Account</h1>
+        <p class="account-muted">
+            Your MEDIVERA sign-in identity and account information.
+        </p>
+    </header>
+
+    <section class="account-card">
+        <div class="account-identity">
+            <div class="account-avatar" aria-hidden="true">
+                {{ (current_user.username or 'U')[:1]|upper }}
+            </div>
+            <div>
+                <h2>{{ current_user.username or 'MEDIVERA User' }}</h2>
+                <span class="account-muted">Account ID: {{ current_user.user_id }}</span>
+            </div>
+        </div>
+
+        <div class="account-grid">
+            <div class="account-field">
+                <small>Username</small>
+                <strong>{{ current_user.username or 'Not available' }}</strong>
+            </div>
+            <div class="account-field">
+                <small>Email address</small>
+                <strong>{{ current_user.email or 'Not provided' }}</strong>
+            </div>
+            <div class="account-field">
+                <small>Account status</small>
+                <strong class="account-status">
+                    {{ 'Active' if current_user.is_active else 'Inactive' }}
+                </strong>
+            </div>
+            <div class="account-field">
+                <small>Linked patient record</small>
+                <strong>{{ current_user.patient_id or 'No patient record linked' }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="account-card">
+        <h2>Assigned roles</h2>
+        {% if roles %}
+            <div class="account-role-list">
+                {% for role in roles %}
+                    <span class="account-role">
+                        {{ role|replace('_', ' ')|title }}
+                    </span>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="account-muted">No roles are currently assigned.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

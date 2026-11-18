@@ -1,0 +1,321 @@
+
+{% extends "base.html" %}
+
+{% block title %}My Appointments | MEDIVERA{% endblock %}
+{% block breadcrumb %}My Appointments{% endblock %}
+{% block body_class %}patient-portal-body{% endblock %}
+
+{% block extra_css %}
+<style>
+.appointments-page {
+    --a-bg: #1d2025;
+    --a-panel: #252a31;
+    --a-border: #373e48;
+    --a-text: #f4f5f7;
+    --a-muted: #a8afb9;
+    --a-orange: #f47721;
+    --a-green: #36c58b;
+    --a-red: #f06b6b;
+    color: var(--a-text);
+    max-width: 1500px;
+    margin: auto;
+}
+.appointments-page * { box-sizing: border-box; }
+.ap-hero {
+    padding: 30px;
+    border: 1px solid rgba(244,119,33,.25);
+    border-radius: 20px;
+    background: radial-gradient(circle at 90% 10%,rgba(244,119,33,.17),transparent 35%),linear-gradient(120deg,#292d34,#1d2025);
+    margin-bottom: 24px;
+}
+.ap-eyebrow {
+    color: #ffad72;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+.ap-hero h1 { margin: 10px 0; font-size: clamp(25px,4vw,34px); }
+.ap-hero p { color: #bdc2ca; font-size: 13px; line-height: 1.7; margin: 0; }
+.ap-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+.ap-button {
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:42px; padding:0 17px; border-radius:10px;
+    border:1px solid transparent; font-size:11px; font-weight:800;
+    text-decoration:none; cursor:pointer; transition:.2s;
+}
+.ap-button-primary { background:var(--a-orange); color:#fff; }
+.ap-button-primary:hover { background:#ff9148; transform:translateY(-2px); }
+.ap-button-secondary { border-color:var(--a-border); background:#292e36; color:#fff; }
+.ap-button-secondary:hover { border-color:var(--a-orange); }
+.ap-summary {
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:13px; margin-bottom:22px;
+}
+.ap-summary-card {
+    padding:18px; border:1px solid var(--a-border);
+    border-radius:14px; background:var(--a-panel);
+}
+.ap-summary-card span { display:block; color:var(--a-muted); font-size:11px; }
+.ap-summary-card strong { display:block; margin-top:8px; font-size:27px; }
+.ap-toolbar {
+    display:flex; justify-content:space-between; align-items:center;
+    gap:14px; flex-wrap:wrap; margin:25px 0 15px;
+}
+.ap-toolbar h2 { margin:0; font-size:18px; }
+.ap-toolbar p { margin:5px 0 0; color:var(--a-muted); font-size:11px; }
+.ap-filters { display:flex; gap:9px; flex-wrap:wrap; }
+.ap-search, .ap-filter {
+    min-height:39px; padding:0 12px; color:#fff;
+    border:1px solid var(--a-border); border-radius:9px;
+    background:#252a31; font:inherit; font-size:11px;
+}
+.ap-search { width:min(240px,100%); }
+.ap-filter:focus, .ap-search:focus {
+    outline:2px solid rgba(244,119,33,.45); border-color:var(--a-orange);
+}
+.ap-list { display:grid; gap:12px; }
+.ap-card {
+    display:grid; grid-template-columns:55px minmax(0,1fr) auto;
+    align-items:center; gap:15px; padding:18px;
+    border:1px solid var(--a-border); border-radius:15px;
+    background:linear-gradient(145deg,#272c33,#202329);
+}
+.ap-date-icon {
+    width:52px; height:54px; display:grid; place-items:center;
+    border-radius:13px; background:rgba(244,119,33,.13);
+    color:#ffad72; font-size:22px;
+}
+.ap-details { min-width:0; }
+.ap-details h3 { margin:0 0 5px; font-size:13px; }
+.ap-details p { margin:4px 0; color:var(--a-muted); font-size:10px; line-height:1.6; }
+.ap-reason { color:#d1d5dc !important; overflow-wrap:anywhere; }
+.ap-side { display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+.ap-status {
+    display:inline-flex; padding:6px 10px; border-radius:30px;
+    background:rgba(230,183,93,.13); color:#edc776;
+    font-size:9px; font-weight:800; text-transform:capitalize;
+    white-space:nowrap;
+}
+.ap-status.confirmed, .ap-status.completed {
+    background:rgba(54,197,139,.13); color:#68dcae;
+}
+.ap-status.cancelled, .ap-status.rejected {
+    background:rgba(240,107,107,.13); color:#ff9292;
+}
+.ap-status.pending-approval, .ap-status.pending, .ap-status.scheduled {
+    background:rgba(230,183,93,.13); color:#edc776;
+}
+.ap-cancel-form { margin:0; }
+.ap-cancel {
+    padding:7px 10px; border:1px solid rgba(240,107,107,.35);
+    border-radius:8px; background:rgba(240,107,107,.08);
+    color:#ff9292; font-size:9px; font-weight:800; cursor:pointer;
+}
+.ap-cancel:hover { background:rgba(240,107,107,.18); }
+.ap-empty {
+    padding:45px 20px; border:1px dashed var(--a-border);
+    border-radius:15px; background:var(--a-panel);
+    text-align:center; color:var(--a-muted);
+}
+.ap-empty-icon { display:block; margin-bottom:12px; font-size:32px; color:#ffad72; }
+.ap-empty h3 { margin:0 0 8px; color:#fff; font-size:15px; }
+.ap-empty p { font-size:11px; line-height:1.7; }
+.ap-empty .ap-button { margin-top:10px; }
+.ap-hidden { display:none !important; }
+@media(max-width:700px) {
+    .ap-hero { padding:22px; }
+    .ap-summary { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+    .ap-summary-card { padding:12px; }
+    .ap-summary-card span { font-size:9px; }
+    .ap-summary-card strong { font-size:22px; }
+    .ap-card { grid-template-columns:43px minmax(0,1fr); gap:11px; padding:14px; }
+    .ap-date-icon { width:41px; height:43px; font-size:18px; }
+    .ap-side { grid-column:2; align-items:flex-start; flex-direction:row; flex-wrap:wrap; }
+    .ap-toolbar { align-items:flex-start; flex-direction:column; }
+    .ap-filters { width:100%; }
+    .ap-search { flex:1; min-width:120px; }
+    .ap-filter { flex:1; }
+}
+@media(max-width:380px) {
+    .ap-summary { grid-template-columns:1fr; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .appointments-page * { transition:none !important; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="appointments-page">
+
+    <section class="ap-hero">
+        <div class="ap-eyebrow">MEDIVERA PATIENT SERVICES</div>
+        <h1>My Appointments</h1>
+        <p>
+            Manage your doctor visits, review appointment details
+            and follow the status of your consultation requests.
+        </p>
+        <div class="ap-actions">
+            <a class="ap-button ap-button-primary"
+               href="{{ url_for('patient.book_appointment') }}">
+                + Book an appointment
+            </a>
+            <a class="ap-button ap-button-secondary"
+               href="{{ url_for('patient.dashboard') }}">
+                Back to dashboard
+            </a>
+        </div>
+    </section>
+
+    {% set total_count = appointments|length if appointments else 0 %}
+    {% set active_count = namespace(value=0) %}
+    {% set completed_count = namespace(value=0) %}
+
+    {% for item in appointments or [] %}
+        {% set current_status = item.status|lower %}
+        {% if current_status in ['pending_approval','pending','scheduled','confirmed'] %}
+            {% set active_count.value = active_count.value + 1 %}
+        {% elif current_status == 'completed' %}
+            {% set completed_count.value = completed_count.value + 1 %}
+        {% endif %}
+    {% endfor %}
+
+    <section class="ap-summary" aria-label="Appointment summary">
+        <article class="ap-summary-card">
+            <span>Total appointments</span>
+            <strong>{{ total_count }}</strong>
+        </article>
+        <article class="ap-summary-card">
+            <span>Active appointments</span>
+            <strong>{{ active_count.value }}</strong>
+        </article>
+        <article class="ap-summary-card">
+            <span>Completed visits</span>
+            <strong>{{ completed_count.value }}</strong>
+        </article>
+    </section>
+
+    <section>
+        <div class="ap-toolbar">
+            <div>
+                <h2>Appointment history</h2>
+                <p>Search and filter your appointment records.</p>
+            </div>
+            <div class="ap-filters">
+                <input id="appointmentSearch" class="ap-search"
+                       type="search" placeholder="Search doctor or reason..."
+                       aria-label="Search appointments">
+                <select id="appointmentStatus" class="ap-filter"
+                        aria-label="Filter by appointment status">
+                    <option value="all">All statuses</option>
+                    <option value="pending_approval">Pending approval</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+        </div>
+
+        {% if appointments %}
+            <div class="ap-list" id="appointmentList">
+                {% for appointment in appointments %}
+                    {% set normalized_status = appointment.status|lower %}
+                    <article class="ap-card appointment-item"
+                             data-status="{{ normalized_status }}"
+                             data-search="{{ (appointment.doctor_name ~ ' ' ~ (appointment.specialization or '') ~ ' ' ~ (appointment.reason or ''))|lower }}">
+
+                        <div class="ap-date-icon" aria-hidden="true">▦</div>
+
+                        <div class="ap-details">
+                            <h3>{{ appointment.doctor_name or 'Assigned doctor' }}</h3>
+                            <p>{{ appointment.specialization or 'Medical specialist' }}</p>
+                            <p>
+                                <strong>Date:</strong>
+                                {{ appointment.appointment_date }}
+                                {% if appointment.appointment_time %}
+                                    &nbsp;·&nbsp; {{ appointment.appointment_time }}
+                                {% endif %}
+                            </p>
+                            {% if appointment.reason %}
+                                <p class="ap-reason">
+                                    <strong>Reason:</strong> {{ appointment.reason }}
+                                </p>
+                            {% endif %}
+                            <p>Appointment reference: #{{ appointment.appointment_id }}</p>
+                        </div>
+
+                        <div class="ap-side">
+                            <span class="ap-status {{ normalized_status|replace('_','-') }}">
+                                {{ appointment.status|replace('_',' ') }}
+                            </span>
+
+                            {% if normalized_status in ['pending_approval','pending','scheduled','confirmed'] %}
+                                <form class="ap-cancel-form"
+                                      method="POST"
+                                      action="{{ url_for('patient.cancel_appointment', appointment_id=appointment.appointment_id) }}"
+                                      onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+                                    <input type="hidden" name="csrf_token"
+                                           value="{{ csrf_token() }}">
+                                    <button class="ap-cancel" type="submit">
+                                        Cancel appointment
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            <div class="ap-empty ap-hidden" id="appointmentNoResults">
+                <span class="ap-empty-icon">⌕</span>
+                <h3>No matching appointments</h3>
+                <p>Try another search term or status filter.</p>
+            </div>
+        {% else %}
+            <div class="ap-empty">
+                <span class="ap-empty-icon">◷</span>
+                <h3>No appointments yet</h3>
+                <p>Your appointment history will appear here after you book a consultation.</p>
+                <a class="ap-button ap-button-primary"
+                   href="{{ url_for('patient.book_appointment') }}">
+                    Book your first appointment
+                </a>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const search = document.getElementById("appointmentSearch");
+    const status = document.getElementById("appointmentStatus");
+    const items = Array.from(document.querySelectorAll(".appointment-item"));
+    const empty = document.getElementById("appointmentNoResults");
+
+    function filterAppointments() {
+        const query = (search?.value || "").trim().toLowerCase();
+        const selectedStatus = status?.value || "all";
+        let visible = 0;
+
+        items.forEach(function (item) {
+            const matchesText = (item.dataset.search || "").includes(query);
+            const matchesStatus = selectedStatus === "all" ||
+                item.dataset.status === selectedStatus;
+            const show = matchesText && matchesStatus;
+
+            item.classList.toggle("ap-hidden", !show);
+            if (show) visible++;
+        });
+
+        if (empty) empty.classList.toggle("ap-hidden", visible !== 0);
+    }
+
+    search?.addEventListener("input", filterAppointments);
+    status?.addEventListener("change", filterAppointments);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,333 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Examine Prescription | MEDIVERA{% endblock %}
+
+{% block content %}
+<style>
+.rx-view {
+    color:#f4f4f5;
+    --orange:#f39a32;
+    --muted:#a1a1aa;
+}
+.rx-view .topbar {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:22px;
+}
+.rx-view h1 {
+    font-size:25px;
+    font-weight:800;
+    margin:5px 0;
+}
+.rx-view .muted {
+    color:var(--muted);
+    font-size:13px;
+}
+.rx-view .back,
+.rx-view .download {
+    display:inline-block;
+    padding:11px 15px;
+    border-radius:9px;
+    text-decoration:none;
+    font-weight:750;
+}
+.rx-view .back {
+    color:#eee;
+    border:1px solid #454a54;
+}
+.rx-view .download {
+    background:var(--orange);
+    color:#171717;
+}
+.rx-view .layout {
+    display:grid;
+    grid-template-columns:minmax(0,1.65fr) minmax(280px,.85fr);
+    gap:18px;
+    align-items:start;
+}
+.rx-view .panel {
+    background:linear-gradient(145deg,#22252b,#191b20);
+    border:1px solid #373b44;
+    border-radius:15px;
+    padding:19px;
+    margin-bottom:17px;
+}
+.rx-view .panel h2 {
+    font-size:16px;
+    margin:0 0 16px;
+}
+.rx-view .viewer {
+    background:#101114;
+    border:1px solid #393d45;
+    border-radius:12px;
+    min-height:650px;
+    overflow:hidden;
+}
+.rx-view iframe {
+    width:100%;
+    height:750px;
+    border:0;
+    background:#fff;
+}
+.rx-view .image-preview {
+    width:100%;
+    height:auto;
+    max-height:850px;
+    object-fit:contain;
+    display:block;
+    margin:auto;
+}
+.rx-view .file-fallback {
+    min-height:300px;
+    display:grid;
+    place-content:center;
+    text-align:center;
+    padding:25px;
+    color:#c6c6c6;
+}
+.rx-view .info-row {
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:11px 0;
+    border-bottom:1px solid #383c44;
+    font-size:13px;
+}
+.rx-view .info-row:last-child {
+    border-bottom:0;
+}
+.rx-view .info-row span:first-child {
+    color:var(--muted);
+}
+.rx-view .info-row strong {
+    text-align:right;
+    overflow-wrap:anywhere;
+}
+.rx-view .review-notice {
+    border:1px solid #a66b2f;
+    background:#f39a3214;
+    border-radius:11px;
+    padding:15px;
+    color:#ffd39b;
+    font-size:13px;
+    line-height:1.6;
+}
+.rx-view .order-card {
+    border:1px solid #3b4049;
+    border-radius:10px;
+    padding:13px;
+    margin-top:10px;
+}
+.rx-view .order-card strong {
+    color:#ffb45b;
+}
+@media(max-width:950px) {
+    .rx-view .layout {
+        grid-template-columns:1fr;
+    }
+    .rx-view .viewer {
+        min-height:400px;
+    }
+    .rx-view iframe {
+        height:600px;
+    }
+}
+</style>
+
+<div class="rx-view">
+
+    <div class="topbar">
+        <div>
+            <div class="muted">PHARMACY / PRESCRIPTION REVIEW</div>
+            <h1>Prescription Examination</h1>
+            <div class="muted">
+                Document #{{ prescription.document_id }}
+                · Patient #{{ prescription.patient_id }}
+            </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <a class="back"
+               href="{{ url_for('pharmacy.admin_prescriptions') }}">
+                ← Back to queue
+            </a>
+
+            <a class="download"
+               href="{{ url_for(
+                   'pharmacy.admin_prescription_download',
+                   document_id=prescription.document_id
+               ) }}">
+                Download document
+            </a>
+        </div>
+    </div>
+
+    <div class="layout">
+
+        <section class="panel">
+            <h2>Prescription document</h2>
+
+            <div class="viewer">
+
+                {% if extension == 'PDF' %}
+                    <iframe
+                        src="{{ url_for(
+                            'pharmacy.admin_prescription_file',
+                            document_id=prescription.document_id
+                        ) }}"
+                        title="Private prescription PDF preview">
+                    </iframe>
+
+                {% elif extension in ['PNG', 'JPG', 'JPEG', 'WEBP'] %}
+                    <img
+                        class="image-preview"
+                        src="{{ url_for(
+                            'pharmacy.admin_prescription_file',
+                            document_id=prescription.document_id
+                        ) }}"
+                        alt="Patient prescription document">
+
+                {% else %}
+                    <div class="file-fallback">
+                        <h3>Preview unavailable</h3>
+                        <p>Download the document to examine it.</p>
+                    </div>
+                {% endif %}
+
+            </div>
+        </section>
+
+        <aside>
+
+            <section class="panel">
+                <h2>Patient information</h2>
+
+                <div class="info-row">
+                    <span>Patient name</span>
+                    <strong>
+                        {{ prescription.first_name }}
+                        {{ prescription.last_name }}
+                    </strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Patient ID</span>
+                    <strong>{{ prescription.patient_id }}</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Phone</span>
+                    <strong>{{ prescription.phone or 'Not available' }}</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Email</span>
+                    <strong>{{ prescription.email or 'Not available' }}</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Blood group</span>
+                    <strong>{{ prescription.blood_group or 'Not recorded' }}</strong>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Document information</h2>
+
+                <div class="info-row">
+                    <span>Document ID</span>
+                    <strong>#{{ prescription.document_id }}</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Original filename</span>
+                    <strong>{{ prescription.original_filename }}</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Format</span>
+                    <strong>{{ extension }}</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>File size</span>
+                    <strong>{{ (file_size / 1024)|round(1) }} KB</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Uploaded by</span>
+                    <strong>{{ prescription.uploaded_by or 'Patient account' }}</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Upload date</span>
+                    <strong>
+                        {% if prescription.created_at %}
+                            {{ prescription.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Linked pharmacy orders</h2>
+
+                {% for order in linked_orders %}
+                    <div class="order-card">
+                        <strong>
+                            Order #{{ order.pharmacy_order_id }}
+                        </strong>
+
+                        <div class="muted" style="margin-top:7px;">
+                            Status: {{ order.order_status }}
+                        </div>
+
+                        <div class="muted">
+                            Delivery: {{ order.delivery_method }}
+                        </div>
+
+                        <div class="muted">
+                            Amount: ₹{{ order.subtotal }}
+                        </div>
+
+                        <a href="{{ url_for(
+                            'pharmacy.admin_order_detail',
+                            order_id=order.pharmacy_order_id
+                        ) }}"
+                           style="display:inline-block;margin-top:10px;color:#ffb45b;">
+                            Open pharmacy order →
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="muted">
+                        No pharmacy order is linked to this prescription.
+                    </p>
+                {% endfor %}
+            </section>
+
+            <section class="review-notice">
+                <strong>Review status: Awaiting Review</strong>
+
+                <p>
+                    This version provides secure document examination only.
+                    Approval, rejection and clinical review decisions are
+                    not saved because the existing database has no review
+                    status or review-history fields.
+                </p>
+
+                <p>
+                    Do not dispense or approve an order solely because
+                    a prescription document has been uploaded.
+                </p>
+            </section>
+
+        </aside>
+    </div>
+</div>
+{% endblock %}

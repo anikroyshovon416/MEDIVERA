@@ -1,0 +1,70 @@
+﻿{% extends "admin/base_admin.html" %}
+{% block title %}Staff Profile | MEDIVERA{% endblock %}
+
+{% block content %}
+<style>
+.staff-detail{color:#f4f4f5}
+.staff-detail .hero,.staff-detail .panel{background:#202023;border:1px solid #39393d;border-radius:18px;padding:23px;margin-bottom:18px}
+.staff-detail .hero{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.staff-detail h1{font-size:27px;margin:5px 0}
+.staff-detail h2{font-size:17px;margin:0 0 18px}
+.staff-detail .muted{color:#a1a1aa}
+.staff-detail .btn{display:inline-block;padding:11px 16px;border-radius:9px;text-decoration:none;font-weight:800}
+.staff-detail .primary{background:#f28b28;color:#171717}
+.staff-detail .secondary{background:#35353a;color:#eee}
+.staff-detail .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.staff-detail .item{padding:14px;background:#171719;border:1px solid #333338;border-radius:11px;min-width:0}
+.staff-detail .item small{display:block;color:#999;margin-bottom:7px}
+.staff-detail .item strong{overflow-wrap:anywhere}
+.staff-detail .pill{display:inline-block;padding:5px 10px;border-radius:25px;font-size:11px;font-weight:800;text-transform:capitalize}
+.staff-detail .active{background:#143c2c;color:#66e3a1}
+.staff-detail .inactive{background:#482326;color:#ff9292}
+@media(max-width:750px){.staff-detail .grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){.staff-detail .grid{grid-template-columns:1fr}}
+</style>
+
+<div class="staff-detail">
+    <section class="hero">
+        <div>
+            <div class="muted">MEDIVERA / EMPLOYEE PROFILE</div>
+            <h1>{{ staff_member.staff_name }}</h1>
+            <div class="muted">{{ staff_member.designation }} · {{ staff_member.department_name or 'Department unassigned' }}</div>
+        </div>
+        <div>
+            <a class="btn primary" href="{{ url_for('admin.edit_staff', staff_id=staff_member.staff_id) }}">Edit Profile</a>
+            <a class="btn secondary" href="{{ url_for('admin.staff') }}">Back to Directory</a>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Employee Information</h2>
+        <div class="grid">
+            <div class="item"><small>Staff ID</small><strong>#{{ staff_member.staff_id }}</strong></div>
+            <div class="item"><small>Full name</small><strong>{{ staff_member.staff_name }}</strong></div>
+            <div class="item"><small>Designation</small><strong>{{ staff_member.designation }}</strong></div>
+            <div class="item"><small>Gender</small><strong>{{ staff_member.gender|capitalize if staff_member.gender else 'Not specified' }}</strong></div>
+            <div class="item"><small>Department</small><strong>{{ staff_member.department_name or 'Unassigned' }}</strong></div>
+            <div class="item"><small>Employment status</small><strong><span class="pill {{ staff_member.employment_status }}">{{ staff_member.employment_status }}</span></strong></div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Contact and Employment Details</h2>
+        <div class="grid">
+            <div class="item"><small>Phone</small><strong>{{ staff_member.phone or 'Not provided' }}</strong></div>
+            <div class="item"><small>Email</small><strong>{{ staff_member.email or 'Not provided' }}</strong></div>
+            <div class="item"><small>Joining date</small><strong>{{ staff_member.joining_date or 'Not recorded' }}</strong></div>
+            <div class="item"><small>Salary</small><strong>{% if staff_member.salary is not none %}₹{{ "%.2f"|format(staff_member.salary) }}{% else %}Not recorded{% endif %}</strong></div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Linked System Account</h2>
+        <div class="grid">
+            <div class="item"><small>Account username</small><strong>{{ staff_member.account_username or 'No linked account' }}</strong></div>
+            <div class="item"><small>Account email</small><strong>{{ staff_member.account_email or 'Not available' }}</strong></div>
+            <div class="item"><small>Account status</small><strong>{% if staff_member.user_id %}{{ 'Active' if staff_member.account_active else 'Inactive' }}{% else %}No linked account{% endif %}</strong></div>
+        </div>
+    </section>
+</div>
+{% endblock %}

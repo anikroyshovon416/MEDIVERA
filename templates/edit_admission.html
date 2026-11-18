@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Admission | MediCare+{% endblock %}
+
+{% block breadcrumb %}Hospital Management / Admissions / Edit{% endblock %}
+
+{% block page_heading %}Edit Admission{% endblock %}
+
+{% block page_subtitle %}
+Update patient admission details, room assignment and status.
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-admission-container {
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    .edit-admission-panel {
+        background: #fff;
+        border: 1px solid #e9e2d8;
+        border-radius: 14px;
+        padding: 28px;
+    }
+
+    .edit-admission-panel h3 {
+        color: #542c37;
+        margin: 0 0 22px;
+        font-size: 19px;
+    }
+
+    .edit-admission-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .edit-admission-field {
+        margin-bottom: 18px;
+    }
+
+    .edit-admission-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .edit-admission-field label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #514747;
+    }
+
+    .edit-admission-field .form-control {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .edit-admission-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    .edit-admission-buttons .btn {
+        min-width: 140px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .edit-admission-note {
+        background: #f7f3ed;
+        border-left: 4px solid #754653;
+        padding: 12px 15px;
+        margin-bottom: 22px;
+        border-radius: 5px;
+        color: #665b55;
+        font-size: 13px;
+    }
+
+    @media (max-width: 650px) {
+        .edit-admission-grid {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .edit-admission-field.full-width {
+            grid-column: auto;
+        }
+
+        .edit-admission-panel {
+            padding: 18px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="edit-admission-container">
+
+    <section class="edit-admission-panel">
+
+        <h3>Admission Information — #{{ admission.admission_id }}</h3>
+
+        <div class="edit-admission-note">
+            Update the information below and save your changes.
+            Rooms marked as occupied or under maintenance cannot be assigned
+            to a different active admission.
+        </div>
+
+
+        <form
+            action="{{ url_for('edit_admission', admission_id=admission.admission_id) }}"
+            method="POST"
+        >
+
+            <div class="edit-admission-grid">
+
+                <!-- PATIENT -->
+                <div class="edit-admission-field">
+
+                    <label for="patient_id">Patient *</label>
+
+                    <select
+                        name="patient_id"
+                        id="patient_id"
+                        class="form-control"
+                        required
+                    >
+
+                        {% for patient in patients %}
+
+                        <option
+                            value="{{ patient.patient_id }}"
+                            {% if patient.patient_id == admission.patient_id %}selected{% endif %}
+                        >
+                            {{ patient.first_name }} {{ patient.last_name }}
+                            (ID: {{ patient.patient_id }})
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- ROOM -->
+                <div class="edit-admission-field">
+
+                    <label for="room_id">Room *</label>
+
+                    <select
+                        name="room_id"
+                        id="room_id"
+                        class="form-control"
+                        required
+                    >
+
+                        {% for room in rooms %}
+
+                        <option
+                            value="{{ room.room_id }}"
+                            {% if room.room_id == admission.room_id %}selected{% endif %}
+                            {% if room.room_status != 'available' and room.room_id != admission.room_id %}disabled{% endif %}
+                        >
+                            {{ room.room_number }} - {{ room.room_type }}
+                            ({{ room.room_status|replace('_', ' ')|title }})
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- ADMISSION DATE -->
+                <div class="edit-admission-field">
+
+                    <label for="admission_date">Admission Date & Time *</label>
+
+                    <input
+                        type="datetime-local"
+                        name="admission_date"
+                        id="admission_date"
+                        class="form-control"
+                        value="{{ admission.admission_date.strftime('%Y-%m-%dT%H:%M') if admission.admission_date else '' }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- STATUS -->
+                <div class="edit-admission-field">
+
+                    <label for="admission_status">Admission Status *</label>
+
+                    <select
+                        name="admission_status"
+                        id="admission_status"
+                        class="form-control"
+                        required
+                    >
+
+                        <option
+                            value="admitted"
+                            {% if admission.admission_status == 'admitted' %}selected{% endif %}
+                        >
+                            Admitted
+                        </option>
+
+                        <option
+                            value="discharged"
+                            {% if admission.admission_status == 'discharged' %}selected{% endif %}
+                        >
+                            Discharged
+                        </option>
+
+                        <option
+                            value="cancelled"
+                            {% if admission.admission_status == 'cancelled' %}selected{% endif %}
+                        >
+                            Cancelled
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- REASON -->
+                <div class="edit-admission-field full-width">
+
+                    <label for="admission_reason">Admission Reason *</label>
+
+                    <textarea
+                        name="admission_reason"
+                        id="admission_reason"
+                        class="form-control"
+                        rows="4"
+                        required
+                    >{{ admission.admission_reason }}</textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+            <div class="edit-admission-buttons">
+
+                <button type="submit" class="btn">
+                    Save Changes
+                </button>
+
+                <a
+                    href="{{ url_for('admissions') }}"
+                    class="btn btn-edit-admission"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

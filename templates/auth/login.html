@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101113">
+    <meta name="description"
+          content="Secure access to MEDIVERA Smart Healthcare Management System.">
+
+    <title>Sign In | MEDIVERA</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/auth/login.css') }}">
+
+    <script src="{{ url_for('static', filename='js/auth/login.js') }}"
+            defer></script>
+</head>
+
+<body>
+    <div class="login-page">
+
+        <!-- Background decoration -->
+        <div class="background-grid" aria-hidden="true"></div>
+        <div class="ambient-glow ambient-glow-one" aria-hidden="true"></div>
+        <div class="ambient-glow ambient-glow-two" aria-hidden="true"></div>
+
+        <!-- Main brand and hero section -->
+        <main class="hero-section">
+
+            <header class="brand-header">
+                <a class="brand-logo"
+   href="{{ url_for('auth.login') }}"
+   aria-label="MEDIVERA home">
+    <img
+        src="{{ url_for('static', filename='images/branding/medivera-logo.png') }}"
+        alt="MEDIVERA — Smart Healthcare Management"
+        class="medivera-brand-logo"
+    >
+</a>
+
+                <div class="header-status">
+                    <span class="status-indicator"></span>
+                    <span>CONNECTED CARE PLATFORM</span>
+                </div>
+            </header>
+
+            <section class="hero-content">
+
+                <div class="hero-copy">
+                    <p class="hero-eyebrow">
+                        <span class="eyebrow-line"></span>
+                        INTELLIGENCE. INNOVATION. CARE.
+                    </p>
+
+                    <h1>
+                        The Future of Healthcare,
+                        <span>Connected.</span>
+                    </h1>
+
+                    <p class="hero-description">
+                        Where intelligent technology meets compassionate care.
+                        Bringing patients, doctors and healthcare teams together
+                        through one connected experience.
+                    </p>
+                </div>
+
+                <!-- Doctor and patient visual -->
+                <div class="hero-visual" id="heroVisual">
+
+                    <div class="visual-frame">
+                        <div class="visual-topline">
+                            <span class="visual-label">
+                                <span class="visual-dot"></span>
+                                CONNECTED HEALTHCARE
+                            </span>
+                            <span class="visual-index">01 / MEDIVERA</span>
+                        </div>
+
+                        <div class="hero-image-wrap">
+<img
+                                class="hero-image"
+                                src="{{ url_for(
+                                    'static',
+                                    filename='images/auth/doctor-patient.jpg'
+                                ) }}"
+                                alt="A doctor having a reassuring conversation
+                                     with a smiling patient in a modern clinic."
+                                fetchpriority="high"
+                            >
+
+                            <div class="image-shade" aria-hidden="true"></div>
+
+                            <div class="image-caption">
+                                <span class="caption-accent"></span>
+                                <div>
+                                    <strong>Care that connects.</strong>
+                                    <span>Technology with a human touch.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Animated healthcare information -->
+                    <div class="floating-label label-one" data-float="1">
+                        <span class="floating-icon">+</span>
+                        <span>Intelligent Healthcare</span>
+                    </div>
+
+                    <div class="floating-label label-two" data-float="2">
+                        <span class="floating-icon">âŒ</span>
+                        <span>Digital Diagnosis</span>
+                    </div>
+
+                    <div class="floating-label label-three" data-float="3">
+                        <span class="floating-icon">â—Ž</span>
+                        <span>Patient First</span>
+                    </div>
+
+                    <div class="floating-label label-four" data-float="4">
+                        <span class="floating-icon">â†—</span>
+                        <span>Smart Monitoring</span>
+                    </div>
+
+                    <!-- ECG interface -->
+                    <div class="technology-card ecg-card" data-tech="ecg">
+                        <div class="tech-card-heading">
+                            <span>HEALTH MONITORING</span>
+                            <span class="tech-live">
+                                <i></i> LIVE
+                            </span>
+                        </div>
+
+                        <svg class="ecg-wave" viewBox="0 0 220 48"
+                             preserveAspectRatio="none"
+                             aria-label="Decorative heartbeat waveform">
+                            <path
+                                d="M0 25 H35 L46 25 L55 12 L66 39 L78 19
+                                   L88 25 H112 L122 25 L132 8 L143 40
+                                   L155 21 L166 25 H220"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="ecg-line"/>
+                        </svg>
+
+                        <div class="tech-card-footer">
+                            <span>CONNECTED MONITORING</span>
+                            <span class="tech-accent">ACTIVE</span>
+                        </div>
+                    </div>
+
+                    <!-- Diagnostic scanner -->
+                    <div class="scanner-decoration" data-tech="scanner"
+                         aria-hidden="true">
+                        <span class="scanner-ring scanner-ring-one"></span>
+                        <span class="scanner-ring scanner-ring-two"></span>
+                        <span class="scanner-core"></span>
+                    </div>
+
+                    <!-- Connected healthcare nodes -->
+                    <div class="network-decoration" data-tech="network"
+                         aria-hidden="true">
+                        <span class="network-node node-one"></span>
+                        <span class="network-node node-two"></span>
+                        <span class="network-node node-three"></span>
+                        <span class="network-node node-four"></span>
+                        <span class="network-line line-one"></span>
+                        <span class="network-line line-two"></span>
+                        <span class="network-line line-three"></span>
+                    </div>
+
+                </div>
+
+                <div class="hero-bottom">
+                    <div class="hero-bottom-item">
+                        <span class="bottom-symbol">01</span>
+                        <span>CONNECTED CARE</span>
+                    </div>
+
+                    <span class="bottom-separator"></span>
+
+                    <div class="hero-bottom-item">
+                        <span class="bottom-symbol">02</span>
+                        <span>SMARTER SYSTEMS</span>
+                    </div>
+
+                    <span class="bottom-separator"></span>
+
+                    <div class="hero-bottom-item">
+                        <span class="bottom-symbol">03</span>
+                        <span>BETTER EXPERIENCES</span>
+                    </div>
+                </div>
+
+            </section>
+
+            <footer class="hero-footer">
+                <span>Â© {{ current_year|default(2026) }} MEDIVERA</span>
+                <span>INTELLIGENT HEALTHCARE. CONNECTED CARE.</span>
+            </footer>
+        </main>
+
+        <!-- Login section -->
+        <aside class="login-section">
+
+            <div class="login-panel">
+
+                <div class="mobile-brand">
+    <img
+        src="{{ url_for('static', filename='images/branding/medivera-logo.png') }}"
+        alt="MEDIVERA — Smart Healthcare Management"
+        class="medivera-brand-logo"
+    >
+</div>
+
+                <div class="login-heading">
+                    <p class="login-eyebrow">
+                        <span></span>
+                        SECURE ACCESS PORTAL
+                    </p>
+
+                    <h2>Welcome Back<span>.</span></h2>
+
+                    <p class="login-description">
+                        Your healthcare journey, intelligently connected.
+                        Sign in to access your healthcare workspace.
+                    </p>
+                </div>
+
+                <form class="login-form"
+                      id="loginForm"
+                      method="POST"
+                      action="{{ url_for('auth.login') }}">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <input type="hidden"
+                           name="next"
+                           value="{{ request.args.get('next', '') }}">
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="flash-messages" aria-live="polite">
+                                {% for category, message in messages %}
+                                    <div class="form-alert
+                                        {% if category == 'success' %}alert-success{% endif %}"
+                                         role="alert">
+                                        <span class="alert-indicator"></span>
+                                        <span>{{ message }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <div class="form-group">
+                        <label for="username">Username or email</label>
+
+                        <div class="input-container">
+                            <svg class="field-icon"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.7"
+                                 aria-hidden="true">
+                                <circle cx="12" cy="8" r="4"/>
+                                <path d="M4 21C4 16.8 7.1 14 12 14
+                                         C16.9 14 20 16.8 20 21"/>
+                            </svg>
+
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Enter your username or email"
+                                autocomplete="username"
+                                required
+                                autofocus
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+
+                        <div class="input-container">
+                            <svg class="field-icon"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.7"
+                                 aria-hidden="true">
+                                <rect x="4" y="10" width="16" height="11"
+                                      rx="2"/>
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                                <path d="M12 14V17"/>
+                            </svg>
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                class="password-toggle"
+                                type="button"
+                                id="togglePassword"
+                                aria-label="Show password"
+                                aria-controls="password"
+                                aria-pressed="false">
+                                SHOW
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-security-note">
+                        <span class="security-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8">
+                                <path d="M12 22S20 18 20 12V5L12 2
+                                         4 5V12C4 18 12 22 12 22Z"/>
+                                <path d="M9 12L11 14L15 10"/>
+                            </svg>
+                        </span>
+                        <span>Your connection is protected.</span>
+                    </div>
+
+                    <button class="login-button"
+                            type="submit"
+                            id="loginButton">
+
+                        <span class="button-label">Sign in to MEDIVERA</span>
+
+                        <svg class="button-arrow"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             stroke-linecap="round"
+                             stroke-linejoin="round"
+                             aria-hidden="true">
+                            <path d="M5 12H19"/>
+                            <path d="M12 5L19 12L12 19"/>
+                        </svg>
+
+                        <span class="button-spinner"
+                              aria-hidden="true"></span>
+                    </button>
+
+                
+<div class="signup-link">
+    <span>Don't have an account?</span>
+    <a href="{{ url_for('auth.register') }}">Create an account</a>
+</div>
+</form>
+<div class="login-trust">
+                    <span class="trust-line"></span>
+                    <span>YOUR HEALTH, OUR PRIORITY</span>
+                    <span class="trust-line"></span>
+                </div>
+
+                <div class="login-message">
+                    <span class="message-symbol" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8">
+                            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0
+                                     L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8
+                                     7.8l1.1 1.1L12 21l7.8-7.5
+                                     1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/>
+                            <path d="M3 12H8L10 9L13 15L15 12H21"/>
+                        </svg>
+                    </span>
+
+                    <div>
+                        <strong>Care beyond technology.</strong>
+                        <p>
+                            Better coordination, informed decisions and
+                            a more connected healthcare experience.
+                        </p>
+                    </div>
+                </div>
+
+                <footer class="login-footer">
+                    <span>
+                        Â© {{ current_year|default(2026) }} MEDIVERA.
+                        All rights reserved.
+                    </span>
+                    <span>SMARTER HEALTHCARE. HEALTHIER LIVES.</span>
+                </footer>
+
+            </div>
+        </aside>
+
+    </div>
+    <script type="module" src="{{ url_for('static', filename='js/auth/login-3d.js') }}"></script>
+</body>
+</html>

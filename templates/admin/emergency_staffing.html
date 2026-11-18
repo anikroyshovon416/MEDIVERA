@@ -1,0 +1,579 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Emergency Staffing | MEDIVERA{% endblock %}
+{% block breadcrumb %}Emergency Management / Staffing{% endblock %}
+
+{% block extra_css %}
+<style>
+.staffing-page {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+.staffing-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.staffing-heading h1 {
+    color: #fff;
+    font-size: 25px;
+    margin: 0 0 6px;
+}
+.staffing-heading p {
+    color: #92979e;
+    margin: 0;
+}
+.staffing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+}
+.staffing-card,
+.staffing-panel {
+    background: #1c1f23;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 0;
+}
+.staffing-card small {
+    display: block;
+    color: #92979e;
+    margin-bottom: 12px;
+}
+.staffing-card strong {
+    color: #fff;
+    font-size: 29px;
+}
+.staffing-card p {
+    color: #92979e;
+    font-size: 12px;
+    margin: 8px 0 0;
+}
+.staffing-section-title {
+    font-size: 17px;
+    color: #fff;
+    margin: 0 0 17px;
+}
+.shift-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+}
+.shift-card {
+    background: #15171a;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 12px;
+    padding: 18px;
+}
+.shift-card h3 {
+    color: #f47721;
+    margin: 0 0 7px;
+}
+.shift-time {
+    color: #92979e;
+    font-size: 12px;
+}
+.shift-number {
+    display: block;
+    font-size: 27px;
+    font-weight: 800;
+    color: white;
+    margin-top: 17px;
+}
+.staffing-forms {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+.staffing-form {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+.staffing-form label {
+    color: #c8cbd0;
+    font-size: 12px;
+    font-weight: 700;
+}
+.staffing-form input,
+.staffing-form select,
+.staffing-form textarea {
+    width: 100%;
+    margin-top: 6px;
+    padding: 11px 12px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    background: #101113;
+    color: white;
+    outline: none;
+}
+.staffing-form input:focus,
+.staffing-form select:focus,
+.staffing-form textarea:focus {
+    border-color: #f47721;
+}
+.staffing-button {
+    border: 0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    background: #f47721;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+.staffing-button:hover {
+    background: #df6415;
+}
+.staffing-button.secondary {
+    background: #30343a;
+}
+.staffing-table-wrap {
+    overflow-x: auto;
+}
+.staffing-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+.staffing-table th {
+    color: #92979e;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.09);
+}
+.staffing-table td {
+    color: #e9eaec;
+    padding: 13px 12px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.staffing-table select {
+    padding: 7px;
+    border-radius: 6px;
+    background: #101113;
+    color: white;
+    border: 1px solid rgba(255,255,255,.15);
+}
+.staffing-status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: rgba(244,119,33,.13);
+    color: #f47721;
+    font-size: 11px;
+    font-weight: 700;
+}
+.staffing-status.approved {
+    background: rgba(39,199,130,.12);
+    color: #27c782;
+}
+.staffing-status.rejected {
+    background: rgba(240,91,98,.12);
+    color: #f05b62;
+}
+.staffing-warning {
+    border: 1px solid rgba(240,91,98,.3);
+    background: rgba(240,91,98,.08);
+    color: #f4a0a4;
+    border-radius: 10px;
+    padding: 15px;
+    line-height: 1.6;
+}
+.staffing-note {
+    color: #92979e;
+    font-size: 12px;
+    line-height: 1.6;
+}
+.inline-form {
+    display: inline-flex;
+    gap: 7px;
+    align-items: center;
+}
+@media(max-width: 1050px) {
+    .staffing-grid { grid-template-columns: repeat(2, 1fr); }
+    .shift-grid { grid-template-columns: 1fr; }
+}
+@media(max-width: 700px) {
+    .staffing-forms { grid-template-columns: 1fr; }
+    .staffing-grid { grid-template-columns: 1fr 1fr; }
+    .staffing-card { padding: 14px; }
+}
+@media(max-width: 420px) {
+    .staffing-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="staffing-page">
+
+    <div class="staffing-heading">
+        <div>
+            <h1>Emergency Workforce Management</h1>
+            <p>24/7 doctor, nurse and emergency staff coverage</p>
+        </div>
+        <span class="staffing-status">SHIFT OPERATIONS</span>
+    </div>
+
+    <div class="staffing-grid">
+        <div class="staffing-card">
+            <small>Available Doctors</small>
+            <strong>{{ metrics.available_doctors or 0 }}</strong>
+            <p>Out of {{ metrics.total_doctors or 0 }} registered doctors</p>
+        </div>
+
+        <div class="staffing-card">
+            <small>Active Nurses</small>
+            <strong>{{ metrics.active_nurses or 0 }}</strong>
+            <p>Active nurse-designated staff records</p>
+        </div>
+
+        <div class="staffing-card">
+            <small>Today's Staff Assignments</small>
+            <strong>{{ metrics.today_staff_schedules or 0 }}</strong>
+            <p>Scheduled staff shift records</p>
+        </div>
+
+        <div class="staffing-card">
+            <small>Approved Doctor Schedules</small>
+            <strong>{{ metrics.approved_doctor_schedules or 0 }}</strong>
+            <p>Confirmed schedules for today</p>
+        </div>
+    </div>
+
+    {% if (metrics.active_nurses or 0) < 3 %}
+    <div class="staffing-warning">
+        <strong>24/7 nurse coverage warning</strong><br>
+        The current active nurse workforce is below three people.
+        Three shifts are configured, but continuous nurse coverage
+        cannot be confirmed from the current workforce records.
+        Recruit and assign sufficient nurses before declaring
+        round-the-clock coverage operational.
+    </div>
+    {% endif %}
+
+    <section class="staffing-panel">
+        <h2 class="staffing-section-title">Three-shift coverage</h2>
+
+        <div class="shift-grid">
+            {% for shift in shifts %}
+            <div class="shift-card">
+                <h3>{{ shift.shift_name }}</h3>
+
+                <div class="shift-time">
+                    {{ shift.start_time }} – {{ shift.end_time }}
+                </div>
+
+                <span class="shift-number">
+                    {{ shift.assigned_staff or 0 }}
+                </span>
+
+                <div class="staffing-note">
+                    Staff assigned today
+                </div>
+
+                <div class="staffing-note">
+                    Nurses assigned: {{ shift.assigned_nurses or 0 }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <div class="staffing-forms">
+
+        <section class="staffing-panel">
+            <h2 class="staffing-section-title">
+                Assign Emergency Staff
+            </h2>
+
+            <form class="staffing-form"
+                  method="POST"
+                  action="{{ url_for('admin.create_emergency_staff_schedule') }}">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <label>
+                    Staff Member
+                    <select name="staff_id" required>
+                        <option value="">Select staff member</option>
+                        {% for person in staff %}
+                        <option value="{{ person.staff_id }}">
+                            {{ person.staff_name }} — {{ person.designation }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label>
+                    Shift
+                    <select name="shift_id" required>
+                        <option value="">Select shift</option>
+                        {% for shift in shift_options %}
+                        <option value="{{ shift.shift_id }}">
+                            {{ shift.shift_name }}
+                            ({{ shift.start_time }}–{{ shift.end_time }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label>
+                    Duty Date
+                    <input type="date" name="duty_date" required>
+                </label>
+
+                <label>
+                    Assignment Notes
+                    <textarea name="notes" rows="2"
+                              maxlength="255"
+                              placeholder="Optional duty notes"></textarea>
+                </label>
+
+                <button class="staffing-button" type="submit">
+                    Assign Staff to Shift
+                </button>
+            </form>
+        </section>
+
+        <section class="staffing-panel">
+            <h2 class="staffing-section-title">
+                Submit Doctor Schedule
+            </h2>
+
+            <form class="staffing-form"
+                  method="POST"
+                  action="{{ url_for('admin.create_emergency_doctor_schedule') }}">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <label>
+                    Doctor
+                    <select name="doctor_id" required>
+                        <option value="">Select doctor</option>
+                        {% for doctor in doctors %}
+                        <option value="{{ doctor.doctor_id }}">
+                            {{ doctor.doctor_name }}
+                            — {{ doctor.specialization }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label>
+                    Schedule Type
+                    <select name="schedule_type"
+                            id="doctorScheduleType"
+                            required
+                            onchange="toggleDoctorScheduleFields()">
+                        <option value="Weekly">Weekly</option>
+                        <option value="Date Specific">Date Specific</option>
+                    </select>
+                </label>
+
+                <div id="weeklyFields">
+                    <label>
+                        Weekday
+                        <select name="day_of_week">
+                            <option value="0">Monday</option>
+                            <option value="1">Tuesday</option>
+                            <option value="2">Wednesday</option>
+                            <option value="3">Thursday</option>
+                            <option value="4">Friday</option>
+                            <option value="5">Saturday</option>
+                            <option value="6">Sunday</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Effective From
+                        <input type="date" name="effective_from">
+                    </label>
+
+                    <label>
+                        Effective Until
+                        <input type="date" name="effective_until">
+                    </label>
+                </div>
+
+                <div id="specificFields" hidden>
+                    <label>
+                        Schedule Date
+                        <input type="date" name="specific_date">
+                    </label>
+                </div>
+
+                <label>
+                    Start Time
+                    <input type="time" name="start_time" required>
+                </label>
+
+                <label>
+                    End Time
+                    <input type="time" name="end_time" required>
+                </label>
+
+                <button class="staffing-button" type="submit">
+                    Submit for Approval
+                </button>
+
+                <p class="staffing-note">
+                    New doctor schedules remain Pending until reviewed.
+                    They are not counted as confirmed coverage before approval.
+                </p>
+            </form>
+        </section>
+    </div>
+
+    <section class="staffing-panel">
+        <h2 class="staffing-section-title">
+            Today's Staff Assignments
+        </h2>
+
+        <div class="staffing-table-wrap">
+            <table class="staffing-table">
+                <thead>
+                    <tr>
+                        <th>Staff Member</th>
+                        <th>Designation</th>
+                        <th>Shift</th>
+                        <th>Duty Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in today_assignments %}
+                    <tr>
+                        <td>{{ assignment.staff_name }}</td>
+                        <td>{{ assignment.designation }}</td>
+                        <td>{{ assignment.shift_name }}</td>
+                        <td>
+                            {{ assignment.start_time }} –
+                            {{ assignment.end_time }}
+                        </td>
+                        <td>
+                            <span class="staffing-status">
+                                {{ assignment.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">
+                            No staff shifts have been assigned for today.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="staffing-panel">
+        <h2 class="staffing-section-title">
+            Doctor Schedule Review
+        </h2>
+
+        <div class="staffing-table-wrap">
+            <table class="staffing-table">
+                <thead>
+                    <tr>
+                        <th>Doctor</th>
+                        <th>Schedule</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Review</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for schedule in doctor_schedules %}
+                    <tr>
+                        <td>
+                            {{ schedule.doctor_name }}<br>
+                            <span class="staffing-note">
+                                {{ schedule.specialization }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if schedule.schedule_type == 'Weekly' %}
+                                Weekly — Day {{ schedule.day_of_week }}
+                            {% else %}
+                                {{ schedule.specific_date }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ schedule.start_time }} –
+                            {{ schedule.end_time }}
+                        </td>
+                        <td>
+                            <span class="staffing-status
+                                {% if schedule.schedule_status == 'Approved' %}approved
+                                {% elif schedule.schedule_status == 'Rejected' %}rejected
+                                {% endif %}">
+                                {{ schedule.schedule_status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if schedule.schedule_status == 'Pending' %}
+                            <form class="inline-form" method="POST"
+                                  action="{{ url_for('admin.update_emergency_doctor_schedule_status', schedule_id=schedule.schedule_id) }}">
+                                <input type="hidden"
+                                       name="csrf_token"
+                                       value="{{ csrf_token() }}">
+                                <select name="schedule_status" required>
+                                    <option value="Approved">Approve</option>
+                                    <option value="Rejected">Reject</option>
+                                </select>
+                                <button class="staffing-button secondary"
+                                        type="submit">
+                                    Review
+                                </button>
+                            </form>
+                            {% else %}
+                                <span class="staffing-note">Reviewed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">No doctor schedules found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+
+<script>
+function toggleDoctorScheduleFields() {
+    const type = document.getElementById("doctorScheduleType").value;
+    const weekly = document.getElementById("weeklyFields");
+    const specific = document.getElementById("specificFields");
+
+    weekly.hidden = type !== "Weekly";
+    specific.hidden = type !== "Date Specific";
+
+    weekly.querySelectorAll("input, select").forEach(field => {
+        field.disabled = type !== "Weekly";
+    });
+
+    specific.querySelectorAll("input").forEach(field => {
+        field.disabled = type !== "Date Specific";
+    });
+}
+
+toggleDoctorScheduleFields();
+</script>
+{% endblock %}

@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Patient Registration | MEDICARE+</title>
+
+    <style>
+        /* =========================================
+           01. COLOR VARIABLES
+        ========================================= */
+
+        :root {
+            --beige: #E8DDC8;
+            --beige-light: #F5F0E6;
+            --forest: #174D36;
+            --forest-dark: #103A29;
+            --dark-red: #651F2B;
+            --white: #FFFFFF;
+            --black: #252525;
+            --gray: #777777;
+            --border: #DED6C8;
+            --success: #287A4B;
+            --danger: #B42332;
+        }
+
+        /* =========================================
+           02. GLOBAL RESET
+        ========================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--beige-light);
+            color: var(--black);
+            min-height: 100vh;
+        }
+
+        /* =========================================
+           03. HEADER
+        ========================================= */
+
+        .header {
+            background: var(--forest);
+            color: var(--white);
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            background: var(--beige);
+            color: var(--forest);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 27px;
+            font-weight: bold;
+        }
+
+        .brand-name {
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .brand-name span {
+            color: var(--beige);
+        }
+
+        .header-link {
+            color: var(--white);
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 10px 19px;
+            border-radius: 7px;
+            transition: 0.3s;
+        }
+
+        .header-link:hover {
+            background: var(--beige);
+            color: var(--forest);
+        }
+
+        /* =========================================
+           04. MAIN LAYOUT
+        ========================================= */
+
+        .main-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-heading {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .page-heading h1 {
+            color: var(--dark-red);
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .page-heading p {
+            color: var(--gray);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* =========================================
+           05. REGISTRATION CARD
+        ========================================= */
+
+        .registration-card {
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .card-top {
+            background: var(--forest);
+            color: var(--white);
+            padding: 23px 30px;
+        }
+
+        .card-top h2 {
+            font-size: 21px;
+            margin-bottom: 7px;
+        }
+
+        .card-top p {
+            color: var(--beige);
+            font-size: 13px;
+        }
+
+        .form-content {
+            padding: 30px;
+        }
+
+        /* =========================================
+           06. FORM SECTIONS
+        ========================================= */
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 2px solid var(--beige);
+            padding-bottom: 12px;
+            margin-bottom: 22px;
+        }
+
+        .section-number {
+            width: 32px;
+            height: 32px;
+            background: var(--dark-red);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .section-heading h3 {
+            color: var(--forest);
+            font-size: 18px;
+        }
+
+        .section-heading p {
+            color: var(--gray);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* =========================================
+           07. FORM GRID
+        ========================================= */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--black);
+        }
+
+        .required {
+            color: var(--dark-red);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            font-size: 14px;
+            background: #FFFEFC;
+            color: var(--black);
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--forest);
+            box-shadow: 0 0 0 3px rgba(23,77,54,0.10);
+        }
+
+        .form-group textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .form-group small {
+            color: var(--gray);
+            font-size: 11px;
+        }
+
+        /* =========================================
+           08. INFORMATION NOTICE
+        ========================================= */
+
+        .notice {
+            background: var(--beige-light);
+            border-left: 4px solid var(--forest);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+        }
+
+        .notice h4 {
+            color: var(--forest);
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .notice p {
+            color: #555;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        /* =========================================
+           09. PASSWORD SECTION
+        ========================================= */
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 65px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: var(--forest);
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* =========================================
+           10. TERMS AND CONDITIONS
+        ========================================= */
+
+        .terms {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin: 15px 0 25px;
+        }
+
+        .terms input {
+            margin-top: 3px;
+            accent-color: var(--forest);
+        }
+
+        .terms label {
+            font-size: 12px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* =========================================
+           11. SUBMIT BUTTON
+        ========================================= */
+
+        .submit-button {
+            width: 100%;
+            background: var(--forest);
+            color: var(--white);
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-button:hover {
+            background: var(--forest-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(23,77,54,0.2);
+        }
+
+        .login-text {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 13px;
+            color: var(--gray);
+        }
+
+        .login-text a {
+            color: var(--dark-red);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        /* =========================================
+           12. FLASH MESSAGES
+        ========================================= */
+
+        .flash-message {
+            padding: 13px 16px;
+            border-radius: 7px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .flash-success {
+            background: #E5F3E9;
+            color: #1B6337;
+            border: 1px solid #B7DCC2;
+        }
+
+        .flash-danger {
+            background: #FCE8E8;
+            color: #8C1D28;
+            border: 1px solid #E8B9BD;
+        }
+
+        .flash-warning {
+            background: #FFF4D8;
+            color: #77530C;
+            border: 1px solid #EAD49C;
+        }
+
+        /* =========================================
+           13. FOOTER
+        ========================================= */
+
+        .footer {
+            text-align: center;
+            padding: 25px 15px;
+            color: var(--gray);
+            font-size: 12px;
+        }
+
+        .footer strong {
+            color: var(--forest);
+        }
+
+        /* =========================================
+           14. RESPONSIVE DESIGN
+        ========================================= */
+
+        @media (max-width: 650px) {
+
+            .header {
+                padding: 15px 5%;
+            }
+
+            .brand-name {
+                font-size: 19px;
+            }
+
+            .main-container {
+                margin: 25px auto;
+                padding: 0 12px;
+            }
+
+            .page-heading h1 {
+                font-size: 25px;
+            }
+
+            .form-content {
+                padding: 20px 16px;
+            }
+
+            .card-top {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 17px;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================================
+         HEADER
+    ========================================== -->
+
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="brand-icon">+</div>
+
+            <div class="brand-name">
+                MEDICARE<span>+</span>
+            </div>
+
+        </div>
+
+        <a href="/login" class="header-link">
+            Already Registered? Login
+        </a>
+
+    </header>
+
+
+    <!-- =========================================
+         MAIN CONTENT
+    ========================================== -->
+
+    <main class="main-container">
+
+        <div class="page-heading">
+
+            <h1>Patient Registration</h1>
+
+            <p>
+                Join MEDICARE+ to manage your healthcare
+                information and stay connected with your care team.
+            </p>
+
+        </div>
+
+
+        <div class="registration-card">
+
+            <div class="card-top">
+
+                <h2>Create Your Patient Account</h2>
+
+                <p>
+                    Complete the information below to register
+                    with MEDICARE+.
+                </p>
+
+            </div>
+
+
+            <div class="form-content">
+
+
+                <!-- FLASH MESSAGES -->
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+
+                    {% if messages %}
+
+                        {% for category, message in messages %}
+
+                            <div class="flash-message flash-{{ category }}">
+                                {{ message }}
+                            </div>
+
+                        {% endfor %}
+
+                    {% endif %}
+
+                {% endwith %}
+
+
+                <!-- REGISTRATION FORM -->
+
+                <form
+                    action="/register"
+                    method="POST"
+                    id="registrationForm"
+                    autocomplete="on"
+                >
+
+
+                    <!-- =================================
+                         SECTION 1: PERSONAL INFORMATION
+                    ================================== -->
+
+                    <section class="form-section">
+
+                        <div class="section-heading">
+
+                            <div class="section-number">1</div>
+
+                            <div>
+                                <h3>Personal Information</h3>
+                                <p>Enter your basic personal details.</p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-grid">
+
+
+                            <div class="form-group">
+
+                                <label for="first_name">
+                                    First Name <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="first_name"
+                                    name="first_name"
+                                    placeholder="Enter first name"
+                                    maxlength="50"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="last_name">
+                                    Last Name <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="last_name"
+                                    name="last_name"
+                                    placeholder="Enter last name"
+                                    maxlength="50"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="date_of_birth">
+                                    Date of Birth <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="date_of_birth"
+                                    name="date_of_birth"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="gender">
+                                    Gender <span class="required">*</span>
+                                </label>
+
+                                <select
+                                    id="gender"
+                                    name="gender"
+                                    required
+                                >
+
+                                    <option value="">Select gender</option>
+
+                                    <option value="Male">Male</option>
+
+                                    <option value="Female">Female</option>
+
+                                    <option value="Other">Other</option>
+
+                                    <option value="Prefer not to say">
+                                        Prefer not to say
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="blood_group">
+                                    Blood Group
+                                </label>
+
+                                <select
+                                    id="blood_group"
+                                    name="blood_group"
+                                >
+
+                                    <option value="">Select blood group</option>
+
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+
+                                </select>
+
+                            </div>
+
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- =================================
+                         SECTION 2: CONTACT INFORMATION
+                    ================================== -->
+
+                    <section class="form-section">
+
+                        <div class="section-heading">
+
+                            <div class="section-number">2</div>
+
+                            <div>
+                                <h3>Contact Information</h3>
+                                <p>Provide your contact information.</p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-grid">
+
+
+                            <div class="form-group">
+
+                                <label for="phone">
+                                    Phone Number <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    placeholder="Enter phone number"
+                                    maxlength="15"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="email">
+                                    Email Address
+                                </label>
+
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    placeholder="Enter email address"
+                                    maxlength="100"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group full-width">
+
+                                <label for="address">
+                                    Residential Address
+                                </label>
+
+                                <textarea
+                                    id="address"
+                                    name="address"
+                                    placeholder="Enter your complete address"
+                                    maxlength="255"
+                                ></textarea>
+
+                            </div>
+
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- =================================
+                         SECTION 3: EMERGENCY CONTACT
+                    ================================== -->
+
+                    <section class="form-section">
+
+                        <div class="section-heading">
+
+                            <div class="section-number">3</div>
+
+                            <div>
+                                <h3>Emergency Contact</h3>
+                                <p>Provide details of someone to contact in an emergency.</p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-grid">
+
+
+                            <div class="form-group">
+
+                                <label for="emergency_contact_name">
+                                    Emergency Contact Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="emergency_contact_name"
+                                    name="emergency_contact_name"
+                                    placeholder="Enter contact person's name"
+                                    maxlength="100"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="emergency_contact_phone">
+                                    Emergency Contact Phone
+                                </label>
+
+                                <input
+                                    type="tel"
+                                    id="emergency_contact_phone"
+                                    name="emergency_contact_phone"
+                                    placeholder="Enter emergency phone number"
+                                    maxlength="15"
+                                >
+
+                            </div>
+
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- =================================
+                         SECTION 4: ACCOUNT INFORMATION
+                    ================================== -->
+
+                    <section class="form-section">
+
+                        <div class="section-heading">
+
+                            <div class="section-number">4</div>
+
+                            <div>
+                                <h3>Account Information</h3>
+                                <p>Create your MEDICARE+ login credentials.</p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="notice">
+
+                            <h4>Existing Patient or New Patient?</h4>
+
+                            <p>
+                                If your patient information is already registered
+                                in MEDICARE+, the system will attempt to link your
+                                new account to your existing patient record after
+                                verification. Otherwise, a new patient record
+                                will be created.
+                            </p>
+
+                        </div>
+
+
+                        <div class="form-grid">
+
+
+                            <div class="form-group">
+
+                                <label for="username">
+                                    Username <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="username"
+                                    name="username"
+                                    placeholder="Choose a username"
+                                    maxlength="50"
+                                    required
+                                    autocomplete="username"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="password">
+                                    Password <span class="required">*</span>
+                                </label>
+
+                                <div class="password-wrapper">
+
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        placeholder="Create password"
+                                        minlength="8"
+                                        required
+                                        autocomplete="new-password"
+                                    >
+
+                                    <button
+                                        type="button"
+                                        class="toggle-password"
+                                        onclick="togglePassword('password', this)"
+                                    >
+                                        Show
+                                    </button>
+
+                                </div>
+
+                                <small>
+                                    Minimum 8 characters.
+                                </small>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="confirm_password">
+                                    Confirm Password <span class="required">*</span>
+                                </label>
+
+                                <div class="password-wrapper">
+
+                                    <input
+                                        type="password"
+                                        id="confirm_password"
+                                        name="confirm_password"
+                                        placeholder="Confirm password"
+                                        minlength="8"
+                                        required
+                                        autocomplete="new-password"
+                                    >
+
+                                    <button
+                                        type="button"
+                                        class="toggle-password"
+                                        onclick="togglePassword('confirm_password', this)"
+                                    >
+                                        Show
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- =================================
+                         SECTION 5: TERMS
+                    ================================== -->
+
+                    <div class="terms">
+
+                        <input
+                            type="checkbox"
+                            id="terms"
+                            name="terms"
+                            value="accepted"
+                            required
+                        >
+
+                        <label for="terms">
+
+                            I confirm that the information provided
+                            is accurate and agree to the MEDICARE+
+                            patient account terms and privacy policy.
+
+                            <span class="required">*</span>
+
+                        </label>
+
+                    </div>
+
+
+
+                    <!-- =================================
+                         SUBMIT BUTTON
+                    ================================== -->
+
+                    <button
+                        type="submit"
+                        class="submit-button"
+                    >
+
+                        CREATE PATIENT ACCOUNT
+
+                    </button>
+
+
+                    <div class="login-text">
+
+                        Already have an account?
+
+                        <a href="/login">
+                            Login Here
+                        </a>
+
+                    </div>
+
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- =========================================
+         FOOTER
+    ========================================== -->
+
+    <footer class="footer">
+
+        <p>
+            © 2026 <strong>MEDICARE+</strong>.
+            Smart Healthcare Management System.
+        </p>
+
+        <p style="margin-top: 7px;">
+            Your Health. Our Priority.
+        </p>
+
+    </footer>
+
+
+
+    <!-- =========================================
+         JAVASCRIPT
+    ========================================== -->
+
+    <script>
+
+        // Show or hide password
+
+        function togglePassword(fieldId, button) {
+
+            const field = document.getElementById(fieldId);
+
+            if (field.type === "password") {
+
+                field.type = "text";
+
+                button.textContent = "Hide";
+
+            } else {
+
+                field.type = "password";
+
+                button.textContent = "Show";
+
+            }
+
+        }
+
+
+        // Set maximum date of birth to today
+
+        const dobField = document.getElementById("date_of_birth");
+
+        const today = new Date();
+
+        const year = today.getFullYear();
+
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+
+        const day = String(today.getDate()).padStart(2, "0");
+
+        dobField.max = `${year}-${month}-${day}`;
+
+
+        // Password confirmation validation
+
+        document.getElementById("registrationForm")
+            .addEventListener("submit", function(event) {
+
+                const password =
+                    document.getElementById("password").value;
+
+                const confirmPassword =
+                    document.getElementById("confirm_password").value;
+
+                if (password !== confirmPassword) {
+
+                    event.preventDefault();
+
+                    alert("Password and Confirm Password do not match.");
+
+                    document.getElementById("confirm_password").focus();
+
+                }
+
+            });
+
+    </script>
+
+</body>
+
+</html>

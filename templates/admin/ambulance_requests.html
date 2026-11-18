@@ -1,0 +1,652 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Ambulance Approvals | MEDIVERA{% endblock %}
+
+{% block content %}
+
+<style>
+.amb-page {
+    color: #e9eaec;
+}
+
+.amb-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.amb-heading h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 6px;
+}
+
+.amb-muted {
+    color: #92979e;
+    font-size: 13px;
+}
+
+.amb-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 25px;
+}
+
+.amb-stat,
+.amb-panel,
+.amb-request {
+    background: #1c1f23;
+    border: 1px solid #30343a;
+    border-radius: 15px;
+}
+
+.amb-stat {
+    padding: 20px;
+}
+
+.amb-stat span {
+    color: #92979e;
+    font-size: 12px;
+}
+
+.amb-stat strong {
+    display: block;
+    font-size: 27px;
+    margin-top: 8px;
+}
+
+.amb-panel {
+    padding: 22px;
+    margin-bottom: 22px;
+}
+
+.amb-panel h2 {
+    font-size: 18px;
+    margin: 0 0 18px;
+}
+
+.amb-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.amb-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.amb-field.full {
+    grid-column: 1 / -1;
+}
+
+.amb-field label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #c9cdd2;
+}
+
+.amb-field input,
+.amb-field select,
+.amb-field textarea {
+    width: 100%;
+    background: #111316;
+    color: #fff;
+    border: 1px solid #393e45;
+    border-radius: 9px;
+    padding: 11px 12px;
+    outline: none;
+}
+
+.amb-field input:focus,
+.amb-field select:focus,
+.amb-field textarea:focus {
+    border-color: #f47721;
+}
+
+.amb-field textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.amb-btn {
+    display: inline-block;
+    border: 0;
+    border-radius: 9px;
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.amb-primary {
+    background: #f47721;
+    color: #fff;
+}
+
+.amb-success {
+    background: #167d50;
+    color: #fff;
+}
+
+.amb-danger {
+    background: #a93640;
+    color: #fff;
+}
+
+.amb-secondary {
+    background: #30343a;
+    color: #fff;
+}
+
+.amb-request {
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.amb-request-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.amb-request h3 {
+    font-size: 16px;
+    margin: 0 0 6px;
+}
+
+.amb-status {
+    display: inline-block;
+    padding: 6px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    background: #30343a;
+}
+
+.amb-status.pending,
+.amb-status.under-review {
+    color: #ffc46c;
+    background: #49351d;
+}
+
+.amb-status.approved {
+    color: #55df9b;
+    background: #153b2b;
+}
+
+.amb-status.rejected {
+    color: #ff8585;
+    background: #482327;
+}
+
+.amb-status.changes-requested {
+    color: #8dc8ff;
+    background: #19364c;
+}
+
+.amb-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.amb-detail {
+    background: #15171a;
+    padding: 12px;
+    border-radius: 9px;
+    min-width: 0;
+}
+
+.amb-detail span {
+    display: block;
+    color: #92979e;
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.amb-detail strong {
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.amb-description {
+    color: #c9cdd2;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    background: #15171a;
+    border-radius: 9px;
+    padding: 13px;
+    font-size: 12px;
+    margin-bottom: 16px;
+}
+
+.amb-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.amb-action-box {
+    padding: 15px;
+    border: 1px solid #353a40;
+    border-radius: 11px;
+}
+
+.amb-action-box h4 {
+    margin: 0 0 12px;
+    font-size: 13px;
+}
+
+.amb-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.amb-empty {
+    padding: 35px;
+    text-align: center;
+    color: #92979e;
+    border: 1px dashed #393e45;
+    border-radius: 12px;
+}
+
+@media(max-width: 850px) {
+    .amb-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .amb-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 550px) {
+    .amb-stats,
+    .amb-form-grid,
+    .amb-details {
+        grid-template-columns: 1fr;
+    }
+
+    .amb-field.full {
+        grid-column: auto;
+    }
+
+    .amb-panel {
+        padding: 15px;
+    }
+}
+</style>
+
+<div class="amb-page">
+
+    <div class="amb-heading">
+        <div>
+            <h1>Ambulance Approval Centre</h1>
+            <div class="amb-muted">
+                Review emergency ambulance requests, approve them,
+                and coordinate ambulance dispatch.
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY -->
+
+    <div class="amb-stats">
+
+        <div class="amb-stat">
+            <span>Total Requests</span>
+            <strong>{{ summary.total }}</strong>
+        </div>
+
+        <div class="amb-stat">
+            <span>Pending / Under Review</span>
+            <strong>{{ summary.pending }}</strong>
+        </div>
+
+        <div class="amb-stat">
+            <span>Approved</span>
+            <strong>{{ summary.approved }}</strong>
+        </div>
+
+        <div class="amb-stat">
+            <span>Rejected</span>
+            <strong>{{ summary.rejected }}</strong>
+        </div>
+
+    </div>
+
+    <!-- NEW REQUEST -->
+
+    <section class="amb-panel">
+
+        <h2>Submit New Ambulance Request</h2>
+
+        <form method="POST"
+              action="{{ url_for('admin.create_ambulance_request') }}">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <div class="amb-form-grid">
+
+                <div class="amb-field full">
+                    <label>Emergency Case *</label>
+
+                    <select name="emergency_case_id" required>
+                        <option value="">Select emergency case</option>
+
+                        {% for case in active_cases %}
+                        <option value="{{ case.emergency_case_id }}">
+                            {{ case.case_number }} -
+                            {{ case.emergency_type }} -
+                            {{ case.severity }}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div class="amb-field">
+                    <label>Pickup Location *</label>
+                    <input type="text"
+                           name="pickup_location"
+                           maxlength="255"
+                           required
+                           placeholder="Enter pickup location">
+                </div>
+
+                <div class="amb-field">
+                    <label>Destination *</label>
+                    <input type="text"
+                           name="destination"
+                           maxlength="255"
+                           required
+                           placeholder="Enter destination hospital">
+                </div>
+
+                <div class="amb-field full">
+                    <label>Reason for Ambulance *</label>
+                    <textarea name="request_reason"
+                              maxlength="2000"
+                              required
+                              placeholder="Describe why ambulance support is required"></textarea>
+                </div>
+
+            </div>
+
+            <div class="amb-buttons">
+                <button type="submit" class="amb-btn amb-primary">
+                    Submit for Approval
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+
+    <!-- REQUEST LIST -->
+
+    <section class="amb-panel">
+
+        <h2>Ambulance Requests</h2>
+
+        {% if requests_list %}
+
+            {% for item in requests_list %}
+
+                {% set status_class = item.status|lower|replace(' ', '-') %}
+
+                <article class="amb-request">
+
+                    <div class="amb-request-top">
+
+                        <div>
+                            <h3>{{ item.request_title }}</h3>
+
+                            <div class="amb-muted">
+                                Request #{{ item.request_id }}
+                                · Submitted:
+                                {{ item.submitted_at or 'Not available' }}
+                            </div>
+                        </div>
+
+                        <span class="amb-status {{ status_class }}">
+                            {{ item.status }}
+                        </span>
+
+                    </div>
+
+                    <div class="amb-details">
+
+                        <div class="amb-detail">
+                            <span>Requester</span>
+                            <strong>{{ item.requester_name or 'Unknown' }}</strong>
+                        </div>
+
+                        <div class="amb-detail">
+                            <span>Emergency Case</span>
+                            <strong>{{ item.case_number or 'Not linked' }}</strong>
+                        </div>
+
+                        <div class="amb-detail">
+                            <span>Emergency Type</span>
+                            <strong>{{ item.emergency_type or 'Not available' }}</strong>
+                        </div>
+
+                        <div class="amb-detail">
+                            <span>Severity</span>
+                            <strong>{{ item.severity or 'Not available' }}</strong>
+                        </div>
+
+                        <div class="amb-detail">
+                            <span>Case Status</span>
+                            <strong>{{ item.case_status or 'Not available' }}</strong>
+                        </div>
+
+                        <div class="amb-detail">
+                            <span>Emergency Location</span>
+                            <strong>{{ item.emergency_location or 'Not available' }}</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="amb-description">{{ item.request_description }}</div>
+
+                    {% if item.admin_remarks %}
+                        <div class="amb-detail">
+                            <span>Administrator Remarks</span>
+                            <strong>{{ item.admin_remarks }}</strong>
+                        </div>
+                    {% endif %}
+
+                    <!-- REVIEW CONTROLS -->
+
+                    {% if item.status in ['Pending', 'Under Review'] %}
+
+                    <div class="amb-action-box">
+
+                        <h4>Review Request</h4>
+
+                        <form method="POST"
+                              action="{{ url_for('admin.decide_ambulance_request', request_id=item.request_id) }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <div class="amb-field">
+                                <label>Administrator Remarks</label>
+
+                                <textarea name="admin_remarks"
+                                          maxlength="2000"
+                                          placeholder="Enter remarks. Required for rejection or changes requested."></textarea>
+                            </div>
+
+                            <div class="amb-buttons">
+
+                                {% if item.status == 'Pending' %}
+                                <button class="amb-btn amb-secondary"
+                                        name="decision"
+                                        value="Under Review">
+                                    Mark Under Review
+                                </button>
+                                {% endif %}
+
+                                <button class="amb-btn amb-success"
+                                        name="decision"
+                                        value="Approved">
+                                    Approve Request
+                                </button>
+
+                                <button class="amb-btn amb-danger"
+                                        name="decision"
+                                        value="Rejected"
+                                        onclick="return confirm('Reject this ambulance request?')">
+                                    Reject
+                                </button>
+
+                                <button class="amb-btn amb-secondary"
+                                        name="decision"
+                                        value="Changes Requested">
+                                    Request Changes
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                    {% endif %}
+
+                    <!-- AMBULANCE ASSIGNMENT -->
+
+                    {% if item.status == 'Approved' %}
+
+                    <div class="amb-action-box" style="margin-top:15px;">
+
+                        <h4>Assign Ambulance and Dispatch</h4>
+
+                        <form method="POST"
+                              action="{{ url_for('admin.assign_approved_ambulance', request_id=item.request_id) }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <div class="amb-form-grid">
+
+                                <div class="amb-field">
+                                    <label>Available Ambulance *</label>
+
+                                    <select name="ambulance_id" required>
+                                        <option value="">Select ambulance</option>
+
+                                        {% for ambulance in available_ambulances %}
+                                        <option value="{{ ambulance.ambulance_id }}">
+                                            {{ ambulance.ambulance_code }}
+                                            - {{ ambulance.registration_number }}
+                                            - {{ ambulance.ambulance_type }}
+                                        </option>
+                                        {% endfor %}
+
+                                    </select>
+                                </div>
+
+                                <div class="amb-field">
+                                    <label>Driver (Optional)</label>
+
+                                    <select name="driver_staff_id">
+                                        <option value="">Select driver</option>
+
+                                        {% for driver in available_drivers %}
+                                        <option value="{{ driver.staff_id }}">
+                                            {{ driver.staff_name }}
+                                        </option>
+                                        {% endfor %}
+
+                                    </select>
+                                </div>
+
+                                <div class="amb-field">
+                                    <label>Pickup Location *</label>
+
+                                    <input type="text"
+                                           name="pickup_location"
+                                           maxlength="255"
+                                           required>
+                                </div>
+
+                                <div class="amb-field">
+                                    <label>Destination *</label>
+
+                                    <input type="text"
+                                           name="destination"
+                                           maxlength="255"
+                                           required>
+                                </div>
+
+                                <div class="amb-field full">
+                                    <label>Dispatch Notes</label>
+
+                                    <textarea name="dispatch_notes"
+                                              maxlength="2000"
+                                              placeholder="Additional dispatch instructions"></textarea>
+                                </div>
+
+                            </div>
+
+                            <div class="amb-buttons">
+                                <button type="submit"
+                                        class="amb-btn amb-primary"
+                                        onclick="return confirm('Confirm ambulance assignment and dispatch?')">
+                                    Assign and Dispatch Ambulance
+                                </button>
+                            </div>
+
+                        </form>
+
+                        {% if not available_ambulances %}
+                        <p class="amb-muted">
+                            No available ambulances at the moment.
+                        </p>
+                        {% endif %}
+
+                    </div>
+
+                    {% endif %}
+
+                </article>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="amb-empty">
+                <h3>No Ambulance Requests Yet</h3>
+                <p>New ambulance approval requests will appear here.</p>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

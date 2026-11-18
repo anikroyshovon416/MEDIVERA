@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Inventory | MediCare+{% endblock %}
+{% block breadcrumb %}Hospital Management / Inventory / Manage{% endblock %}
+{% block page_heading %}Manage Inventory Item{% endblock %}
+{% block page_subtitle %}
+Update item information and manage stock transactions.
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .manage-inventory-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .manage-inventory-panel {
+        background: #fff;
+        border: 1px solid #e9e2d8;
+        border-radius: 14px;
+        padding: 25px;
+        margin-bottom: 22px;
+    }
+
+    .manage-inventory-panel h3 {
+        color: #542c37;
+        font-size: 18px;
+        margin: 0 0 20px;
+    }
+
+    .manage-inventory-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 17px;
+    }
+
+    .manage-inventory-field {
+        margin-bottom: 15px;
+    }
+
+    .manage-inventory-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .manage-inventory-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #514747;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .manage-inventory-field .form-control {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .manage-inventory-buttons {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+    }
+
+    .manage-inventory-buttons .btn {
+        min-width: 140px;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .manage-inventory-cancel {
+        background: #eee8dc;
+        color: #594334;
+    }
+
+    .manage-inventory-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        background: #f7f3ed;
+        padding: 16px;
+        border-radius: 10px;
+        margin-bottom: 22px;
+    }
+
+    .manage-inventory-info div {
+        min-width: 120px;
+    }
+
+    .manage-inventory-info small {
+        display: block;
+        color: #817773;
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+
+    .manage-inventory-info strong {
+        color: #542c37;
+        font-size: 17px;
+    }
+
+    .stock-transaction-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 17px;
+    }
+
+    .stock-transaction-field {
+        margin-bottom: 15px;
+    }
+
+    .stock-transaction-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #514747;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .stock-transaction-field .form-control {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .inventory-history-wrap {
+        overflow-x: auto;
+    }
+
+    .inventory-history {
+        width: 100%;
+        min-width: 650px;
+        border-collapse: collapse;
+    }
+
+    .inventory-history th,
+    .inventory-history td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee8e1;
+        font-size: 13px;
+    }
+
+    .inventory-history th {
+        background: #f7f3ed;
+        color: #5b3a40;
+    }
+
+    .transaction-in {
+        color: #267443;
+        font-weight: 700;
+    }
+
+    .transaction-out {
+        color: #a13e35;
+        font-weight: 700;
+    }
+
+    .inventory-history-empty {
+        text-align: center !important;
+        padding: 25px !important;
+        color: #888;
+    }
+
+    @media(max-width: 650px) {
+        .manage-inventory-grid,
+        .stock-transaction-grid {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .manage-inventory-field.full-width {
+            grid-column: auto;
+        }
+
+        .manage-inventory-panel {
+            padding: 18px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="manage-inventory-container">
+
+    <!-- CURRENT STOCK SUMMARY -->
+    <section class="manage-inventory-panel">
+
+        <h3>Inventory Summary — #{{ item.inventory_id }}</h3>
+
+        <div class="manage-inventory-info">
+
+            <div>
+                <small>Current Quantity</small>
+                <strong>{{ item.quantity }} {{ item.unit }}</strong>
+            </div>
+
+            <div>
+                <small>Reorder Level</small>
+                <strong>{{ item.reorder_level }}</strong>
+            </div>
+
+            <div>
+                <small>Stock Status</small>
+                <strong>{{ item.stock_status.replace('_', ' ') }}</strong>
+            </div>
+
+        </div>
+
+
+        <h3>Edit Item Details</h3>
+
+        <form
+            action="{{ url_for('edit_inventory', inventory_id=item.inventory_id) }}"
+            method="POST"
+        >
+
+            <div class="manage-inventory-grid">
+
+                <div class="manage-inventory-field">
+                    <label for="item_name">Item Name *</label>
+                    <input
+                        type="text"
+                        name="item_name"
+                        id="item_name"
+                        class="form-control"
+                        value="{{ item.item_name }}"
+                        required
+                    >
+                </div>
+
+                <div class="manage-inventory-field">
+                    <label for="item_category">Item Category *</label>
+                    <input
+                        type="text"
+                        name="item_category"
+                        id="item_category"
+                        class="form-control"
+                        value="{{ item.item_category }}"
+                        required
+                    >
+                </div>
+
+                <div class="manage-inventory-field">
+                    <label for="department_id">Department *</label>
+
+                    <select
+                        name="department_id"
+                        id="department_id"
+                        class="form-control"
+                        required
+                    >
+
+                        {% for department in departments %}
+
+                        <option
+                            value="{{ department.department_id }}"
+                            {% if department.department_id == item.department_id %}selected{% endif %}
+                        >
+                            {{ department.department_name }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div class="manage-inventory-field">
+                    <label for="unit">Unit *</label>
+                    <input
+                        type="text"
+                        name="unit"
+                        id="unit"
+                        class="form-control"
+                        value="{{ item.unit }}"
+                        required
+                    >
+                </div>
+
+                <div class="manage-inventory-field">
+                    <label for="reorder_level">Reorder Level *</label>
+                    <input
+                        type="number"
+                        name="reorder_level"
+                        id="reorder_level"
+                        class="form-control"
+                        min="0"
+                        value="{{ item.reorder_level }}"
+                        required
+                    >
+                </div>
+
+                <div class="manage-inventory-field">
+                    <label for="unit_price">Unit Price *</label>
+                    <input
+                        type="number"
+                        name="unit_price"
+                        id="unit_price"
+                        class="form-control"
+                        min="0"
+                        step="0.01"
+                        value="{{ item.unit_price }}"
+                        required
+                    >
+                </div>
+
+                <div class="manage-inventory-field">
+                    <label for="expiry_date">Expiry Date</label>
+                    <input
+                        type="date"
+                        name="expiry_date"
+                        id="expiry_date"
+                        class="form-control"
+                        value="{{ item.expiry_date.strftime('%Y-%m-%d') if item.expiry_date else '' }}"
+                    >
+                </div>
+
+                <div class="manage-inventory-field">
+                    <label for="supplier_name">Supplier Name</label>
+                    <input
+                        type="text"
+                        name="supplier_name"
+                        id="supplier_name"
+                        class="form-control"
+                        value="{{ item.supplier_name or '' }}"
+                    >
+                </div>
+
+            </div>
+
+            <div class="manage-inventory-buttons">
+
+                <button type="submit" class="btn">
+                    Save Changes
+                </button>
+
+                <a
+                    href="{{ url_for('inventory') }}"
+                    class="btn manage-inventory-cancel"
+                >
+                    Back to Inventory
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- STOCK TRANSACTION -->
+    <section class="manage-inventory-panel">
+
+        <h3>Stock In / Stock Out</h3>
+
+        <form
+            action="{{ url_for('inventory_transaction', inventory_id=item.inventory_id) }}"
+            method="POST"
+        >
+
+            <div class="stock-transaction-grid">
+
+                <div class="stock-transaction-field">
+
+                    <label for="transaction_type">Transaction Type *</label>
+
+                    <select
+                        name="transaction_type"
+                        id="transaction_type"
+                        class="form-control"
+                        required
+                    >
+                        <option value="">Select Transaction</option>
+                        <option value="stock_in">Stock In — Add Quantity</option>
+                        <option value="stock_out">Stock Out — Remove Quantity</option>
+                    </select>
+
+                </div>
+
+
+                <div class="stock-transaction-field">
+
+                    <label for="quantity">Quantity *</label>
+
+                    <input
+                        type="number"
+                        name="quantity"
+                        id="quantity"
+                        class="form-control"
+                        min="1"
+                        placeholder="Enter quantity"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="stock-transaction-field">
+
+                    <label for="staff_id">Staff ID (Optional)</label>
+
+                    <input
+                        type="number"
+                        name="staff_id"
+                        id="staff_id"
+                        class="form-control"
+                        min="1"
+                        placeholder="Enter staff ID"
+                    >
+
+                </div>
+
+
+                <div class="stock-transaction-field">
+
+                    <label for="remarks">Remarks</label>
+
+                    <input
+                        type="text"
+                        name="remarks"
+                        id="remarks"
+                        class="form-control"
+                        placeholder="Transaction notes"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="manage-inventory-buttons">
+
+                <button type="submit" class="btn">
+                    Record Transaction
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- TRANSACTION HISTORY -->
+    <section class="manage-inventory-panel">
+
+        <h3>Stock Transaction History</h3>
+
+        <div class="inventory-history-wrap">
+
+            <table class="inventory-history">
+
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                        <th>Staff</th>
+                        <th>Date</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for transaction in transactions %}
+
+                    <tr>
+
+                        <td>#{{ transaction.transaction_id }}</td>
+
+                        <td>
+                            {% if transaction.transaction_type == 'stock_in' %}
+                                <span class="transaction-in">Stock In</span>
+                            {% elif transaction.transaction_type == 'stock_out' %}
+                                <span class="transaction-out">Stock Out</span>
+                            {% else %}
+                                {{ transaction.transaction_type }}
+                            {% endif %}
+                        </td>
+
+                        <td>{{ transaction.quantity }}</td>
+
+                        <td>{{ transaction.staff_name or 'Not assigned' }}</td>
+
+                        <td>
+                            {{ transaction.transaction_date.strftime('%d %b %Y, %I:%M %p') if transaction.transaction_date else '—' }}
+                        </td>
+
+                        <td>{{ transaction.remarks or '—' }}</td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="6" class="inventory-history-empty">
+                            No stock transactions recorded yet.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Bill | MediCare+{% endblock %}
+{% block breadcrumb %}Finance / Billing / Edit Bill{% endblock %}
+{% block page_heading %}Bill Details{% endblock %}
+{% block page_subtitle %}Manage bill information and payment transactions.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bill-detail-layout {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+        align-items: start;
+    }
+
+    .bill-detail-panel {
+        background: #fff;
+        border: 1px solid #e9e2d8;
+        border-radius: 14px;
+        padding: 24px;
+        margin-bottom: 22px;
+    }
+
+    .bill-detail-panel h3 {
+        margin: 0 0 20px;
+        color: #542c37;
+        font-size: 18px;
+    }
+
+    .bill-detail-field {
+        margin-bottom: 16px;
+    }
+
+    .bill-detail-field label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #514747;
+        margin-bottom: 7px;
+    }
+
+    .bill-detail-field .form-control {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .bill-payment-summary {
+        background: #f7f3ed;
+        border-radius: 10px;
+        padding: 17px;
+        margin-bottom: 20px;
+    }
+
+    .bill-payment-summary div {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 7px 0;
+        font-size: 14px;
+    }
+
+    .bill-payment-summary strong {
+        color: #542c37;
+    }
+
+    .bill-outstanding {
+        color: #a13e35 !important;
+    }
+
+    .bill-history-wrap {
+        overflow-x: auto;
+    }
+
+    .bill-history-table {
+        width: 100%;
+        min-width: 580px;
+        border-collapse: collapse;
+    }
+
+    .bill-history-table th,
+    .bill-history-table td {
+        padding: 12px 10px;
+        text-align: left;
+        border-bottom: 1px solid #eee8e1;
+        font-size: 13px;
+    }
+
+    .bill-history-table th {
+        background: #f7f3ed;
+        color: #5b3a40;
+    }
+
+    .bill-detail-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+    }
+
+    .bill-detail-actions .btn {
+        min-width: 120px;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .bill-cancel-btn {
+        background: #eee8dc;
+        color: #594334;
+    }
+
+    .bill-no-history {
+        padding: 25px;
+        text-align: center;
+        color: #888;
+    }
+
+    @media(max-width: 850px) {
+        .bill-detail-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="bill-detail-layout">
+
+    <!-- EDIT BILL INFORMATION -->
+    <section class="bill-detail-panel">
+
+        <h3>Edit Bill #{{ bill.bill_id }}</h3>
+
+        <div class="bill-payment-summary">
+
+            <div>
+                <span>Bill ID</span>
+                <strong>#{{ bill.bill_id }}</strong>
+            </div>
+
+            <div>
+                <span>Appointment ID</span>
+                <strong>#{{ bill.appointment_id }}</strong>
+            </div>
+
+            <div>
+                <span>Patient ID</span>
+                <strong>#{{ bill.patient_id or 'N/A' }}</strong>
+            </div>
+
+            <div>
+                <span>Total Paid</span>
+                <strong>₹{{ "%.2f"|format(total_paid|float) }}</strong>
+            </div>
+
+            <div>
+                <span>Outstanding</span>
+                <strong class="bill-outstanding">
+                    ₹{{ "%.2f"|format([bill.total_amount|float - total_paid|float, 0]|max) }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <form
+            action="{{ url_for('edit_bill', bill_id=bill.bill_id) }}"
+            method="POST"
+        >
+
+            <div class="bill-detail-field">
+                <label for="total_amount">Total Bill Amount (₹) *</label>
+
+                <input
+                    type="number"
+                    name="total_amount"
+                    id="total_amount"
+                    class="form-control"
+                    min="0.01"
+                    step="0.01"
+                    value="{{ bill.total_amount }}"
+                    required
+                >
+            </div>
+
+
+            <div class="bill-detail-field">
+                <label for="payment_method">Payment Method *</label>
+
+                <select
+                    name="payment_method"
+                    id="payment_method"
+                    class="form-control"
+                    required
+                >
+                    <option value="cash" {% if bill.payment_method == 'cash' %}selected{% endif %}>
+                        Cash
+                    </option>
+
+                    <option value="card" {% if bill.payment_method == 'card' %}selected{% endif %}>
+                        Card
+                    </option>
+
+                    <option value="upi" {% if bill.payment_method == 'upi' %}selected{% endif %}>
+                        UPI
+                    </option>
+
+                    <option value="insurance" {% if bill.payment_method == 'insurance' %}selected{% endif %}>
+                        Insurance
+                    </option>
+                </select>
+            </div>
+
+
+            <div class="bill-detail-field">
+                <label for="payment_status">Payment Status *</label>
+
+                <select
+                    name="payment_status"
+                    id="payment_status"
+                    class="form-control"
+                    required
+                >
+                    <option value="pending" {% if bill.payment_status == 'pending' %}selected{% endif %}>
+                        Pending
+                    </option>
+
+                    <option value="paid" {% if bill.payment_status == 'paid' %}selected{% endif %}>
+                        Paid
+                    </option>
+
+                    <option value="failed" {% if bill.payment_status == 'failed' %}selected{% endif %}>
+                        Failed
+                    </option>
+
+                    <option value="refunded" {% if bill.payment_status == 'refunded' %}selected{% endif %}>
+                        Refunded
+                    </option>
+                </select>
+            </div>
+
+
+            <div class="bill-detail-actions">
+
+                <button type="submit" class="btn">
+                    Save Changes
+                </button>
+
+                <a
+                    href="{{ url_for('billing') }}"
+                    class="btn bill-cancel-btn"
+                >
+                    Back to Billing
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- RECORD PAYMENT -->
+    <section class="bill-detail-panel">
+
+        <h3>+ Record Payment</h3>
+
+        <p style="font-size:13px;color:#817773;margin-bottom:20px;">
+            Record a successful payment against this bill. Partial payments
+            are supported.
+        </p>
+
+        <form
+            action="{{ url_for('record_bill_payment', bill_id=bill.bill_id) }}"
+            method="POST"
+        >
+
+            <div class="bill-detail-field">
+                <label for="payment_amount">Payment Amount (₹) *</label>
+
+                <input
+                    type="number"
+                    name="payment_amount"
+                    id="payment_amount"
+                    class="form-control"
+                    min="0.01"
+                    step="0.01"
+                    max="{{ [bill.total_amount|float - total_paid|float, 0]|max }}"
+                    placeholder="Enter payment amount"
+                    required
+                >
+            </div>
+
+
+            <div class="bill-detail-field">
+                <label for="payment_method_record">Payment Method *</label>
+
+                <select
+                    name="payment_method"
+                    id="payment_method_record"
+                    class="form-control"
+                    required
+                >
+                    <option value="">Select payment method</option>
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                    <option value="upi">UPI</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                </select>
+            </div>
+
+
+            <div class="bill-detail-field">
+                <label for="transaction_reference">Transaction Reference</label>
+
+                <input
+                    type="text"
+                    name="transaction_reference"
+                    id="transaction_reference"
+                    class="form-control"
+                    placeholder="Optional transaction ID"
+                >
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn"
+                {% if bill.payment_status in ['failed', 'refunded'] or (bill.total_amount|float - total_paid|float) <= 0 %}
+                    disabled
+                {% endif %}
+            >
+                Record Payment
+            </button>
+
+        </form>
+
+    </section>
+
+</div>
+
+
+<!-- PAYMENT HISTORY -->
+<section class="bill-detail-panel">
+
+    <h3>Payment History</h3>
+
+    <div class="bill-history-wrap">
+
+        <table class="bill-history-table">
+
+            <thead>
+                <tr>
+                    <th>Payment ID</th>
+                    <th>Date & Time</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Transaction Reference</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for payment in payment_history %}
+
+                <tr>
+
+                    <td>#{{ payment.payment_id }}</td>
+
+                    <td>
+                        {{ payment.payment_date.strftime('%d %b %Y, %I:%M %p') if payment.payment_date else '—' }}
+                    </td>
+
+                    <td>
+                        ₹{{ "%.2f"|format(payment.payment_amount|float) }}
+                    </td>
+
+                    <td>
+                        {{ payment.payment_method|replace('_', ' ')|title }}
+                    </td>
+
+                    <td>
+                        {{ payment.transaction_reference or '—' }}
+                    </td>
+
+                    <td>
+                        {{ payment.payment_status|title }}
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="6" class="bill-no-history">
+                        No payment transactions recorded yet.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+
+{% extends "base.html" %}
+{% block title %}Billing & Accounts | MEDIVERA{% endblock %}
+{% block breadcrumb %}Billing & Accounts{% endblock %}
+{% block body_class %}patient-portal-body{% endblock %}
+{% block extra_css %}
+<style>
+.patient-service-page{max-width:1450px;margin:0 auto;color:#f4f5f7}
+.ps-hero{padding:25px 28px;margin-bottom:20px;border:1px solid rgba(244,119,33,.3);border-radius:18px;background:radial-gradient(circle at 90% 10%,rgba(244,119,33,.16),transparent 35%),linear-gradient(135deg,#292d34,#1b1e23);box-shadow:0 14px 32px #0002}
+.ps-hero h1{margin:0 0 8px;font-size:25px;color:#fff}.ps-hero p{margin:0;color:#b5bdc8;font-size:12px;line-height:1.7}
+.ps-panel{margin:16px 0;padding:20px;border:1px solid #363c45;border-radius:15px;background:linear-gradient(145deg,#252a31,#1b1e23);box-shadow:0 9px 24px #0002}
+.ps-panel h2{margin:0 0 14px;font-size:16px;color:#fff}
+.ps-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.ps-metric{padding:15px;border:1px solid #3b414a;border-radius:12px;background:#171a1f}
+.ps-metric small{display:block;color:#aeb6c1;font-size:10px}.ps-metric strong{display:block;margin-top:7px;color:#ffad72;font-size:22px}
+.ps-table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:620px}th,td{padding:12px 10px;border-bottom:1px solid #373d46;text-align:left;font-size:11px}th{color:#ffbd91;font-size:10px;text-transform:uppercase;letter-spacing:.6px}td{color:#e8ebef}
+.ps-status{display:inline-block;padding:5px 9px;border-radius:20px;background:#343b45;color:#e7eaf0;font-size:9px;font-weight:800}
+.ps-status.paid,.ps-status.approved,.ps-status.resolved{background:#164c3b;color:#7ce0b6}
+.ps-status.pending,.ps-status.reported,.ps-status.under-review{background:#58451f;color:#f3cf7a}
+.ps-status.failed,.ps-status.rejected,.ps-status.cancelled{background:#572d32;color:#ff9ba2}
+.ps-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.ps-field{display:flex;flex-direction:column;gap:7px}.ps-field.full{grid-column:1/-1}
+.ps-field label{color:#e9edf2;font-size:11px;font-weight:700}
+.ps-field input,.ps-field select,.ps-field textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid #414852;border-radius:9px;background:#111419;color:#f5f6f8;font:inherit;font-size:12px}
+.ps-field textarea{min-height:115px;resize:vertical}
+.ps-button{display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border:0;border-radius:9px;background:linear-gradient(135deg,#ffa34d,#e87520);color:#17191d;font-weight:800;font-size:11px;text-decoration:none;cursor:pointer}
+.ps-back{display:inline-block;margin-bottom:14px;color:#ffb17f;font-size:11px;text-decoration:none}
+.ps-empty{padding:25px;text-align:center;color:#aeb6c1;font-size:12px}
+.ps-note{padding:12px 14px;border:1px solid #775b29;border-radius:10px;background:#352b1c;color:#f1d49b;font-size:11px;line-height:1.6}
+@media(max-width:900px){.ps-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.ps-form{grid-template-columns:1fr}.ps-field.full{grid-column:auto}.ps-hero{padding:20px}.ps-panel{padding:15px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="patient-service-page">
+<a class="ps-back" href="{{ url_for('patient.dashboard') }}">← Back to patient dashboard</a>
+<section class="ps-hero"><h1>Billing & Accounts</h1><p>Review your hospital bills, invoice references and payment status. All records shown belong to your patient account.</p></section>
+<section class="ps-grid">
+<div class="ps-metric"><small>Total invoices</small><strong>{{ summary.total_bills or 0 }}</strong></div>
+<div class="ps-metric"><small>Total billed</small><strong>₹{{ "%.2f"|format(summary.total_amount or 0) }}</strong></div>
+<div class="ps-metric"><small>Paid amount</small><strong>₹{{ "%.2f"|format(summary.paid_amount or 0) }}</strong></div>
+<div class="ps-metric"><small>Pending amount</small><strong>₹{{ "%.2f"|format(summary.pending_amount or 0) }}</strong></div>
+</section>
+<section class="ps-panel"><h2>Invoice & payment history</h2>
+{% if bills %}
+<div class="ps-table-wrap"><table><thead><tr><th>Bill</th><th>Appointment</th><th>Amount</th><th>Method</th><th>Status</th><th>Payment date</th></tr></thead><tbody>
+{% for bill in bills %}
+<tr><td>#{{ bill.bill_id }}</td><td>#{{ bill.appointment_id }}</td><td>₹{{ "%.2f"|format(bill.total_amount or 0) }}</td><td>{{ (bill.payment_method or "—")|upper }}</td><td><span class="ps-status {{ (bill.payment_status or 'pending')|lower }}">{{ (bill.payment_status or "pending")|title }}</span></td><td>{{ bill.payment_date or "Not paid" }}</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% else %}<div class="ps-empty">No billing records are currently linked to your patient account.</div>{% endif %}
+</section>
+<div class="ps-note">This page displays existing billing records only. It does not collect payments or change payment status. Please contact the hospital billing desk for payment, refunds or invoice corrections.</div>
+</div>
+{% endblock %}

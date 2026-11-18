@@ -1,0 +1,201 @@
+﻿
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Meal Management | MEDIVERA{% endblock %}
+{% block breadcrumb %}Meal Management{% endblock %}
+
+{% block extra_css %}
+<style>
+.meal-page { color: #f5f5f5; }
+.meal-heading {
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:16px; margin-bottom:24px;
+}
+.meal-heading h1 { margin:0; font-size:27px; font-weight:800; }
+.meal-heading p { color:#a8abb3; margin:7px 0 0; }
+.meal-btn {
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:11px 17px; border-radius:10px; text-decoration:none;
+    font-weight:700; background:#f28c28; color:#17191d;
+    border:0; cursor:pointer;
+}
+.meal-btn:hover { background:#ffab50; color:#17191d; }
+.meal-stats {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(165px,1fr));
+    gap:15px; margin-bottom:25px;
+}
+.meal-stat {
+    background:linear-gradient(145deg,#252830,#1b1e24);
+    border:1px solid #373b44; border-radius:15px;
+    padding:19px; box-shadow:0 8px 22px #0003;
+}
+.meal-stat span { color:#aeb2bc; font-size:13px; }
+.meal-stat strong { display:block; font-size:29px; margin-top:9px; }
+.meal-stat small { color:#f28c28; }
+.meal-panel {
+    background:#202329; border:1px solid #373b44;
+    border-radius:15px; padding:20px; margin-bottom:22px;
+}
+.meal-panel h2 { font-size:18px; margin:0 0 17px; }
+.meal-table-wrap { overflow-x:auto; }
+.meal-table { width:100%; border-collapse:collapse; min-width:650px; }
+.meal-table th {
+    color:#aeb2bc; font-size:12px; text-transform:uppercase;
+    letter-spacing:.06em; text-align:left; padding:12px;
+    border-bottom:1px solid #3a3e47;
+}
+.meal-table td {
+    padding:13px 12px; border-bottom:1px solid #343841;
+    color:#eceef2; font-size:14px;
+}
+.meal-muted { color:#aeb2bc; }
+.meal-tag {
+    display:inline-block; padding:5px 9px; border-radius:30px;
+    font-size:11px; font-weight:700; background:#343943; color:#eee;
+}
+.meal-tag.available { background:#173c2b; color:#7ce0a4; }
+.meal-tag.unavailable { background:#4a2528; color:#ff9da3; }
+.meal-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.meal-link { color:#ffad59; text-decoration:none; font-weight:700; }
+.meal-link:hover { color:#ffd0a1; }
+.meal-empty { color:#aeb2bc; padding:22px 0; text-align:center; }
+@media(max-width:650px) {
+    .meal-heading h1 { font-size:22px; }
+    .meal-panel { padding:14px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="meal-page">
+    <div class="meal-heading">
+        <div>
+            <h1>Meal Management</h1>
+            <p>Daily food operations, meal schedules and patient requests.</p>
+        </div>
+        {% if can_manage_menu %}
+        <a class="meal-btn" href="{{ url_for('admin.meal_menu_add') }}">ï¼‹ Add Menu Item</a>
+        {% endif %}
+    </div>
+
+    <div class="meal-stats">
+        <div class="meal-stat">
+            <span>Today's Menu Items</span>
+            <strong>{{ metrics.today_menu_items or 0 }}</strong>
+            <small>Available menu entries</small>
+        </div>
+        <div class="meal-stat">
+            <span>Today's Requests</span>
+            <strong>{{ metrics.today_requests or 0 }}</strong>
+            <small>Patient meal orders</small>
+        </div>
+        <div class="meal-stat">
+            <span>Pending Requests</span>
+            <strong>{{ metrics.pending_requests or 0 }}</strong>
+            <small>Awaiting approval</small>
+        </div>
+        <div class="meal-stat">
+            <span>Accepted</span>
+            <strong>{{ metrics.accepted_requests or 0 }}</strong>
+            <small>Approved requests</small>
+        </div>
+        <div class="meal-stat">
+            <span>In Preparation</span>
+            <strong>{{ metrics.prepared_requests or 0 }}</strong>
+            <small>Ready for delivery</small>
+        </div>
+        <div class="meal-stat">
+            <span>Delivered</span>
+            <strong>{{ metrics.delivered_requests or 0 }}</strong>
+            <small>Completed today</small>
+        </div>
+    </div>
+
+    <section class="meal-panel">
+        <div class="meal-heading">
+            <div>
+                <h2>Today's Meal Schedule</h2>
+                <p class="meal-muted">{{ today.strftime('%A, %d %B %Y') }}</p>
+            </div>
+            <a class="meal-link" href="{{ url_for('admin.meal_requests') }}">View all requests â†’</a>
+        </div>
+
+        <div class="meal-table-wrap">
+            <table class="meal-table">
+                <thead>
+                    <tr>
+                        <th>Meal</th><th>Serving Time</th><th>Menu Item</th>
+                        <th>Dietary Type</th><th>Availability</th><th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in menu %}
+                    <tr>
+                        <td><strong>{{ item.meal_name }}</strong></td>
+                        <td>{{ item.serving_start }} â€“ {{ item.serving_end }}</td>
+                        <td>
+                            {{ item.item_name }}
+                            {% if item.item_description %}
+                                <div class="meal-muted">{{ item.item_description }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.dietary_type }}</td>
+                        <td>
+                            {% if item.is_available %}
+                                <span class="meal-tag available">Available</span>
+                            {% else %}
+                                <span class="meal-tag unavailable">Unavailable</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if can_manage_menu %}
+                            <a class="meal-link" href="{{ url_for('admin.meal_menu_edit', menu_id=item.menu_id) }}">Edit</a>
+                            {% else %}â€”{% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6" class="meal-empty">No menu items have been added for today.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="meal-panel">
+        <div class="meal-heading">
+            <div>
+                <h2>Recent Meal Requests</h2>
+                <p class="meal-muted">Latest patient meal activity</p>
+            </div>
+            <a class="meal-link" href="{{ url_for('admin.meal_requests') }}">Manage requests â†’</a>
+        </div>
+
+        <div class="meal-table-wrap">
+            <table class="meal-table">
+                <thead>
+                    <tr>
+                        <th>Request</th><th>Patient ID</th><th>Meal</th>
+                        <th>Item</th><th>Date</th><th>Qty</th><th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for r in recent_requests %}
+                    <tr>
+                        <td>#{{ r.meal_request_id }}</td>
+                        <td>#{{ r.patient_id }}</td>
+                        <td>{{ r.meal_name }}</td>
+                        <td>{{ r.item_name }}</td>
+                        <td>{{ r.meal_date }}</td>
+                        <td>{{ r.quantity }}</td>
+                        <td><span class="meal-tag">{{ r.status }}</span></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="meal-empty">No meal requests have been received yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}
+

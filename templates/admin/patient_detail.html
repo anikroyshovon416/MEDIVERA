@@ -1,0 +1,131 @@
+﻿{% extends "admin/base_admin.html" %}
+{% block title %}Patient Profile | MEDIVERA{% endblock %}
+
+{% block content %}
+<style>
+.pd-wrap{color:#f4f4f5}
+.pd-head{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:22px}
+.pd-head h1{font-size:27px;font-weight:850;margin:0 0 6px}
+.pd-muted{color:#a1a1aa;font-size:13px}
+.pd-btn{display:inline-flex;padding:11px 17px;border-radius:9px;text-decoration:none;font-weight:750}
+.pd-primary{background:#ff9638;color:#171717}
+.pd-secondary{background:#34353b;color:#fff}
+.pd-card{background:#202126;border:1px solid #383940;border-radius:15px;padding:21px;margin-bottom:18px}
+.pd-profile{display:flex;align-items:center;gap:17px}
+.pd-avatar{width:65px;height:65px;border-radius:17px;background:#ff9638;color:#171717;display:grid;place-items:center;font-size:24px;font-weight:900}
+.pd-profile h2{margin:0 0 6px;font-size:22px}
+.pd-section{font-size:16px;color:#ffad65;font-weight:800;margin:0 0 17px}
+.pd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px}
+.pd-label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#999aa2;margin-bottom:6px}
+.pd-value{font-size:14px;font-weight:650;overflow-wrap:anywhere}
+.pd-table-wrap{overflow-x:auto}
+.pd-table{width:100%;border-collapse:collapse;min-width:570px}
+.pd-table th{text-align:left;color:#ffad65;font-size:12px;padding:12px;border-bottom:1px solid #41434a}
+.pd-table td{padding:13px 12px;border-bottom:1px solid #34353b;font-size:13px}
+.pd-empty{text-align:center;color:#a1a1aa;padding:22px}
+@media(max-width:600px){.pd-card{padding:15px}}
+</style>
+
+<div class="pd-wrap">
+    <div class="pd-head">
+        <div>
+            <h1>Patient Profile</h1>
+            <div class="pd-muted">MEDIVERA patient record · #{{ patient.patient_id }}</div>
+        </div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+            <a class="pd-btn pd-secondary" href="{{ url_for('admin.patients') }}">Back to Patients</a>
+            <a class="pd-btn pd-primary" href="{{ url_for('admin.edit_patient', patient_id=patient.patient_id) }}">Edit Patient</a>
+        </div>
+    </div>
+
+    <div class="pd-card">
+        <div class="pd-profile">
+            <div class="pd-avatar">{{ (patient.first_name or 'P')[0]|upper }}{{ (patient.last_name or '')[0:1]|upper }}</div>
+            <div>
+                <h2>{{ patient.first_name }} {{ patient.last_name }}</h2>
+                <div class="pd-muted">Patient ID: #{{ patient.patient_id }}</div>
+                <div class="pd-muted">Registered: {{ patient.created_at|string if patient.created_at else '—' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pd-card">
+        <h3 class="pd-section">Personal Information</h3>
+        <div class="pd-grid">
+            <div><div class="pd-label">Date of Birth</div><div class="pd-value">{{ (patient.date_of_birth|string)[:10] if patient.date_of_birth else '—' }}</div></div>
+            <div><div class="pd-label">Gender</div><div class="pd-value">{{ patient.gender or '—' }}</div></div>
+            <div><div class="pd-label">Blood Group</div><div class="pd-value">{{ patient.blood_group or 'Unknown / Not provided' }}</div></div>
+        </div>
+    </div>
+
+    <div class="pd-card">
+        <h3 class="pd-section">Contact Information</h3>
+        <div class="pd-grid">
+            <div><div class="pd-label">Phone</div><div class="pd-value">{{ patient.phone or '—' }}</div></div>
+            <div><div class="pd-label">Email</div><div class="pd-value">{{ patient.email or '—' }}</div></div>
+            <div style="grid-column:1/-1"><div class="pd-label">Address</div><div class="pd-value">{{ patient.address or '—' }}</div></div>
+        </div>
+    </div>
+
+    <div class="pd-card">
+        <h3 class="pd-section">Emergency Contact</h3>
+        <div class="pd-grid">
+            <div><div class="pd-label">Contact Name</div><div class="pd-value">{{ patient.emergency_contact_name or '—' }}</div></div>
+            <div><div class="pd-label">Contact Phone</div><div class="pd-value">{{ patient.emergency_contact_phone or '—' }}</div></div>
+        </div>
+    </div>
+
+    <div class="pd-card">
+        <h3 class="pd-section">Linked Account</h3>
+        <div class="pd-grid">
+            <div><div class="pd-label">Username</div><div class="pd-value">{{ patient.username or 'No linked login account' }}</div></div>
+            <div><div class="pd-label">Account Email</div><div class="pd-value">{{ patient.account_email or '—' }}</div></div>
+            <div><div class="pd-label">Account Status</div><div class="pd-value">{{ 'Active' if patient.account_active else ('Inactive' if patient.account_active is not none else 'No linked account') }}</div></div>
+        </div>
+    </div>
+
+    <div class="pd-card">
+        <h3 class="pd-section">Recent Appointments</h3>
+        <div class="pd-table-wrap">
+            <table class="pd-table">
+                <thead><tr><th>Appointment</th><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for item in appointments %}
+                    <tr>
+                        <td>#{{ item.appointment_id }}</td>
+                        <td>{{ item.doctor_name or '—' }}</td>
+                        <td>{{ item.appointment_date|string if item.appointment_date else '—' }}</td>
+                        <td>{{ item.appointment_time|string if item.appointment_time else '—' }}</td>
+                        <td>{{ item.status or '—' }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="pd-empty">No appointment history found.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="pd-card">
+        <h3 class="pd-section">Admission History</h3>
+        <div class="pd-table-wrap">
+            <table class="pd-table">
+                <thead><tr><th>Admission</th><th>Admission Date</th><th>Discharge Date</th><th>Reason</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for item in admissions %}
+                    <tr>
+                        <td>#{{ item.admission_id }}</td>
+                        <td>{{ item.admission_date|string if item.admission_date else '—' }}</td>
+                        <td>{{ item.discharge_date|string if item.discharge_date else '—' }}</td>
+                        <td>{{ item.admission_reason or '—' }}</td>
+                        <td>{{ item.admission_status or '—' }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="pd-empty">No admission history found.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

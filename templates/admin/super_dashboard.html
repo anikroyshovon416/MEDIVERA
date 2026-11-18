@@ -1,0 +1,209 @@
+﻿{% extends "admin/base_admin.html" %}
+
+{% block title %}Super Admin Dashboard | MEDIVERA{% endblock %}
+{% block breadcrumb %}Super Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="super-dashboard">
+
+    <!-- WELCOME / SYSTEM CONTROL -->
+
+    <section class="admin-welcome mv-reveal">
+
+        <div>
+            <span class="admin-eyebrow">
+                MEDIVERA · SYSTEM CONTROL CENTER
+            </span>
+
+            <h1>
+                Welcome back, {{ user.username }}
+            </h1>
+
+            <p>
+                Complete oversight of MEDIVERA hospital operations.
+                Monitor the hospital ecosystem from your central workspace.
+            </p>
+        </div>
+
+        <div class="super-admin-badge">
+            <span aria-hidden="true">&#9733;</span>
+            SUPER ADMIN
+        </div>
+
+    </section>
+
+
+    <!-- SYSTEM METRICS -->
+
+    <section class="admin-stat-grid">
+
+        <article class="admin-stat-card mv-3d-card mv-reveal"
+                 data-mv-delay="1">
+            <span class="stat-icon" aria-hidden="true">&#9823;</span>
+            <span class="stat-label">Total Users</span>
+            <strong>{{ metrics.total_users|default(0, true) }}</strong>
+            <small>Registered accounts</small>
+        </article>
+
+        <article class="admin-stat-card mv-3d-card mv-reveal"
+                 data-mv-delay="2">
+            <span class="stat-icon" aria-hidden="true">&#9825;</span>
+            <span class="stat-label">Total Patients</span>
+            <strong>{{ metrics.total_patients|default(0, true) }}</strong>
+            <small>Patient records</small>
+        </article>
+
+        <article class="admin-stat-card mv-3d-card mv-reveal"
+                 data-mv-delay="3">
+            <span class="stat-icon" aria-hidden="true">&#9877;</span>
+            <span class="stat-label">Total Doctors</span>
+            <strong>{{ metrics.total_doctors|default(0, true) }}</strong>
+            <small>Registered doctors</small>
+        </article>
+
+        <article class="admin-stat-card mv-3d-card mv-reveal"
+                 data-mv-delay="4">
+            <span class="stat-icon" aria-hidden="true">&#9638;</span>
+            <span class="stat-label">Appointments</span>
+            <strong>{{ metrics.total_appointments|default(0, true) }}</strong>
+            <small>All appointment records</small>
+        </article>
+
+        <article class="admin-stat-card stat-warning mv-3d-card mv-reveal">
+            <span class="stat-icon" aria-hidden="true">&#9203;</span>
+            <span class="stat-label">Pending Appointments</span>
+            <strong>{{ metrics.pending_appointments|default(0, true) }}</strong>
+            <small>Awaiting approval</small>
+        </article>
+
+        <article class="admin-stat-card mv-3d-card mv-reveal">
+            <span class="stat-icon" aria-hidden="true">&#8962;</span>
+            <span class="stat-label">Admissions</span>
+            <strong>{{ metrics.total_admissions|default(0, true) }}</strong>
+            <small>Admission records</small>
+        </article>
+
+        <article class="admin-stat-card mv-3d-card mv-reveal">
+            <span class="stat-icon" aria-hidden="true">&#9636;</span>
+            <span class="stat-label">Inventory Items</span>
+            <strong>{{ metrics.inventory_items|default(0, true) }}</strong>
+            <small>Tracked inventory</small>
+        </article>
+
+        <article class="admin-stat-card mv-3d-card mv-reveal">
+            <span class="stat-icon" aria-hidden="true">&#9881;</span>
+            <span class="stat-label">Active Assignments</span>
+            <strong>{{ metrics.active_assignments|default(0, true) }}</strong>
+            <small>Delegated responsibilities</small>
+        </article>
+
+    </section>
+
+
+    <!-- ADMINISTRATION CENTER -->
+
+    <section class="admin-panel mv-reveal">
+
+        <div class="admin-panel-heading">
+
+            <div>
+                <span class="admin-eyebrow">
+                    SYSTEM MANAGEMENT
+                </span>
+
+                <h2>Administration Center</h2>
+            </div>
+
+            <span class="admin-panel-tag">
+                FULL ACCESS
+            </span>
+
+        </div>
+
+        <p class="admin-panel-description">
+            Manage hospital administrators, roles, permissions, approvals,
+            departments and system-wide operations from your Super Admin
+            workspace.
+        </p>
+
+        <div class="admin-management-grid">
+
+            <article class="admin-management-card mv-3d-card">
+
+                <span aria-hidden="true">&#9823;</span>
+
+                <h3>Administrator Management</h3>
+
+                <p>
+                    Create administrator accounts and assign
+                    responsibilities across hospital departments.
+                </p>
+
+                <small>
+                    Administrator workspace
+                </small>
+
+            </article>
+
+
+            <article class="admin-management-card mv-3d-card">
+
+                <span aria-hidden="true">&#9881;</span>
+
+                <h3>Roles &amp; Permissions</h3>
+
+                <p>
+                    Control access using MEDIVERA's existing
+                    role-based access control system.
+                </p>
+
+                <small>
+                    RBAC management
+                </small>
+
+            </article>
+
+
+            <article class="admin-management-card mv-3d-card">
+
+                <span aria-hidden="true">&#10003;</span>
+
+                <h3>Approval Management</h3>
+
+                <p>
+                    Oversee appointment, admission, meal and
+                    equipment approval workflows.
+                </p>
+
+                <small>
+                    Approval workspace
+                </small>
+
+            </article>
+
+
+            <article class="admin-management-card mv-3d-card">
+
+                <span aria-hidden="true">&#9638;</span>
+
+                <h3>Activity &amp; Reports</h3>
+
+                <p>
+                    Monitor administrative activity and review
+                    hospital-wide operational reports.
+                </p>
+
+                <small>
+                    Monitoring workspace
+                </small>
+
+            </article>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

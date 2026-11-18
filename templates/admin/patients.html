@@ -1,0 +1,118 @@
+﻿{% extends "admin/base_admin.html" %}
+{% block title %}Patient Management | MEDIVERA{% endblock %}
+
+{% block content %}
+<style>
+.pm-wrap{color:#f4f4f5}
+.pm-head{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:24px}
+.pm-head h1{font-size:27px;font-weight:850;margin:0 0 6px}
+.pm-muted{color:#a1a1aa;font-size:13px}
+.pm-btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 17px;border-radius:9px;text-decoration:none;font-weight:750;border:0;cursor:pointer}
+.pm-primary{background:#ff9638;color:#171717}
+.pm-secondary{background:#34353b;color:#fff}
+.pm-card{background:#202126;border:1px solid #383940;border-radius:15px;padding:20px;margin-bottom:20px}
+.pm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px}
+.pm-stat{background:#202126;border:1px solid #383940;border-radius:13px;padding:18px}
+.pm-stat strong{display:block;font-size:27px;color:#ff9638;margin-top:7px}
+.pm-search{display:flex;gap:10px;flex-wrap:wrap}
+.pm-search input{flex:1;min-width:220px;background:#17181c;color:#fff;border:1px solid #41434a;border-radius:9px;padding:12px}
+.pm-table-wrap{overflow-x:auto}
+.pm-table{width:100%;border-collapse:collapse;min-width:700px}
+.pm-table th{text-align:left;color:#ffad65;font-size:12px;text-transform:uppercase;letter-spacing:.6px;padding:14px;border-bottom:1px solid #41434a}
+.pm-table td{padding:14px;border-bottom:1px solid #34353b;font-size:13px}
+.pm-table tr:last-child td{border-bottom:0}
+.pm-name{font-weight:750;color:#fff}
+.pm-actions{display:flex;gap:8px;flex-wrap:wrap}
+.pm-link{color:#ffad65;text-decoration:none;font-weight:700}
+.pm-link:hover{text-decoration:underline}
+.pm-empty{text-align:center;padding:35px;color:#a1a1aa}
+.pm-pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px}
+.pm-pagination a{color:#ffad65;text-decoration:none;padding:8px 12px;border:1px solid #41434a;border-radius:8px}
+@media(max-width:650px){.pm-head{align-items:flex-start}.pm-card{padding:14px}}
+</style>
+
+<div class="pm-wrap">
+    <div class="pm-head">
+        <div>
+            <h1>Patient Management</h1>
+            <div class="pm-muted">Manage patient records and healthcare profiles.</div>
+        </div>
+        <a class="pm-btn pm-primary" href="{{ url_for('admin.add_patient') }}">+ Add Patient</a>
+    </div>
+
+    <div class="pm-stats">
+        <div class="pm-stat">
+            <div class="pm-muted">Total Patient Records</div>
+            <strong>{{ total_records|default(0) }}</strong>
+        </div>
+        <div class="pm-stat">
+            <div class="pm-muted">Current Page</div>
+            <strong>{{ page|default(1) }} / {{ total_pages|default(1) }}</strong>
+        </div>
+    </div>
+
+    <div class="pm-card">
+        <form class="pm-search" method="GET" action="{{ url_for('admin.patients') }}">
+            <input type="search" name="search" value="{{ search|default('') }}"
+                   placeholder="Search by patient ID, name, phone or email...">
+            <button class="pm-btn pm-primary" type="submit">Search</button>
+            {% if search %}
+            <a class="pm-btn pm-secondary" href="{{ url_for('admin.patients') }}">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="pm-card">
+        <div class="pm-table-wrap">
+            <table class="pm-table">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Patient ID</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Gender</th>
+                        <th>Blood Group</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for patient in patients %}
+                    <tr>
+                        <td>
+                            <div class="pm-name">{{ patient.first_name }} {{ patient.last_name }}</div>
+                            <div class="pm-muted">Patient profile</div>
+                        </td>
+                        <td>#{{ patient.patient_id }}</td>
+                        <td>{{ patient.phone or '—' }}</td>
+                        <td>{{ patient.email or '—' }}</td>
+                        <td>{{ patient.gender or '—' }}</td>
+                        <td>{{ patient.blood_group or 'Unknown' }}</td>
+                        <td>
+                            <div class="pm-actions">
+                                <a class="pm-link" href="{{ url_for('admin.patient_detail', patient_id=patient.patient_id) }}">View</a>
+                                <a class="pm-link" href="{{ url_for('admin.edit_patient', patient_id=patient.patient_id) }}">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="pm-empty">No patient records found.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pm-pagination">
+            <span class="pm-muted">Showing page {{ page|default(1) }} of {{ total_pages|default(1) }} · {{ total_records|default(0) }} records</span>
+            <div class="pm-actions">
+                {% if page|default(1) > 1 %}
+                <a href="{{ url_for('admin.patients', page=page-1, search=search) }}">Previous</a>
+                {% endif %}
+                {% if page|default(1) < total_pages|default(1) %}
+                <a href="{{ url_for('admin.patients', page=page+1, search=search) }}">Next</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

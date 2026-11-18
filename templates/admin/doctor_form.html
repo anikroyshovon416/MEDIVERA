@@ -1,0 +1,118 @@
+﻿{% extends "admin/base_admin.html" %}
+{% block title %}{{ page_heading }} | MEDIVERA{% endblock %}
+
+{% block content %}
+<style>
+.doctor-form-page{color:#f4f4f5;max-width:1050px}
+.doctor-form-page .hero,.doctor-form-page .panel{background:#202023;border:1px solid #39393d;border-radius:18px;padding:24px;margin-bottom:18px}
+.doctor-form-page h1{margin:0 0 8px;font-size:26px}
+.doctor-form-page .muted{color:#a1a1aa}
+.doctor-form-page .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.doctor-form-page label{display:block;font-size:13px;font-weight:700;margin-bottom:8px;color:#ddd}
+.doctor-form-page input,.doctor-form-page select{width:100%;box-sizing:border-box;background:#151518;color:#fff;border:1px solid #44444a;border-radius:9px;padding:12px}
+.doctor-form-page input:focus,.doctor-form-page select:focus{outline:1px solid #f28b28}
+.doctor-form-page .field.full{grid-column:1/-1}
+.doctor-form-page .hint{font-size:12px;color:#999;margin-top:6px}
+.doctor-form-page .actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.doctor-form-page .btn{display:inline-block;border:0;border-radius:9px;padding:12px 18px;text-decoration:none;font-weight:800;cursor:pointer}
+.doctor-form-page .primary{background:#f28b28;color:#171717}
+.doctor-form-page .secondary{background:#35353a;color:#eee}
+.doctor-form-page .flash{padding:11px 14px;border-radius:9px;margin-bottom:10px;background:#482326;color:#ffc1c1}
+@media(max-width:650px){.doctor-form-page .form-grid{grid-template-columns:1fr}.doctor-form-page .field.full{grid-column:auto}}
+</style>
+
+<div class="doctor-form-page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <section class="hero">
+        <div class="muted">MEDIVERA / DOCTOR MANAGEMENT</div>
+        <h1>{{ page_heading }}</h1>
+        <div class="muted">Enter accurate professional and contact information.</div>
+    </section>
+
+    <section class="panel">
+        {% set fd = form_data or {} %}
+        <form method="POST" action="{{ form_action }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-grid">
+                <div class="field">
+                    <label for="doctor_name">Doctor's full name *</label>
+                    <input id="doctor_name" name="doctor_name" maxlength="100" required
+                           value="{{ fd.get('doctor_name', doctor.doctor_name if doctor else '') }}">
+                </div>
+
+                <div class="field">
+                    <label for="department_id">Department *</label>
+                    <select id="department_id" name="department_id" required>
+                        <option value="">Select department</option>
+                        {% for department in departments %}
+                        <option value="{{ department.department_id }}"
+                            {% if fd.get('department_id', doctor.department_id if doctor else '')|string == department.department_id|string %}selected{% endif %}>
+                            {{ department.department_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="specialization">Specialization</label>
+                    <input id="specialization" name="specialization" maxlength="100"
+                           value="{{ fd.get('specialization', doctor.specialization if doctor else '') }}"
+                           placeholder="e.g. Cardiology">
+                </div>
+
+                <div class="field">
+                    <label for="experience_years">Experience (years)</label>
+                    <input id="experience_years" name="experience_years" type="number" min="0" max="100"
+                           value="{{ fd.get('experience_years', doctor.experience_years if doctor else 0) }}">
+                </div>
+
+                <div class="field">
+                    <label for="phone">Phone number</label>
+                    <input id="phone" name="phone" maxlength="15"
+                           value="{{ fd.get('phone', doctor.phone if doctor else '') }}"
+                           placeholder="Contact number">
+                </div>
+
+                <div class="field">
+                    <label for="email">Email address</label>
+                    <input id="email" name="email" type="email" maxlength="100"
+                           value="{{ fd.get('email', doctor.email if doctor else '') }}"
+                           placeholder="doctor@example.com">
+                </div>
+
+                <div class="field">
+                    <label for="consultation_fee">Consultation fee (INR) *</label>
+                    <input id="consultation_fee" name="consultation_fee" type="number"
+                           min="0" max="99999999.99" step="0.01" required
+                           value="{{ fd.get('consultation_fee', doctor.consultation_fee if doctor else '') }}">
+                </div>
+
+                <div class="field">
+                    <label for="availability_status">Availability *</label>
+                    <select id="availability_status" name="availability_status" required>
+                        {% set selected_availability = fd.get('availability_status', doctor.availability_status if doctor else 'available') %}
+                        {% for option in availability_options %}
+                        <option value="{{ option }}" {% if selected_availability == option %}selected{% endif %}>
+                            {{ option|capitalize }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <p class="hint">Fields marked * are required. This form updates the doctor profile; it does not create or modify a login account.</p>
+
+            <div class="actions">
+                <button type="submit" class="btn primary">Save Doctor</button>
+                <a class="btn secondary" href="{{ url_for('admin.doctors') }}">Cancel</a>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,510 @@
+
+{% extends "base.html" %}
+
+{% block breadcrumb %}
+    My Profile
+{% endblock %}
+
+{% block page_title %}
+    My Profile
+{% endblock %}
+
+{% block page_description %}
+    View your personal information, appointments, admission records and billing history.
+{% endblock %}
+
+{% block content %}
+
+<style>
+.profile-wrapper {
+    display: grid;
+    gap: 24px;
+}
+
+.profile-card {
+    background: #ffffff;
+    border: 1px solid #e8eaf0;
+    border-radius: 16px;
+    padding: 26px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+}
+
+.profile-top {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.profile-photo {
+    width: 115px;
+    height: 115px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #e9eefb;
+}
+
+.profile-placeholder {
+    width: 115px;
+    height: 115px;
+    border-radius: 50%;
+    background: #e9eefb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3659a8;
+    font-size: 42px;
+}
+
+.profile-heading h2 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    color: #263247;
+}
+
+.profile-heading p {
+    margin: 4px 0;
+    color: #718096;
+}
+
+.profile-upload {
+    margin-top: 22px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.profile-upload input {
+    max-width: 260px;
+}
+
+.profile-upload button,
+.profile-action {
+    border: none;
+    border-radius: 8px;
+    padding: 11px 18px;
+    background: #3659a8;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.profile-action {
+    display: inline-block;
+    margin-top: 12px;
+}
+
+.profile-section-title {
+    font-size: 19px;
+    color: #263247;
+    margin: 0 0 20px;
+}
+
+.profile-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.profile-detail {
+    padding: 14px;
+    background: #f8f9fc;
+    border-radius: 10px;
+}
+
+.profile-detail small {
+    display: block;
+    color: #778196;
+    margin-bottom: 7px;
+}
+
+.profile-detail strong {
+    color: #29364b;
+    overflow-wrap: anywhere;
+}
+
+.profile-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.profile-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+.profile-table th,
+.profile-table td {
+    padding: 13px 15px;
+    text-align: left;
+    border-bottom: 1px solid #edf0f5;
+    font-size: 14px;
+}
+
+.profile-table th {
+    background: #f6f8fc;
+    color: #47546b;
+}
+
+.profile-table td {
+    color: #526078;
+}
+
+.profile-empty {
+    padding: 22px;
+    text-align: center;
+    color: #8490a3;
+    background: #f8f9fc;
+    border-radius: 10px;
+}
+
+@media(max-width: 650px) {
+    .profile-details {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-card {
+        padding: 18px;
+    }
+}
+</style>
+
+<div class="profile-wrapper">
+
+    <!-- PROFILE INFORMATION -->
+
+    <section class="profile-card">
+
+        <div class="profile-top">
+
+            {% if user.profile_photo %}
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='uploads/profile_photos/' ~ user.profile_photo
+                    ) }}"
+                    alt="Profile Photo"
+                    class="profile-photo"
+                >
+
+            {% else %}
+
+                <div class="profile-placeholder">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+            {% endif %}
+
+            <div class="profile-heading">
+
+                <h2>
+                    {{ user.first_name or user.username }}
+                    {% if user.last_name %}
+                        {{ user.last_name }}
+                    {% endif %}
+                </h2>
+
+                <p>{{ user.account_email or 'No email available' }}</p>
+
+                <p>
+                    Account Role:
+                    {{ user.role|capitalize }}
+                </p>
+
+                <a href="{{ url_for('settings') }}"
+                   class="profile-action">
+                    <i class="fa-solid fa-gear"></i>
+                    Account Settings
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- PROFILE PHOTO UPLOAD -->
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="profile-upload"
+        >
+
+            <input
+                type="file"
+                name="profile_photo"
+                accept=".jpg,.jpeg,.png,.webp"
+                required
+            >
+
+            <button type="submit">
+                <i class="fa-solid fa-upload"></i>
+                Upload Photo
+            </button>
+
+        </form>
+
+        <p style="font-size:12px;color:#8490a3;margin-top:10px;">
+            Accepted formats: JPG, JPEG, PNG and WEBP. Maximum size: 2 MB.
+        </p>
+
+    </section>
+
+
+    <!-- PERSONAL INFORMATION -->
+
+    <section class="profile-card">
+
+        <h3 class="profile-section-title">
+            <i class="fa-solid fa-user"></i>
+            Personal Information
+        </h3>
+
+        <div class="profile-details">
+
+            <div class="profile-detail">
+                <small>First Name</small>
+                <strong>{{ user.first_name or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <small>Last Name</small>
+                <strong>{{ user.last_name or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <small>Username</small>
+                <strong>{{ user.username or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <small>Email Address</small>
+                <strong>{{ user.account_email or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <small>Phone Number</small>
+                <strong>{{ user.phone or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <small>Date of Birth</small>
+                <strong>{{ user.date_of_birth or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <small>Gender</small>
+                <strong>{{ user.gender or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <small>Blood Group</small>
+                <strong>{{ user.blood_group or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <small>Address</small>
+                <strong>{{ user.address or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <small>Emergency Contact</small>
+                <strong>{{ user.emergency_contact_name or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <small>Emergency Contact Phone</small>
+                <strong>{{ user.emergency_contact_phone or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <small>Patient ID</small>
+                <strong>{{ user.patient_id or 'Not linked' }}</strong>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- APPOINTMENT HISTORY -->
+
+    <section class="profile-card">
+
+        <h3 class="profile-section-title">
+            <i class="fa-solid fa-calendar-check"></i>
+            My Appointment History
+        </h3>
+
+        {% if appointments %}
+
+            <div class="profile-table-wrapper">
+
+                <table class="profile-table">
+
+                    <thead>
+                        <tr>
+                            <th>Appointment ID</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Doctor</th>
+                            <th>Specialization</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for appointment in appointments %}
+
+                            <tr>
+                                <td>{{ appointment.appointment_id }}</td>
+                                <td>{{ appointment.appointment_date }}</td>
+                                <td>{{ appointment.appointment_time }}</td>
+                                <td>{{ appointment.doctor_name or 'Not available' }}</td>
+                                <td>{{ appointment.specialization or 'Not available' }}</td>
+                                <td>{{ appointment.reason or 'Not available' }}</td>
+                                <td>{{ appointment.status or 'Not available' }}</td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="profile-empty">
+                No appointment records found.
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- ADMISSION HISTORY -->
+
+    <section class="profile-card">
+
+        <h3 class="profile-section-title">
+            <i class="fa-solid fa-hospital"></i>
+            My Admission History
+        </h3>
+
+        {% if admissions %}
+
+            <div class="profile-table-wrapper">
+
+                <table class="profile-table">
+
+                    <thead>
+                        <tr>
+                            <th>Admission ID</th>
+                            <th>Admission Date</th>
+                            <th>Discharge Date</th>
+                            <th>Room Number</th>
+                            <th>Room Type</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for admission in admissions %}
+
+                            <tr>
+                                <td>{{ admission.admission_id }}</td>
+                                <td>{{ admission.admission_date }}</td>
+                                <td>{{ admission.discharge_date or 'Not discharged' }}</td>
+                                <td>{{ admission.room_number or 'Not available' }}</td>
+                                <td>{{ admission.room_type or 'Not available' }}</td>
+                                <td>{{ admission.admission_reason or 'Not available' }}</td>
+                                <td>{{ admission.admission_status or 'Not available' }}</td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="profile-empty">
+                No admission records found.
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- BILLING HISTORY -->
+
+    <section class="profile-card">
+
+        <h3 class="profile-section-title">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            My Billing History
+        </h3>
+
+        {% if bills %}
+
+            <div class="profile-table-wrapper">
+
+                <table class="profile-table">
+
+                    <thead>
+                        <tr>
+                            <th>Bill ID</th>
+                            <th>Total Amount</th>
+                            <th>Payment Method</th>
+                            <th>Payment Status</th>
+                            <th>Payment Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for bill in bills %}
+
+                            <tr>
+                                <td>{{ bill.bill_id }}</td>
+                                <td>{{ bill.total_amount }}</td>
+                                <td>{{ bill.payment_method or 'Not available' }}</td>
+                                <td>{{ bill.payment_status or 'Not available' }}</td>
+                                <td>{{ bill.payment_date or 'Not available' }}</td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="profile-empty">
+                No billing records found.
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

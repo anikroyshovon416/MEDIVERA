@@ -1,0 +1,114 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Update Medicine Stock | MEDIVERA{% endblock %}
+{% block breadcrumb %}Pharmacy / Inventory / Update Stock{% endblock %}
+
+{% block extra_css %}
+<style>
+.stock-page{max-width:850px;color:#f5f5f5}
+.stock-card{background:#202126;border:1px solid #393b42;border-radius:17px;padding:24px}
+.stock-card h1{font-size:25px;font-weight:800;margin:0 0 7px}
+.stock-subtitle{color:#a5a7ad;margin-bottom:22px}
+.stock-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.stock-summary div{background:#17181c;border:1px solid #373940;border-radius:12px;padding:14px}
+.stock-summary small{display:block;color:#a5a7ad;margin-bottom:7px}
+.stock-summary strong{font-size:20px;color:#ff9a3e}
+.stock-form{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.stock-field{display:flex;flex-direction:column;gap:7px}
+.stock-field.full{grid-column:1/-1}
+.stock-field label{font-size:13px;font-weight:700;color:#d8d8dc}
+.stock-field input,.stock-field select,.stock-field textarea{width:100%;background:#17181c;border:1px solid #41434a;border-radius:9px;padding:11px 12px;color:#fff;outline:none}
+.stock-field input:focus,.stock-field select:focus,.stock-field textarea:focus{border-color:#ff922e}
+.stock-help{font-size:11px;color:#999da7}
+.stock-actions{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.stock-btn{border:0;border-radius:9px;padding:12px 17px;font-weight:800;cursor:pointer;text-decoration:none}
+.stock-submit{background:#ff922e;color:#171717}
+.stock-cancel{background:#383a41;color:#fff}
+.stock-warning{color:#ffc46b;font-size:12px;line-height:1.6;margin-top:18px}
+@media(max-width:600px){.stock-form,.stock-summary{grid-template-columns:1fr}.stock-card{padding:17px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stock-page">
+    <section class="stock-card">
+        <h1>Update Medicine Stock</h1>
+        <div class="stock-subtitle">
+            {{ medicine.item_name }} · {{ medicine.strength or 'Strength not specified' }}
+        </div>
+
+        <div class="stock-summary">
+            <div><small>Current Quantity</small><strong>{{ medicine.quantity or 0 }} {{ medicine.unit or 'unit' }}</strong></div>
+            <div><small>Reorder Level</small><strong>{{ medicine.reorder_level or 0 }}</strong></div>
+            <div><small>Current Status</small><strong>{{ (medicine.stock_status or 'unknown')|replace('_',' ')|title }}</strong></div>
+        </div>
+
+        <form method="POST" class="stock-form" id="stockForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="stock-field full">
+                <label for="operation">Inventory Operation</label>
+                <select name="operation" id="operation" required>
+                    <option value="stock_in">Stock In — receive new stock</option>
+                    <option value="adjustment">Stock Adjustment — set actual physical count</option>
+                </select>
+            </div>
+
+            <div class="stock-field">
+                <label for="quantity" id="quantityLabel">Quantity Received</label>
+                <input type="number" name="quantity" id="quantity" min="1" step="1" required>
+                <span class="stock-help" id="quantityHelp">Enter the number of units received.</span>
+            </div>
+
+            <div class="stock-field" id="purchasePriceField">
+                <label for="purchase_price">Purchase Price per Unit (₹)</label>
+                <input type="number" name="purchase_price" id="purchase_price" min="0" step="0.01" value="{{ medicine.purchase_price or '' }}">
+                <span class="stock-help">Optional. Updates the current purchase cost.</span>
+            </div>
+
+            <div class="stock-field" id="supplierField">
+                <label for="supplier_name">Supplier Name</label>
+                <input type="text" name="supplier_name" id="supplier_name" maxlength="150" value="{{ medicine.supplier_name or '' }}">
+            </div>
+
+            <div class="stock-field full">
+                <label for="remarks">Remarks / Reference Number</label>
+                <textarea name="remarks" id="remarks" rows="3" maxlength="255" placeholder="Purchase invoice, delivery note, physical count reason..."></textarea>
+            </div>
+
+            <div class="stock-actions">
+                <button type="submit" class="stock-btn stock-submit">Save Inventory Update</button>
+                <a href="{{ url_for('pharmacy.admin_inventory') }}" class="stock-btn stock-cancel">Cancel</a>
+            </div>
+        </form>
+
+        <div class="stock-warning">
+            Every update is recorded in the inventory transaction audit. Stock adjustments set the new physical count; they do not add the entered number to the existing quantity.
+        </div>
+    </section>
+</div>
+
+<script>
+(() => {
+    const operation = document.getElementById('operation');
+    const label = document.getElementById('quantityLabel');
+    const help = document.getElementById('quantityHelp');
+    const purchase = document.getElementById('purchasePriceField');
+    const supplier = document.getElementById('supplierField');
+
+    function updateOperationFields() {
+        const adjustment = operation.value === 'adjustment';
+        label.textContent = adjustment ? 'New Physical Stock Count' : 'Quantity Received';
+        help.textContent = adjustment
+            ? 'Enter the actual quantity counted on the shelf.'
+            : 'Enter the number of units received.';
+        purchase.style.display = adjustment ? 'none' : '';
+        supplier.style.display = adjustment ? 'none' : '';
+    }
+
+    operation.addEventListener('change', updateOperationFields);
+    updateOperationFields();
+})();
+</script>
+{% endblock %}

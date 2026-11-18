@@ -1,0 +1,72 @@
+﻿{% extends "base.html" %}
+{% block title %}My Pharmacy Cart | MEDIVERA{% endblock %}
+{% block breadcrumb %}Pharmacy Cart{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pharmacy.css') }}">
+{% endblock %}
+{% block content %}
+<div class="pharmacy-page"><div class="ph-wrap">
+    <section class="ph-hero">
+        <div class="ph-eyebrow">MEDIVERA Pharmacy</div>
+        <h1>Your shopping cart</h1>
+        <p>Review medicine quantities and estimated order total before checkout.</p>
+        <div class="ph-actions">
+            <a class="ph-btn secondary" href="{{ url_for('pharmacy.store') }}">Continue Shopping</a>
+            <a class="ph-btn secondary" href="{{ url_for('pharmacy.orders') }}">My Orders</a>
+        </div>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="ph-alert {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    {% if items %}
+    <form method="post" action="{{ url_for('pharmacy.update_cart') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="ph-table-wrap">
+            <table>
+                <thead><tr><th>Medicine</th><th>Unit price</th><th>Available</th><th>Quantity</th><th>Line total</th><th>Remove</th></tr></thead>
+                <tbody>
+                {% for item in items %}
+                <tr>
+                    <td><strong>{{ item.item_name }}</strong><br><small class="ph-muted">{{ item.unit }}</small></td>
+                    <td>₹{{ '%.2f'|format(item.unit_price) }}</td>
+                    <td>{{ item.stock_quantity }}</td>
+                    <td><input style="max-width:95px" type="number" min="0" max="{{ item.stock_quantity }}" name="quantity_{{ item.inventory_id }}" value="{{ item.quantity }}"></td>
+                    <td>₹{{ '%.2f'|format(item.line_total) }}</td>
+                    <td>
+                        <button class="ph-btn danger" type="submit" form="remove-{{ item.inventory_id }}">Remove</button>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="ph-actions">
+            <button class="ph-btn secondary" type="submit">Update Cart</button>
+        </div>
+    </form>
+
+    {% for item in items %}
+    <form id="remove-{{ item.inventory_id }}" method="post" action="{{ url_for('pharmacy.remove_from_cart', inventory_id=item.inventory_id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+    {% endfor %}
+
+    <div class="ph-card" style="margin-top:20px">
+        <div class="ph-total"><span>Estimated subtotal</span><strong>₹{{ '%.2f'|format(subtotal) }}</strong></div>
+        <p>Final order acceptance and stock confirmation are performed by pharmacy staff. Stock is not deducted when you submit a request.</p>
+        <a class="ph-btn" href="{{ url_for('pharmacy.checkout') }}">Proceed to Checkout</a>
+    </div>
+    {% else %}
+    <div class="ph-card ph-empty">
+        <div class="symbol">🛒</div>
+        <h2>Your cart is empty</h2>
+        <p>Explore the medicine store and add the items you need.</p>
+        <a class="ph-btn" href="{{ url_for('pharmacy.store') }}">Browse Medicines</a>
+    </div>
+    {% endif %}
+</div></div>
+{% endblock %}

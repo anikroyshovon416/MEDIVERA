@@ -1,0 +1,66 @@
+
+{% extends "base.html" %}
+
+{% block title %}Booking Confirmation | MEDIVERA{% endblock %}
+{% block breadcrumb %}Booking Confirmation{% endblock %}
+
+{% block content %}
+<div style="max-width:850px;margin:40px auto;padding:28px;
+            background:#202329;color:white;border:1px solid #41454e;
+            border-radius:20px;">
+
+    <div style="color:#50d890;font-size:42px;">✓</div>
+
+    <h1>Laboratory Booking Submitted!</h1>
+
+    <p style="color:#b9bdc6;">
+        Your laboratory test requests have been registered.
+        The hospital laboratory must confirm the appointment.
+    </p>
+
+    <hr style="border-color:#454a54;">
+
+    <h3>Booking Details</h3>
+
+    <p><strong>Preferred date:</strong>
+       {{ test_datetime.strftime('%d %B %Y, %I:%M %p') }}</p>
+
+    <p><strong>Doctor ID:</strong> {{ doctor_id }}</p>
+
+    <h3>Registered Tests</h3>
+
+    {% for test in tests %}
+    <div style="display:flex;justify-content:space-between;
+                padding:13px;background:#292d35;border-radius:9px;
+                margin:9px 0;">
+        <span>{{ test.test_name }}</span>
+        <strong style="color:#ff9a3d;">
+            ₹{{ "%.2f"|format(test.default_charge|float) }}
+        </strong>
+    </div>
+    {% endfor %}
+
+    <h3 style="color:#ff9a3d;">
+        Estimated Total: ₹{{ "%.2f"|format(total) }}
+    </h3>
+
+    <h3>Test Reference Numbers</h3>
+    {% for test_id in test_ids %}
+        <p>MED-LAB-{{ test_id }}</p>
+    {% endfor %}
+
+    <p style="color:#ffc078;">
+        Status: Pending
+    </p>
+
+    <a href="{{ url_for('laboratory.patient_lab_tests') }}"
+       style="display:inline-block;padding:13px 20px;
+              background:#ff8a24;color:#17191d;
+              text-decoration:none;border-radius:10px;
+              font-weight:bold;">
+        View My Laboratory Tests
+    </a>
+
+</div>
+{% endblock %}
+

@@ -1,0 +1,747 @@
+﻿{% extends "admin/base_admin.html" %}
+
+{% block title %}Pharmacy Orders | MEDIVERA{% endblock %}
+{% block breadcrumb %}Pharmacy / Order Management{% endblock %}
+
+{% block extra_css %}
+<style>
+/* =========================================================
+   MEDIVERA PHARMACY ORDER MANAGEMENT
+========================================================= */
+
+.ph-orders {
+    --orange: #ff922e;
+    --orange-light: #ffb15c;
+    --bg: #191c21;
+    --border: rgba(255,255,255,.075);
+    --muted: #9299a5;
+    color: #f5f5f5;
+}
+
+.ph-orders * {
+    box-sizing: border-box;
+}
+
+.ph-order-hero {
+    padding: 27px;
+    margin-bottom: 22px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,146,46,.17);
+    background:
+        radial-gradient(circle at 90% 0,rgba(255,146,46,.15),transparent 36%),
+        linear-gradient(130deg,#24272e,#17191d);
+}
+
+.ph-order-eyebrow {
+    color: var(--orange-light);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    margin-bottom: 9px;
+}
+
+.ph-order-hero h1 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(24px,3vw,32px);
+    font-weight: 800;
+}
+
+.ph-order-hero p {
+    margin: 9px 0 0;
+    max-width: 650px;
+    color: #a5acb7;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.ph-order-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.ph-order-summary-card {
+    flex: 1 1 180px;
+    padding: 17px;
+    border-radius: 15px;
+    background: linear-gradient(145deg,#20242b,#191c21);
+    border: 1px solid var(--border);
+}
+
+.ph-order-summary-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+}
+
+.ph-order-summary-card strong {
+    display: block;
+    margin-top: 9px;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.ph-order-panel {
+    padding: 21px;
+    border-radius: 18px;
+    background: linear-gradient(145deg,#202329,#191c21);
+    border: 1px solid var(--border);
+}
+
+.ph-order-panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.ph-order-panel-heading h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.ph-order-panel-heading p {
+    margin: 5px 0 0;
+    font-size: 10px;
+    color: var(--muted);
+}
+
+.ph-order-filter {
+    display: grid;
+    grid-template-columns: minmax(200px,1.5fr) minmax(145px,.8fr) minmax(155px,.8fr) auto;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.ph-order-filter input,
+.ph-order-filter select {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 0 12px;
+    color: #f1f2f4;
+    background: #15181d;
+    border: 1px solid #343942;
+    border-radius: 10px;
+    outline: none;
+    font-family: inherit;
+    font-size: 11px;
+}
+
+.ph-order-filter input:focus,
+.ph-order-filter select:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(255,146,46,.09);
+}
+
+.ph-order-filter select option {
+    background: #191c21;
+}
+
+.ph-order-btn {
+    min-height: 42px;
+    padding: 0 17px;
+    border: 1px solid var(--orange);
+    border-radius: 10px;
+    background: var(--orange);
+    color: #171717;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    transition: .2s ease;
+}
+
+.ph-order-btn:hover {
+    background: var(--orange-light);
+    color: #171717;
+}
+
+.ph-order-btn.reset {
+    color: #e8eaf0;
+    background: #282c34;
+    border-color: #383d47;
+}
+
+.ph-order-table-wrap {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.ph-order-table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+}
+
+.ph-order-table th {
+    padding: 13px 12px;
+    text-align: left;
+    color: #89919d;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.ph-order-table td {
+    padding: 15px 12px;
+    color: #dce0e6;
+    font-size: 11px;
+    border-bottom: 1px solid rgba(255,255,255,.045);
+    vertical-align: middle;
+}
+
+.ph-order-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.ph-order-table tbody tr:hover {
+    background: rgba(255,255,255,.02);
+}
+
+.ph-order-id {
+    color: var(--orange-light);
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.ph-order-id:hover {
+    color: #fff;
+}
+
+.ph-order-patient {
+    color: #fff;
+    font-weight: 700;
+}
+
+.ph-order-secondary {
+    display: block;
+    color: #858d99;
+    margin-top: 5px;
+    font-size: 9px;
+}
+
+.ph-order-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 9px;
+    border-radius: 30px;
+    font-size: 9px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.ph-order-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.ph-order-status.requested {
+    color: #ffb45c;
+    background: rgba(255,180,92,.10);
+}
+
+.ph-order-status.approved,
+.ph-order-status.delivered {
+    color: #31c48d;
+    background: rgba(49,196,141,.10);
+}
+
+.ph-order-status.processing,
+.ph-order-status.ready {
+    color: #65a7ff;
+    background: rgba(101,167,255,.10);
+}
+
+.ph-order-status.rejected,
+.ph-order-status.cancelled {
+    color: #ff6b73;
+    background: rgba(255,107,115,.10);
+}
+
+.ph-order-delivery {
+    display: inline-block;
+    padding: 5px 8px;
+    border-radius: 7px;
+    background: #282c34;
+    color: #dfe3e9;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.ph-order-money {
+    color: #fff;
+    font-weight: 800;
+}
+
+.ph-order-empty {
+    padding: 55px 15px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.ph-order-empty-icon {
+    display: block;
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.ph-order-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.ph-order-page-info {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.ph-order-page-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.ph-order-page-links a,
+.ph-order-page-links span {
+    min-width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 9px;
+    border-radius: 9px;
+    color: #dce0e6;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 700;
+    background: #282c34;
+    border: 1px solid #383d47;
+}
+
+.ph-order-page-links a:hover,
+.ph-order-page-links .active {
+    color: #171717;
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+.ph-order-footer {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 17px;
+    color: #858d99;
+    font-size: 10px;
+}
+
+@media(max-width:900px) {
+    .ph-order-filter {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media(max-width:550px) {
+    .ph-order-hero {
+        padding: 21px;
+    }
+
+    .ph-order-filter {
+        grid-template-columns: 1fr;
+    }
+
+    .ph-order-panel {
+        padding: 14px;
+    }
+
+    .ph-order-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="ph-orders">
+
+    <section class="ph-order-hero">
+
+        <div class="ph-order-eyebrow">
+            MEDIVERA PHARMACY OPERATIONS
+        </div>
+
+        <h1>Order Management</h1>
+
+        <p>
+            Monitor patient medicine requests, review delivery
+            requirements, locate orders and coordinate the
+            pharmacy fulfilment workflow.
+        </p>
+
+    </section>
+
+
+    <section class="ph-order-summary">
+
+        <article class="ph-order-summary-card">
+            <span>Matching Orders</span>
+            <strong>{{ total_orders }}</strong>
+        </article>
+
+        <article class="ph-order-summary-card">
+            <span>Current Page</span>
+            <strong>{{ page }} / {{ total_pages if total_pages else 1 }}</strong>
+        </article>
+
+        <article class="ph-order-summary-card">
+            <span>Page Size</span>
+            <strong>20</strong>
+        </article>
+
+    </section>
+
+
+    <section class="ph-order-panel">
+
+        <div class="ph-order-panel-heading">
+
+            <div>
+                <h2>Pharmacy Order Queue</h2>
+                <p>
+                    Search, filter and inspect registered patient orders
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('pharmacy.admin_dashboard') }}"
+                class="ph-order-btn reset"
+            >
+                ← Dashboard
+            </a>
+
+        </div>
+
+
+        <form method="get"
+              action="{{ url_for('pharmacy.admin_orders') }}"
+              class="ph-order-filter">
+
+            <input
+                type="search"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search order ID, patient, phone or location..."
+                aria-label="Search pharmacy orders"
+            >
+
+            <select name="status" aria-label="Filter by status">
+
+                <option value="">All statuses</option>
+
+                {% for item in statuses %}
+
+                    <option
+                        value="{{ item }}"
+                        {% if status == item %}selected{% endif %}
+                    >
+                        {{ item }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <select name="delivery" aria-label="Filter by delivery">
+
+                <option value="">All delivery methods</option>
+
+                <option
+                    value="Bedside"
+                    {% if delivery_method == 'Bedside' %}selected{% endif %}
+                >
+                    Bedside
+                </option>
+
+                <option
+                    value="Pharmacy Collection"
+                    {% if delivery_method == 'Pharmacy Collection' %}selected{% endif %}
+                >
+                    Pharmacy Collection
+                </option>
+
+            </select>
+
+
+            <button class="ph-order-btn" type="submit">
+                Search Orders
+            </button>
+
+        </form>
+
+
+        <div class="ph-order-table-wrap">
+
+            <table class="ph-order-table">
+
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Patient</th>
+                        <th>Items</th>
+                        <th>Delivery</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Order Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                {% for order in orders %}
+
+                    <tr>
+
+                        <td>
+                            <a
+                                class="ph-order-id"
+                                href="{{ url_for('pharmacy.admin_order_detail', order_id=order.pharmacy_order_id) }}"
+                            >
+                                #{{ order.pharmacy_order_id }}
+                            </a>
+                        </td>
+
+
+                        <td>
+
+                            <span class="ph-order-patient">
+                                {{ order.first_name }}
+                                {{ order.last_name }}
+                            </span>
+
+                            <span class="ph-order-secondary">
+                                {{ order.phone or 'No phone number' }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+                            {{ order.item_count or 0 }}
+                            item(s)
+                        </td>
+
+
+                        <td>
+
+                            <span class="ph-order-delivery">
+                                {{ order.delivery_method }}
+                            </span>
+
+                            {% if order.delivery_location %}
+
+                                <span class="ph-order-secondary">
+                                    {{ order.delivery_location }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="ph-order-money">
+                            ₹{{ "%.2f"|format(order.subtotal or 0) }}
+                        </td>
+
+
+                        <td>
+
+                            <span class="ph-order-status {{ order.order_status|lower }}">
+                                {{ order.order_status }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            {{ order.ordered_at.strftime('%d %b %Y') if order.ordered_at else '—' }}
+
+                            <span class="ph-order-secondary">
+                                {{ order.ordered_at.strftime('%I:%M %p') if order.ordered_at else '' }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <a
+                                class="ph-order-id"
+                                href="{{ url_for('pharmacy.admin_order_detail', order_id=order.pharmacy_order_id) }}"
+                            >
+                                Open →
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="8">
+
+                            <div class="ph-order-empty">
+
+                                <span class="ph-order-empty-icon">▤</span>
+
+                                <strong>No matching pharmacy orders</strong>
+
+                                <div style="margin-top:8px">
+                                    Try changing your search or filters.
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% if total_pages > 1 %}
+
+        <div class="ph-order-pagination">
+
+            <div class="ph-order-page-info">
+                Page {{ page }} of {{ total_pages }}
+                &nbsp;·&nbsp;
+                {{ total_orders }} matching orders
+            </div>
+
+
+            <div class="ph-order-page-links">
+
+                {% if page > 1 %}
+
+                    <a href="{{ url_for(
+                        'pharmacy.admin_orders',
+                        search=search,
+                        status=status,
+                        delivery=delivery_method,
+                        page=page-1
+                    ) }}">
+                        ←
+                    </a>
+
+                {% endif %}
+
+
+                {% for number in range(
+                    [1, page-2]|max,
+                    [total_pages+1, page+3]|min
+                ) %}
+
+                    {% if number == page %}
+
+                        <span class="active">
+                            {{ number }}
+                        </span>
+
+                    {% else %}
+
+                        <a href="{{ url_for(
+                            'pharmacy.admin_orders',
+                            search=search,
+                            status=status,
+                            delivery=delivery_method,
+                            page=number
+                        ) }}">
+                            {{ number }}
+                        </a>
+
+                    {% endif %}
+
+                {% endfor %}
+
+
+                {% if page < total_pages %}
+
+                    <a href="{{ url_for(
+                        'pharmacy.admin_orders',
+                        search=search,
+                        status=status,
+                        delivery=delivery_method,
+                        page=page+1
+                    ) }}">
+                        →
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+    </section>
+
+
+    <div class="ph-order-footer">
+
+        <span>
+            MEDIVERA Pharmacy Management
+        </span>
+
+        <span>
+            Order requests do not deduct medicine stock.
+        </span>
+
+    </div>
+
+</div>
+{% endblock %}

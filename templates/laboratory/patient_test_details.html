@@ -1,0 +1,651 @@
+
+{% extends "base.html" %}
+
+{% block title %}Laboratory Report | MEDIVERA{% endblock %}
+{% block breadcrumb %}Patient Portal / Laboratory Report{% endblock %}
+{% block body_class %}laboratory-report-body{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/laboratory.css') }}">
+
+<style>
+/* ==========================================================
+   MEDIVERA LABORATORY REPORT
+   Patient Diagnostic Details
+========================================================== */
+
+.lab-report-page {
+
+    --lr-bg: #17191e;
+    --lr-panel: #22252c;
+    --lr-panel-light: #2a2e37;
+    --lr-border: rgba(255,255,255,.09);
+    --lr-orange: #ff9638;
+    --lr-white: #f6f7f8;
+    --lr-muted: #a3a7b1;
+    --lr-green: #45ce91;
+    --lr-red: #ff7272;
+    --lr-blue: #63aaff;
+
+    max-width: 1150px;
+    margin: auto;
+    padding: 28px;
+    color: var(--lr-white);
+}
+
+/* PAGE HEADER */
+
+.lr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.lr-heading h1 {
+    font-size: clamp(25px,3vw,35px);
+    font-weight: 850;
+    margin: 0;
+}
+
+.lr-heading p {
+    margin: 8px 0 0;
+    color: var(--lr-muted);
+    font-size: 13px;
+}
+
+.lr-eyebrow {
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: 2px;
+    color: var(--lr-orange);
+    margin-bottom: 9px;
+}
+
+.lr-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.lr-btn {
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 11px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 850;
+    cursor: pointer;
+    text-decoration: none;
+    transition: .2s ease;
+}
+
+.lr-btn-primary {
+    background: var(--lr-orange);
+    color: #171717;
+}
+
+.lr-btn-primary:hover {
+    background: #ffb46b;
+    color: #171717;
+    transform: translateY(-2px);
+}
+
+.lr-btn-secondary {
+    color: white;
+    background: rgba(255,255,255,.05);
+    border-color: var(--lr-border);
+}
+
+.lr-btn-secondary:hover {
+    background: rgba(255,255,255,.12);
+    color: white;
+}
+
+/* REPORT CARD */
+
+.lr-report-card {
+    overflow: hidden;
+    border: 1px solid var(--lr-border);
+    border-radius: 22px;
+    background: linear-gradient(145deg,#252932,#1e2128);
+    box-shadow: 0 18px 50px rgba(0,0,0,.22);
+}
+
+/* REPORT BANNER */
+
+.lr-banner {
+    position: relative;
+    overflow: hidden;
+    padding: 30px;
+    background:
+        radial-gradient(circle at 90% 20%,rgba(255,150,56,.20),transparent 30%),
+        linear-gradient(135deg,#30343e,#23262d);
+    border-bottom: 1px solid var(--lr-border);
+}
+
+.lr-banner::after {
+    content: "⚕";
+    position: absolute;
+    right: 30px;
+    top: -15px;
+    font-size: 130px;
+    color: rgba(255,255,255,.035);
+    pointer-events: none;
+}
+
+.lr-brand {
+    font-size: 12px;
+    letter-spacing: 3px;
+    font-weight: 900;
+    color: var(--lr-orange);
+}
+
+.lr-banner h2 {
+    font-size: clamp(24px,3vw,32px);
+    margin: 17px 0 8px;
+    font-weight: 850;
+}
+
+.lr-banner p {
+    color: #b9bdc6;
+    margin: 0;
+    font-size: 13px;
+}
+
+/* STATUS */
+
+.lr-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 30px;
+    padding: 9px 15px;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+}
+
+.lr-status::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    background: currentColor;
+    border-radius: 50%;
+}
+
+.lr-status-pending {
+    background: rgba(255,194,110,.12);
+    color: #ffc26e;
+}
+
+.lr-status-completed {
+    background: rgba(69,206,145,.12);
+    color: var(--lr-green);
+}
+
+.lr-status-cancelled {
+    background: rgba(255,114,114,.12);
+    color: var(--lr-red);
+}
+
+/* REPORT CONTENT */
+
+.lr-content {
+    padding: 28px;
+}
+
+.lr-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 18px;
+    font-size: 17px;
+    font-weight: 850;
+}
+
+.lr-section-title::before {
+    content: "";
+    width: 4px;
+    height: 21px;
+    border-radius: 5px;
+    background: var(--lr-orange);
+}
+
+/* INFORMATION GRID */
+
+.lr-grid {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.lr-info-box {
+    padding: 17px;
+    border: 1px solid var(--lr-border);
+    border-radius: 13px;
+    background: var(--lr-panel-light);
+    min-width: 0;
+}
+
+.lr-info-label {
+    display: block;
+    color: var(--lr-muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    font-weight: 800;
+    margin-bottom: 9px;
+}
+
+.lr-info-value {
+    color: white;
+    font-size: 14px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+/* RESULT */
+
+.lr-result-section {
+    margin-top: 25px;
+}
+
+.lr-result-box {
+    border: 1px solid var(--lr-border);
+    border-radius: 15px;
+    padding: 23px;
+    background: #191c22;
+    border-left: 4px solid var(--lr-orange);
+}
+
+.lr-result-heading {
+    color: var(--lr-orange);
+    font-size: 14px;
+    font-weight: 850;
+    margin-bottom: 13px;
+}
+
+.lr-result-text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+    line-height: 1.9;
+    color: #eceef1;
+}
+
+.lr-result-pending {
+    color: var(--lr-muted);
+    line-height: 1.8;
+    font-size: 13px;
+}
+
+/* REFERENCE RANGE */
+
+.lr-reference {
+    margin-top: 16px;
+    padding: 18px;
+    border: 1px solid rgba(99,170,255,.18);
+    background: rgba(99,170,255,.055);
+    border-radius: 13px;
+}
+
+.lr-reference strong {
+    color: var(--lr-blue);
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.lr-reference p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #d4d8df;
+    white-space: pre-wrap;
+}
+
+/* WARNING */
+
+.lr-disclaimer {
+    margin-top: 25px;
+    padding: 18px;
+    border: 1px solid rgba(255,194,110,.18);
+    background: rgba(255,194,110,.055);
+    border-radius: 13px;
+}
+
+.lr-disclaimer strong {
+    display: block;
+    color: #ffc26e;
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.lr-disclaimer p {
+    color: var(--lr-muted);
+    font-size: 12px;
+    line-height: 1.8;
+    margin: 0;
+}
+
+/* REPORT FOOTER */
+
+.lr-footer {
+    padding: 21px 28px;
+    border-top: 1px solid var(--lr-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    color: var(--lr-muted);
+    font-size: 11px;
+}
+
+.lr-footer strong {
+    color: var(--lr-orange);
+}
+
+/* RESPONSIVE */
+
+@media(max-width:850px) {
+    .lr-grid {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+}
+
+@media(max-width:550px) {
+
+    .lab-report-page {
+        padding: 12px;
+    }
+
+    .lr-banner,
+    .lr-content {
+        padding: 20px;
+    }
+
+    .lr-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .lr-actions {
+        width: 100%;
+    }
+
+    .lr-btn {
+        flex: 1;
+    }
+}
+
+/* PRINT */
+
+@media print {
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .lab-report-page {
+        max-width: 100%;
+        padding: 0;
+        color: black;
+    }
+
+    .lr-report-card,
+    .lr-banner,
+    .lr-content,
+    .lr-info-box,
+    .lr-result-box {
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+    }
+
+    .lr-banner h2,
+    .lr-info-value,
+    .lr-result-text {
+        color: black !important;
+    }
+
+    .lr-banner p,
+    .lr-info-label,
+    .lr-footer,
+    .lr-disclaimer p {
+        color: #444 !important;
+    }
+
+    .lr-report-card {
+        border: 1px solid #ccc;
+    }
+
+    .lr-banner {
+        border-bottom: 1px solid #ccc;
+    }
+
+    .lr-reference,
+    .lr-disclaimer {
+        background: white !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lab-report-page">
+
+    <!-- HEADER -->
+    <header class="lr-header">
+
+        <div class="lr-heading">
+
+            <div class="lr-eyebrow">
+                MEDIVERA · PATIENT HEALTH RECORDS
+            </div>
+
+            <h1>Laboratory Report</h1>
+
+            <p>
+                Detailed information about your diagnostic laboratory test.
+            </p>
+
+        </div>
+
+        <div class="lr-actions no-print">
+
+            <a href="{{ url_for('laboratory.patient_lab_tests') }}"
+               class="lr-btn lr-btn-secondary">
+                ← My Tests
+            </a>
+
+            <button type="button"
+                    class="lr-btn lr-btn-primary"
+                    onclick="window.print()">
+                Print Report
+            </button>
+
+        </div>
+
+    </header>
+
+    <!-- REPORT -->
+    <article class="lr-report-card">
+
+        <!-- BANNER -->
+        <section class="lr-banner">
+
+            <div class="lr-brand">
+                MEDIVERA
+            </div>
+
+            <h2>{{ test.test_name }}</h2>
+
+            <p>
+                Diagnostic Laboratory Report · Test #{{ test.test_id }}
+            </p>
+
+            <div style="margin-top:20px;">
+
+                <span class="lr-status lr-status-{{ test.test_status|lower }}">
+                    {{ test.test_status }}
+                </span>
+
+            </div>
+
+        </section>
+
+        <!-- REPORT BODY -->
+        <section class="lr-content">
+
+            <!-- TEST INFORMATION -->
+            <h3 class="lr-section-title">
+                Test Information
+            </h3>
+
+            <div class="lr-grid">
+
+                <div class="lr-info-box">
+                    <span class="lr-info-label">Test Reference</span>
+
+                    <span class="lr-info-value">
+                        #{{ test.test_id }}
+                    </span>
+                </div>
+
+                <div class="lr-info-box">
+                    <span class="lr-info-label">Test Name</span>
+
+                    <span class="lr-info-value">
+                        {{ test.test_name }}
+                    </span>
+                </div>
+
+                <div class="lr-info-box">
+                    <span class="lr-info-label">Test Date</span>
+
+                    <span class="lr-info-value">
+                        {% if test.test_date and test.test_date.strftime is defined %}
+                            {{ test.test_date.strftime('%d %B %Y, %I:%M %p') }}
+                        {% else %}
+                            {{ test.test_date|default('Not available') }}
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="lr-info-box">
+                    <span class="lr-info-label">Consulting Doctor</span>
+
+                    <span class="lr-info-value">
+                        {{ test.doctor_name|default('Not specified') }}
+                    </span>
+                </div>
+
+                <div class="lr-info-box">
+                    <span class="lr-info-label">Specialization</span>
+
+                    <span class="lr-info-value">
+                        {{ test.specialization|default('Not specified') }}
+                    </span>
+                </div>
+
+                <div class="lr-info-box">
+                    <span class="lr-info-label">Laboratory Charge</span>
+
+                    <span class="lr-info-value">
+                        ₹{{ '%.2f'|format(test.test_charge|default(0)|float) }}
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- RESULT -->
+            <div class="lr-result-section">
+
+                <h3 class="lr-section-title">
+                    Laboratory Findings
+                </h3>
+
+                <div class="lr-result-box">
+
+                    <div class="lr-result-heading">
+                        Test Result
+                    </div>
+
+                    {% if test.test_result %}
+
+                        <div class="lr-result-text">{{ test.test_result }}</div>
+
+                    {% else %}
+
+                        <div class="lr-result-pending">
+                            Your laboratory result has not been entered yet.
+                            Please check again later or contact the hospital
+                            laboratory department.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                <!-- REFERENCE RANGE -->
+                <div class="lr-reference">
+
+                    <strong>Reference Range / Normal Range</strong>
+
+                    <p>
+                        {{ test.normal_range|default('Reference range not provided.', true) }}
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- MEDICAL DISCLAIMER -->
+            <div class="lr-disclaimer">
+
+                <strong>Important Medical Information</strong>
+
+                <p>
+                    Laboratory results should always be interpreted by
+                    a qualified healthcare professional in the context of
+                    your symptoms, medical history and other clinical findings.
+                    Reference ranges may vary between laboratories and
+                    testing methods. Do not start, stop or change medication
+                    based only on this report.
+                </p>
+
+            </div>
+
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="lr-footer">
+
+            <span>
+                <strong>MEDIVERA</strong> · Connected Healthcare
+            </span>
+
+            <span>
+                Test Reference: #{{ test.test_id }}
+            </span>
+
+        </footer>
+
+    </article>
+
+</div>
+{% endblock %}

@@ -1,0 +1,304 @@
+﻿
+{% extends "base.html" %}
+
+{% block title %}Pharmacy Store | MEDIVERA{% endblock %}
+{% block breadcrumb %}Pharmacy Store{% endblock %}
+{% block body_class %}pharmacy-body{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pharmacy.css') }}">
+<style>
+.medicine-image-wrap {
+    width: 100%;
+    height: 190px;
+    background: #f3f4f6;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 12px 0;
+}
+.medicine-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 12px;
+}
+.medicine-image-placeholder {
+    font-size: 48px;
+    color: #9ca3af;
+}
+.ph-card .medicine-brand {
+    font-size: 13px;
+    color: #d97706;
+    font-weight: 700;
+    margin: 5px 0;
+}
+.ph-card .medicine-generic {
+    font-size: 13px;
+    color: #777;
+    margin: 5px 0;
+}
+.medicine-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 12px 0;
+}
+.medicine-detail-tag {
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: rgba(234, 136, 40, .12);
+    color: #b96815;
+    font-size: 11px;
+    font-weight: 700;
+}
+.prescription-warning {
+    font-size: 12px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(220, 53, 69, .09);
+    color: #c0392b;
+    margin: 10px 0;
+}
+.medicine-description {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #777;
+    margin: 8px 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pharmacy-page">
+<div class="ph-wrap">
+
+    <section class="ph-hero">
+        <div class="ph-eyebrow">MEDIVERA Pharmacy</div>
+        <h1>Your healthcare essentials, connected.</h1>
+        <p>
+            Search medicines, explore product details, upload prescriptions
+            and choose pharmacy collection or bedside delivery when admitted.
+        </p>
+
+        <div class="ph-actions">
+            <a class="ph-btn" href="{{ url_for('pharmacy.cart') }}">
+                View Cart ({{ cart_count }})
+            </a>
+            <a class="ph-btn secondary" href="{{ url_for('pharmacy.orders') }}">
+                My Orders
+            </a>
+        </div>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="ph-alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    {% if admission %}
+        <div class="ph-alert success">
+            <strong>Active admission detected.</strong>
+            Bedside delivery can be sent to Room
+            {{ admission.room_number }}
+            {% if admission.bed_number %}
+                , Bed {{ admission.bed_number }}
+            {% endif %}.
+        </div>
+    {% else %}
+        <div class="ph-alert">
+            Bedside delivery becomes available when you have an active
+            hospital admission. Pharmacy collection is available for other patients.
+        </div>
+    {% endif %}
+
+    <form class="ph-search" method="get"
+          action="{{ url_for('pharmacy.store') }}">
+
+        <div class="ph-field">
+            <label for="medicine-search">Search medicine</label>
+            <input
+                id="medicine-search"
+                type="search"
+                name="q"
+                value="{{ search }}"
+                placeholder="Medicine, brand or generic name..."
+            >
+        </div>
+
+        <div class="ph-field">
+            <label for="medicine-category">Dosage form</label>
+            <select id="medicine-category" name="category">
+                <option value="">All dosage forms</option>
+                {% for item in categories %}
+                    <option
+                        value="{{ item.item_category }}"
+                        {% if selected_category == item.item_category %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ item.item_category }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div style="align-self:end;display:flex;gap:8px">
+            <button class="ph-btn" type="submit">Search</button>
+            <a class="ph-btn secondary"
+               href="{{ url_for('pharmacy.store') }}">
+                Clear
+            </a>
+        </div>
+    </form>
+
+    <div class="ph-section">
+        <h2>Available medicines</h2>
+
+        {% if medicines %}
+            <div class="ph-grid">
+
+                {% for medicine in medicines %}
+                    <article class="ph-card">
+
+                        <span class="ph-tag">
+                            {{ medicine.dosage_form or medicine.item_category }}
+                        </span>
+
+                        <div class="medicine-image-wrap">
+                            {% if medicine.medicine_image %}
+                                <img
+                                    src="{{ url_for('static', filename=medicine.medicine_image) }}"
+                                    alt="{{ medicine.item_name }}"
+                                    loading="lazy"
+                                >
+                            {% else %}
+                                <div class="medicine-image-placeholder">
+                                    ⚕
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <h3>{{ medicine.item_name }}</h3>
+
+                        {% if medicine.brand_name %}
+                            <div class="medicine-brand">
+                                {{ medicine.brand_name }}
+                            </div>
+                        {% endif %}
+
+                        {% if medicine.generic_name %}
+                            <div class="medicine-generic">
+                                Generic: {{ medicine.generic_name }}
+                            </div>
+                        {% endif %}
+
+                        <div class="medicine-details">
+                            {% if medicine.strength %}
+                                <span class="medicine-detail-tag">
+                                    {{ medicine.strength }}
+                                </span>
+                            {% endif %}
+
+                            {% if medicine.dosage_form %}
+                                <span class="medicine-detail-tag">
+                                    {{ medicine.dosage_form }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        {% if medicine.description %}
+                            <p class="medicine-description">
+                                {{ medicine.description }}
+                            </p>
+                        {% endif %}
+
+                        <p>
+                            Unit: {{ medicine.unit }}
+                        </p>
+
+                        <p>
+                            Available stock:
+                            <strong>{{ medicine.quantity }}</strong>
+                        </p>
+
+                        {% if medicine.manufacturer %}
+                            <p>
+                                Manufacturer: {{ medicine.manufacturer }}
+                            </p>
+                        {% endif %}
+
+                        {% if medicine.expiry_date %}
+                            <p>
+                                Expiry:
+                                {{ medicine.expiry_date.strftime('%d %b %Y') }}
+                            </p>
+                        {% else %}
+                            <p>Expiry: Not specified</p>
+                        {% endif %}
+
+                        {% if medicine.requires_prescription %}
+                            <div class="prescription-warning">
+                                Prescription required. Please provide
+                                a valid prescription for pharmacy review.
+                            </div>
+                        {% endif %}
+
+                        <div class="ph-price">
+                            ₹{{ '%.2f'|format(medicine.unit_price) }}
+                        </div>
+
+                        <form method="post"
+                              action="{{ url_for('pharmacy.add_to_cart', inventory_id=medicine.inventory_id) }}">
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <label for="qty-{{ medicine.inventory_id }}">
+                                Quantity
+                            </label>
+
+                            <input
+                                id="qty-{{ medicine.inventory_id }}"
+                                type="number"
+                                name="quantity"
+                                min="1"
+                                max="{{ medicine.quantity }}"
+                                value="1"
+                                required
+                            >
+
+                            <button class="ph-btn"
+                                    style="width:100%;margin-top:12px"
+                                    type="submit">
+                                Add to Cart
+                            </button>
+                        </form>
+
+                    </article>
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+            <div class="ph-card ph-empty">
+                <div class="symbol">⚕</div>
+                <h2>No matching medicines available</h2>
+                <p>
+                    There are currently no active, in-stock medicines
+                    matching your search. Please check again later or
+                    contact the pharmacy.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+</div>
+{% endblock %}

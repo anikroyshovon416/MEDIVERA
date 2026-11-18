@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied | MediCare+</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f2ebdd;
+            padding: 20px;
+        }
+
+        .unauthorized-card {
+            max-width: 480px;
+            width: 100%;
+            padding: 45px 35px;
+            background: #fff;
+            border-radius: 18px;
+            text-align: center;
+            box-shadow: 0 20px 55px rgba(45,31,31,.10);
+        }
+
+        .unauthorized-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #542c37;
+            font-size: 27px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            color: #817773;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 13px 24px;
+            border-radius: 8px;
+            background: #542c37;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="unauthorized-card">
+
+        <div class="unauthorized-icon">🔒</div>
+
+        <h1>Access Restricted</h1>
+
+        <p>
+            You do not have permission to access this page.
+            Please contact your administrator if you believe
+            this is an error.
+        </p>
+
+        <a href="{{ url_for('dashboard') }}">
+            Return to Dashboard
+        </a>
+
+    </div>
+
+</body>
+</html>

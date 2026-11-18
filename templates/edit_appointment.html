@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Appointment | MediCare+{% endblock %}
+{% block breadcrumb %}Hospital Management / Appointments / Edit{% endblock %}
+{% block page_heading %}Edit Appointment{% endblock %}
+{% block page_subtitle %}
+Update patient, doctor, appointment schedule and status.
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-appointment-container {
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    .edit-appointment-panel {
+        background: #fff;
+        border: 1px solid #e9e2d8;
+        border-radius: 14px;
+        padding: 28px;
+    }
+
+    .edit-appointment-panel h3 {
+        color: #542c37;
+        font-size: 19px;
+        margin: 0 0 22px;
+    }
+
+    .edit-appointment-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .edit-appointment-field {
+        margin-bottom: 17px;
+    }
+
+    .edit-appointment-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .edit-appointment-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #514747;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .edit-appointment-field .form-control {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .edit-appointment-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    .edit-appointment-buttons .btn {
+        min-width: 140px;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .edit-appointment-cancel {
+        background: #eee8dc;
+        color: #594334;
+    }
+
+    .edit-appointment-note {
+        background: #f7f3ed;
+        border-left: 4px solid #754653;
+        padding: 12px 15px;
+        margin-bottom: 22px;
+        border-radius: 5px;
+        color: #665b55;
+        font-size: 13px;
+    }
+
+    @media(max-width: 650px) {
+        .edit-appointment-grid {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .edit-appointment-field.full-width {
+            grid-column: auto;
+        }
+
+        .edit-appointment-panel {
+            padding: 18px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="edit-appointment-container">
+
+    <section class="edit-appointment-panel">
+
+        <h3>Appointment Information — #{{ appointment.appointment_id }}</h3>
+
+        <div class="edit-appointment-note">
+            Review the existing appointment information, make the necessary
+            changes and save your updates.
+        </div>
+
+
+        <form
+            action="{{ url_for('edit_appointment', appointment_id=appointment.appointment_id) }}"
+            method="POST"
+        >
+
+            <div class="edit-appointment-grid">
+
+                <!-- PATIENT -->
+                <div class="edit-appointment-field">
+
+                    <label for="patient_id">Patient *</label>
+
+                    <select
+                        name="patient_id"
+                        id="patient_id"
+                        class="form-control"
+                        required
+                    >
+
+                        {% for patient in patients %}
+
+                        <option
+                            value="{{ patient.patient_id }}"
+                            {% if patient.patient_id == appointment.patient_id %}selected{% endif %}
+                        >
+                            {{ patient.first_name }} {{ patient.last_name }}
+                            (ID: {{ patient.patient_id }})
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- DOCTOR -->
+                <div class="edit-appointment-field">
+
+                    <label for="doctor_id">Doctor *</label>
+
+                    <select
+                        name="doctor_id"
+                        id="doctor_id"
+                        class="form-control"
+                        required
+                    >
+
+                        {% for doctor in doctors %}
+
+                        <option
+                            value="{{ doctor.doctor_id }}"
+                            {% if doctor.doctor_id == appointment.doctor_id %}selected{% endif %}
+                        >
+                            {{ doctor.doctor_name }}
+                            {% if doctor.specialization %}
+                                — {{ doctor.specialization }}
+                            {% endif %}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- DATE -->
+                <div class="edit-appointment-field">
+
+                    <label for="appointment_date">Appointment Date *</label>
+
+                    <input
+                        type="date"
+                        name="appointment_date"
+                        id="appointment_date"
+                        class="form-control"
+                        value="{{ appointment.appointment_date.strftime('%Y-%m-%d') if appointment.appointment_date else '' }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- TIME -->
+                <div class="edit-appointment-field">
+
+                    <label for="appointment_time">Appointment Time *</label>
+
+                    <input
+                        type="time"
+                        name="appointment_time"
+                        id="appointment_time"
+                        class="form-control"
+                        value="{{ appointment.appointment_time.strftime('%H:%M') if appointment.appointment_time else '' }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- STATUS -->
+                <div class="edit-appointment-field full-width">
+
+                    <label for="status">Appointment Status *</label>
+
+                    <select
+                        name="status"
+                        id="status"
+                        class="form-control"
+                        required
+                    >
+
+                        <option value="scheduled"
+                            {% if appointment.status == 'scheduled' %}selected{% endif %}>
+                            Scheduled
+                        </option>
+
+                        <option value="confirmed"
+                            {% if appointment.status == 'confirmed' %}selected{% endif %}>
+                            Confirmed
+                        </option>
+
+                        <option value="completed"
+                            {% if appointment.status == 'completed' %}selected{% endif %}>
+                            Completed
+                        </option>
+
+                        <option value="cancelled"
+                            {% if appointment.status == 'cancelled' %}selected{% endif %}>
+                            Cancelled
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- REASON -->
+                <div class="edit-appointment-field full-width">
+
+                    <label for="reason">Appointment Reason</label>
+
+                    <textarea
+                        name="reason"
+                        id="reason"
+                        class="form-control"
+                        rows="4"
+                        placeholder="Enter appointment reason"
+                    >{{ appointment.reason or '' }}</textarea>
+
+                </div>
+
+            </div>
+
+
+            <div class="edit-appointment-buttons">
+
+                <button type="submit" class="btn">
+                    Save Changes
+                </button>
+
+                <a
+                    href="{{ url_for('appointments') }}"
+                    class="btn edit-appointment-cancel"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

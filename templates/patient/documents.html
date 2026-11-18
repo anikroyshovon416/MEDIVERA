@@ -1,0 +1,273 @@
+
+{% extends "base.html" %}
+
+{% block title %}Medical Documents | MEDIVERA{% endblock %}
+{% block breadcrumb %}Medical Documents{% endblock %}
+
+{% block extra_css %}
+<style>
+.patient-documents {
+    color: #f5f5f5;
+}
+
+.documents-heading {
+    margin-bottom: 25px;
+}
+
+.documents-heading p {
+    color: #a5a7aa;
+}
+
+.document-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.document-panel {
+    padding: 23px;
+    background: #1c1f23;
+    border: 1px solid #30343a;
+    border-radius: 15px;
+}
+
+.document-panel h2 {
+    margin: 0 0 18px;
+    font-size: 19px;
+}
+
+.document-list {
+    display: grid;
+    gap: 12px;
+}
+
+.document-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #22262b;
+    border: 1px solid #34383e;
+    border-radius: 11px;
+}
+
+.document-name {
+    min-width: 0;
+}
+
+.document-name strong {
+    display: block;
+    overflow-wrap: anywhere;
+    margin-bottom: 6px;
+}
+
+.document-name small {
+    display: block;
+    color: #a5a7aa;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.document-type {
+    display: inline-block;
+    color: #ffab70;
+    background: rgba(244,119,33,.13);
+    padding: 4px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    text-transform: capitalize;
+}
+
+.document-download {
+    flex-shrink: 0;
+    color: #ff9b59;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.document-download:hover {
+    color: white;
+}
+
+.document-empty {
+    padding: 25px 10px;
+    color: #a5a7aa;
+    text-align: center;
+    border: 1px dashed #454950;
+    border-radius: 10px;
+}
+
+.document-form {
+    display: grid;
+    gap: 15px;
+}
+
+.document-form label {
+    display: block;
+    font-size: 13px;
+    color: #d6d7da;
+    margin-bottom: 7px;
+}
+
+.document-form select,
+.document-form input[type="file"] {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    color: #f5f5f5;
+    background: #22262b;
+    border: 1px solid #41464e;
+    border-radius: 9px;
+    font: inherit;
+}
+
+.document-form select:focus,
+.document-form input:focus {
+    outline: none;
+    border-color: #f47721;
+}
+
+.document-submit {
+    padding: 13px 18px;
+    border: 0;
+    border-radius: 9px;
+    color: white;
+    background: #f47721;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.document-submit:hover {
+    background: #db6416;
+}
+
+.document-note {
+    padding: 13px;
+    border-radius: 9px;
+    background: rgba(59,130,246,.09);
+    border: 1px solid rgba(59,130,246,.2);
+    color: #a9caff;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+@media (max-width: 850px) {
+    .document-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .document-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="patient-documents">
+
+    <header class="documents-heading">
+        <h1>Medical Documents</h1>
+        <p>Keep your medical reports and prescriptions securely organized.</p>
+    </header>
+
+    <div class="document-layout">
+
+        <section class="document-panel">
+            <h2>Your documents</h2>
+
+            {% if documents %}
+                <div class="document-list">
+
+                    {% for document in documents %}
+                        <article class="document-item">
+
+                            <div class="document-name">
+                                <strong>{{ document.original_filename }}</strong>
+
+                                <span class="document-type">
+                                    {{ document.document_type|replace('_', ' ') }}
+                                </span>
+
+                                <small>
+                                    {{ (document.file_size / 1024)|round(1) }} KB
+                                    · {{ document.created_at }}
+                                </small>
+                            </div>
+
+                            <a
+                                class="document-download"
+                                href="{{ url_for('patient.download_document', document_id=document.document_id) }}"
+                            >
+                                Download
+                            </a>
+
+                        </article>
+                    {% endfor %}
+
+                </div>
+            {% else %}
+                <div class="document-empty">
+                    No medical documents uploaded yet.
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="document-panel">
+            <h2>Upload a document</h2>
+
+            <form
+                class="document-form"
+                method="POST"
+                action="{{ url_for('patient.upload_document') }}"
+                enctype="multipart/form-data"
+            >
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <div>
+                    <label for="document_type">Document category</label>
+                    <select id="document_type" name="document_type" required>
+                        <option value="">Choose category</option>
+                        <option value="medical_report">Medical report</option>
+                        <option value="prescription">Prescription</option>
+                        <option value="other">Other document</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="document">Choose file</label>
+                    <input
+                        type="file"
+                        id="document"
+                        name="document"
+                        accept=".pdf,.png,.jpg,.jpeg,.webp"
+                        required
+                    >
+                </div>
+
+                <div class="document-note">
+                    Accepted formats: PDF, PNG, JPG and WEBP.
+                    Maximum file size: 4 MB per document.
+                    Please upload genuine medical documents only.
+                </div>
+
+                <button class="document-submit" type="submit">
+                    Upload document
+                </button>
+            </form>
+        </section>
+
+    </div>
+</div>
+{% endblock %}

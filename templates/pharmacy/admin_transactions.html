@@ -1,0 +1,162 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Stock Transactions | MEDIVERA{% endblock %}
+{% block breadcrumb %}Pharmacy / Stock Transactions{% endblock %}
+
+{% block extra_css %}
+<style>
+.tx-page{color:#f5f5f5}
+.tx-heading{margin-bottom:22px}
+.tx-heading h1{font-size:26px;font-weight:800;margin:0}
+.tx-heading p{color:#a5a7ad;margin:7px 0 0}
+.tx-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.tx-stat{background:linear-gradient(145deg,#25272c,#191a1e);border:1px solid #393b42;border-radius:15px;padding:18px}
+.tx-stat small{display:block;color:#a5a7ad;margin-bottom:9px}
+.tx-stat strong{font-size:25px;font-weight:800}
+.tx-stat.orange strong{color:#ff9b42}
+.tx-stat.green strong{color:#51d69a}
+.tx-stat.red strong{color:#ff7373}
+.tx-stat.blue strong{color:#77baff}
+.tx-panel{background:#202126;border:1px solid #393b42;border-radius:16px;padding:18px}
+.tx-filters{display:grid;grid-template-columns:minmax(180px,2fr) repeat(3,minmax(130px,1fr)) auto auto;gap:10px;margin-bottom:18px}
+.tx-filters input,.tx-filters select{width:100%;min-width:0;background:#17181c;border:1px solid #41434a;color:#fff;border-radius:9px;padding:10px 11px;min-height:42px}
+.tx-btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:9px;padding:10px 13px;font-weight:800;text-decoration:none;cursor:pointer;white-space:nowrap}
+.tx-primary{background:#ff922e;color:#171717}
+.tx-muted{background:#383a41;color:#fff}
+.tx-table-wrap{overflow-x:auto}
+.tx-table{width:100%;border-collapse:collapse;min-width:850px}
+.tx-table th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#999da7;text-align:left;padding:13px 10px;border-bottom:1px solid #41434a}
+.tx-table td{padding:14px 10px;border-bottom:1px solid #34363c;font-size:13px;vertical-align:middle}
+.tx-medicine b{display:block;color:#fff}
+.tx-medicine small{display:block;color:#999da7;margin-top:4px}
+.tx-type{display:inline-block;padding:6px 10px;border-radius:30px;font-size:11px;font-weight:800;white-space:nowrap}
+.tx-type.stock_in{background:#153c2b;color:#67e3a5}
+.tx-type.stock_out{background:#4a2023;color:#ff8888}
+.tx-type.adjustment{background:#493516;color:#ffc46b}
+.tx-quantity{font-weight:800;font-variant-numeric:tabular-nums}
+.tx-positive{color:#67e3a5}
+.tx-negative{color:#ff8888}
+.tx-neutral{color:#ffc46b}
+.tx-remarks{max-width:240px;color:#c5c6ca;overflow-wrap:anywhere}
+.tx-pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px;color:#a5a7ad}
+.tx-pagination a{color:#ffad5d;text-decoration:none;margin-left:12px}
+.tx-empty{text-align:center;padding:35px;color:#a5a7ad}
+@media(max-width:950px){.tx-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.tx-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.tx-stats{gap:9px}.tx-stat{padding:13px}.tx-stat strong{font-size:20px}.tx-panel{padding:12px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tx-page">
+    <div class="tx-heading">
+        <h1>Stock Transactions</h1>
+        <p>Auditable history of medicine stock receipts, dispensing and adjustments.</p>
+    </div>
+
+    <div class="tx-stats">
+        <div class="tx-stat orange">
+            <small>Total Transactions</small>
+            <strong>{{ summary.total_transactions or 0 }}</strong>
+        </div>
+        <div class="tx-stat green">
+            <small>Stock In</small>
+            <strong>{{ summary.stock_in_count or 0 }}</strong>
+        </div>
+        <div class="tx-stat red">
+            <small>Stock Out</small>
+            <strong>{{ summary.stock_out_count or 0 }}</strong>
+        </div>
+        <div class="tx-stat blue">
+            <small>Adjustments</small>
+            <strong>{{ summary.adjustment_count or 0 }}</strong>
+        </div>
+    </div>
+
+    <section class="tx-panel">
+        <form method="GET" action="{{ url_for('pharmacy.admin_transactions') }}" class="tx-filters">
+            <input type="search" name="q" value="{{ search }}" placeholder="Search medicine, transaction ID, staff ID or remarks">
+
+            <select name="type">
+                <option value="all" {% if transaction_type == 'all' %}selected{% endif %}>All transaction types</option>
+                <option value="stock_in" {% if transaction_type == 'stock_in' %}selected{% endif %}>Stock In</option>
+                <option value="stock_out" {% if transaction_type == 'stock_out' %}selected{% endif %}>Stock Out</option>
+                <option value="adjustment" {% if transaction_type == 'adjustment' %}selected{% endif %}>Adjustment</option>
+            </select>
+
+            <input type="date" name="start_date" value="{{ start_date }}" aria-label="Start date">
+            <input type="date" name="end_date" value="{{ end_date }}" aria-label="End date">
+
+            <button type="submit" class="tx-btn tx-primary">Filter</button>
+            <a class="tx-btn tx-muted" href="{{ url_for('pharmacy.admin_transactions') }}">Reset</a>
+        </form>
+
+        <div class="tx-table-wrap">
+            <table class="tx-table">
+                <thead>
+                    <tr>
+                        <th>Transaction</th>
+                        <th>Medicine</th>
+                        <th>Type</th>
+                        <th>Quantity Change</th>
+                        <th>Staff ID</th>
+                        <th>Date &amp; Time</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in transactions %}
+                    <tr>
+                        <td>#{{ item.transaction_id }}</td>
+                        <td>
+                            <div class="tx-medicine">
+                                <b>{{ item.item_name }}</b>
+                                <small>{{ item.strength or '' }} {{ item.dosage_form or '' }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="tx-type {{ item.transaction_type }}">
+                                {{ item.transaction_type|replace('_',' ')|title }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if item.transaction_type == 'stock_in' %}
+                                <span class="tx-quantity tx-positive">+{{ item.quantity }}</span>
+                            {% elif item.transaction_type == 'stock_out' %}
+                                <span class="tx-quantity tx-negative">−{{ item.quantity|abs }}</span>
+                            {% else %}
+                                <span class="tx-quantity {% if item.quantity < 0 %}tx-negative{% elif item.quantity > 0 %}tx-positive{% else %}tx-neutral{% endif %}">
+                                    {{ "%+d"|format(item.quantity) }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.staff_id if item.staff_id else 'System / Unknown' }}</td>
+                        <td>
+                            {{ item.transaction_date.strftime('%d %b %Y') if item.transaction_date else '—' }}
+                            <small style="display:block;color:#999da7">
+                                {{ item.transaction_date.strftime('%I:%M %p') if item.transaction_date else '' }}
+                            </small>
+                        </td>
+                        <td><div class="tx-remarks">{{ item.remarks or '—' }}</div></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="tx-empty">No stock transactions found for these filters.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tx-pagination">
+            <span>{{ total }} transactions · Page {{ page }} of {{ total_pages }}</span>
+            <div>
+                {% if page > 1 %}
+                    <a href="{{ url_for('pharmacy.admin_transactions', q=search, type=transaction_type, start_date=start_date, end_date=end_date, page=page-1) }}">← Previous</a>
+                {% endif %}
+                {% if page < total_pages %}
+                    <a href="{{ url_for('pharmacy.admin_transactions', q=search, type=transaction_type, start_date=start_date, end_date=end_date, page=page+1) }}">Next →</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

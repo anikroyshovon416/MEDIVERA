@@ -1,0 +1,236 @@
+
+{% extends "base.html" %}
+
+{% block title %}Order Laboratory Tests | MEDIVERA{% endblock %}
+{% block breadcrumb %}Doctor / Laboratory Orders{% endblock %}
+{% block body_class %}laboratory-body{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/laboratory.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="lab-page">
+
+    <header class="lab-heading">
+        <div>
+            <div class="lab-eyebrow">DOCTOR WORKSPACE</div>
+            <h1>Laboratory Orders</h1>
+            <p>Authorise diagnostic tests and review your previous orders.</p>
+        </div>
+
+        <a href="{{ url_for('laboratory.doctor_lab_catalogue') }}"
+           class="lab-btn lab-btn-secondary">
+            Browse Catalogue
+        </a>
+    </header>
+
+    <section class="lab-card">
+        <div class="lab-card-header">
+            <div>
+                <h2 class="lab-card-title">Create New Test Order</h2>
+                <p class="lab-card-subtitle">
+                    Ordering doctor: {{ doctor.doctor_name }}
+                </p>
+            </div>
+        </div>
+
+        {% if not patients %}
+        <div class="lab-warning-box">
+            No registered patients were found.
+        </div>
+        {% elif not catalogue %}
+        <div class="lab-warning-box">
+            There are no active laboratory tests available to order.
+        </div>
+        {% else %}
+
+        <form method="POST"
+              action="{{ url_for('laboratory.doctor_lab_orders') }}"
+              id="labOrderForm">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <div class="lab-form-grid">
+
+                <div class="lab-form-group">
+                    <label for="patient_id">
+                        Select Patient <span class="lab-required">*</span>
+                    </label>
+
+                    <select name="patient_id"
+                            id="patient_id"
+                            class="lab-select"
+                            required>
+                        <option value="">Choose a patient</option>
+
+                        {% for patient in patients %}
+                        <option value="{{ patient.patient_id }}">
+                            {{ patient.first_name }} {{ patient.last_name }}
+                            — ID {{ patient.patient_id }}
+                            — {{ patient.phone }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="lab-form-group">
+                    <label for="catalogue_id">
+                        Laboratory Test <span class="lab-required">*</span>
+                    </label>
+
+                    <select name="catalogue_id"
+                            id="catalogue_id"
+                            class="lab-select"
+                            required>
+                        <option value="">Choose a test</option>
+
+                        {% for item in catalogue %}
+                        <option value="{{ item.catalogue_id }}"
+                                data-charge="{{ item.default_charge }}"
+                                data-range="{{ item.normal_range or '' }}"
+                                data-preparation="{{ item.preparation_instructions or '' }}">
+                            {{ item.test_name }} — ₹{{ "%.2f"|format(item.default_charge) }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="lab-form-group full">
+                    <div class="lab-info-box" id="labTestInformation">
+                        Select a test to view its reference range and preparation instructions.
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lab-actions" style="margin-top:20px;">
+                <button type="submit"
+                        class="lab-btn lab-btn-primary">
+                    Authorise Laboratory Order
+                </button>
+            </div>
+
+        </form>
+        {% endif %}
+    </section>
+
+    <section class="lab-card">
+        <div class="lab-card-header">
+            <div>
+                <h2 class="lab-card-title">My Laboratory Orders</h2>
+                <p class="lab-card-subtitle">
+                    Your latest 100 test orders
+                </p>
+            </div>
+        </div>
+
+        {% if orders %}
+        <div class="lab-table-wrap">
+            <table class="lab-table">
+                <thead>
+                    <tr>
+                        <th>Test ID</th>
+                        <th>Patient ID</th>
+                        <th>Test</th>
+                        <th>Date</th>
+                        <th>Charge</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for test in orders %}
+                    <tr>
+                        <td>LAB-{{ "%05d"|format(test.test_id) }}</td>
+                        <td>{{ test.patient_id }}</td>
+                        <td>
+                            <span class="lab-test-name">{{ test.test_name }}</span>
+                        </td>
+                        <td>
+                            {{ test.test_date.strftime('%d %b %Y')
+                               if test.test_date else "—" }}
+                        </td>
+                        <td class="lab-price">
+                            ₹{{ "%.2f"|format(test.test_charge or 0) }}
+                        </td>
+                        <td>
+                            <span class="lab-status lab-status-{{ test.test_status }}">
+                                {{ test.test_status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if test.test_status == 'pending' and test.test_result %}
+                            <form method="POST"
+                                  action="{{ url_for(
+                                    'laboratory.doctor_verify_lab_result',
+                                    test_id=test.test_id
+                                  ) }}"
+                                  class="lab-inline-form"
+                                  onsubmit="return confirm('Verify this laboratory result and publish it to the patient?');">
+
+                                <input type="hidden"
+                                       name="csrf_token"
+                                       value="{{ csrf_token() }}">
+
+                                <button type="submit"
+                                        class="lab-btn lab-btn-success">
+                                    Verify Result
+                                </button>
+                            </form>
+
+                            {% elif test.test_status == 'pending' %}
+                            <span class="lab-muted">Awaiting result</span>
+
+                            {% elif test.test_status == 'completed' %}
+                            <span class="lab-status lab-status-completed">
+                                Published
+                            </span>
+
+                            {% else %}
+                            <span class="lab-muted">Cancelled</span>
+                            {% endif %}
+
+                            {% if test.test_status == 'pending' %}
+                            <form method="POST"
+                                  action="{{ url_for(
+                                    'laboratory.doctor_cancel_lab_test',
+                                    test_id=test.test_id
+                                  ) }}"
+                                  class="lab-inline-form"
+                                  onsubmit="return confirm('Cancel this test order?');">
+
+                                <input type="hidden"
+                                       name="csrf_token"
+                                       value="{{ csrf_token() }}">
+
+                                <button type="submit"
+                                        class="lab-btn lab-btn-danger">
+                                    Cancel
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="lab-empty">
+            <div class="lab-empty-icon">⚗</div>
+            <strong>No laboratory orders yet</strong>
+            Your authorised test orders will appear here.
+        </div>
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/laboratory.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,700 @@
+
+{% extends "base.html" %}
+
+{% block title %}Medicine Schedule | MEDIVERA{% endblock %}
+{% block breadcrumb %}Medicine Schedule{% endblock %}
+{% block body_class %}patient-portal-body medicine-page-body{% endblock %}
+
+{% block extra_css %}
+<style>
+.medicine-page {
+    --med-bg: #17191d;
+    --med-panel: #22252b;
+    --med-panel-light: #292d34;
+    --med-orange: #ff8a32;
+    --med-orange-light: #ffad65;
+    --med-white: #f6f7f9;
+    --med-muted: #a4a9b2;
+    --med-green: #39c98a;
+    --med-red: #f06b70;
+    color: var(--med-white);
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 28px 24px 55px;
+}
+
+.medicine-page * {
+    box-sizing: border-box;
+}
+
+.med-hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 25px;
+    padding: 34px;
+    border: 1px solid rgba(255,138,50,.23);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 90% 10%, rgba(255,138,50,.19), transparent 34%),
+        linear-gradient(125deg, #292c33, #1c1e23 68%);
+    box-shadow: 0 18px 45px rgba(0,0,0,.24);
+}
+
+.med-eyebrow {
+    color: var(--med-orange-light);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.med-hero h1 {
+    margin: 10px 0;
+    font-size: clamp(27px, 4vw, 39px);
+    font-weight: 850;
+    letter-spacing: -.9px;
+}
+
+.med-hero p {
+    max-width: 620px;
+    margin: 0;
+    color: #b9bec7;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.med-date {
+    min-width: 145px;
+    padding: 17px 20px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px;
+    background: rgba(255,255,255,.055);
+    text-align: center;
+}
+
+.med-date strong {
+    display: block;
+    color: var(--med-orange-light);
+    font-size: 25px;
+}
+
+.med-date span {
+    display: block;
+    margin-top: 5px;
+    color: #c0c4cb;
+    font-size: 12px;
+}
+
+.med-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 16px;
+    margin: 23px 0 30px;
+}
+
+.med-stat {
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,.075);
+    border-radius: 17px;
+    background: linear-gradient(145deg, #292c33, #202227);
+    box-shadow: 0 10px 25px rgba(0,0,0,.13);
+}
+
+.med-stat span {
+    display: block;
+    color: var(--med-muted);
+    font-size: 12px;
+}
+
+.med-stat strong {
+    display: block;
+    margin-top: 9px;
+    font-size: 29px;
+    font-weight: 850;
+}
+
+.med-stat.orange strong { color: var(--med-orange); }
+.med-stat.green strong { color: var(--med-green); }
+.med-stat.red strong { color: var(--med-red); }
+
+.med-section {
+    margin-top: 31px;
+}
+
+.med-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 16px;
+}
+
+.med-section-heading h2 {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.med-section-heading p {
+    margin: 5px 0 0;
+    color: var(--med-muted);
+    font-size: 12px;
+}
+
+.med-count {
+    padding: 7px 12px;
+    border-radius: 30px;
+    color: var(--med-orange-light);
+    background: rgba(255,138,50,.12);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.med-dose-list {
+    display: grid;
+    gap: 12px;
+}
+
+.med-dose {
+    display: grid;
+    grid-template-columns: 105px minmax(0,1fr) auto;
+    align-items: center;
+    gap: 19px;
+    padding: 19px 21px;
+    border: 1px solid rgba(255,255,255,.075);
+    border-radius: 17px;
+    background: linear-gradient(115deg, #282b31, #202227);
+}
+
+.med-dose-time {
+    padding: 12px 8px;
+    border-radius: 12px;
+    background: rgba(255,138,50,.11);
+    text-align: center;
+}
+
+.med-dose-time strong {
+    display: block;
+    color: var(--med-orange-light);
+    font-size: 15px;
+}
+
+.med-dose-time span {
+    display: block;
+    margin-top: 4px;
+    color: var(--med-muted);
+    font-size: 10px;
+}
+
+.med-dose-info h3 {
+    margin: 0 0 6px;
+    font-size: 16px;
+}
+
+.med-dose-info p {
+    margin: 3px 0;
+    color: var(--med-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.med-dose-action {
+    min-width: 125px;
+    text-align: right;
+}
+
+.med-status {
+    display: inline-block;
+    padding: 7px 11px;
+    border-radius: 30px;
+    font-size: 10px;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.med-status.taken {
+    color: #6ce3ae;
+    background: rgba(57,201,138,.13);
+}
+
+.med-status.pending {
+    color: #ffbd7e;
+    background: rgba(255,138,50,.13);
+}
+
+.med-status.missed {
+    color: #ff8b91;
+    background: rgba(240,107,112,.13);
+}
+
+.med-taken-button {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 9px 13px;
+    border: 0;
+    border-radius: 9px;
+    color: #17191d;
+    background: var(--med-orange);
+    font-size: 11px;
+    font-weight: 850;
+    text-decoration: none;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.med-taken-button:hover {
+    background: var(--med-orange-light);
+    transform: translateY(-1px);
+}
+
+.med-taken-button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.med-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 15px;
+}
+
+.med-card {
+    padding: 21px;
+    border: 1px solid rgba(255,255,255,.075);
+    border-radius: 17px;
+    background: linear-gradient(145deg, #292c33, #202227);
+}
+
+.med-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.med-card h3 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.med-card .med-dosage {
+    margin: 6px 0 15px;
+    color: var(--med-orange-light);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.med-details {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 12px;
+}
+
+.med-detail {
+    padding: 11px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.045);
+}
+
+.med-detail span {
+    display: block;
+    color: var(--med-muted);
+    font-size: 10px;
+}
+
+.med-detail strong {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.med-doctor {
+    margin-top: 14px;
+    padding-top: 13px;
+    border-top: 1px solid rgba(255,255,255,.08);
+    color: #c3c7ce;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.med-empty {
+    padding: 34px 22px;
+    border: 1px dashed rgba(255,255,255,.15);
+    border-radius: 17px;
+    background: rgba(255,255,255,.025);
+    text-align: center;
+}
+
+.med-empty .med-empty-icon {
+    margin-bottom: 12px;
+    color: var(--med-orange);
+    font-size: 32px;
+}
+
+.med-empty h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+}
+
+.med-empty p {
+    max-width: 520px;
+    margin: 0 auto;
+    color: var(--med-muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.med-history {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #22252b;
+}
+
+.med-history th,
+.med-history td {
+    padding: 14px 15px;
+    border-bottom: 1px solid rgba(255,255,255,.065);
+    text-align: left;
+    font-size: 12px;
+}
+
+.med-history th {
+    color: var(--med-orange-light);
+    background: #2b2e35;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+}
+
+.med-history td {
+    color: #d7d9de;
+}
+
+.med-history tr:last-child td {
+    border-bottom: 0;
+}
+
+.med-note {
+    margin-top: 25px;
+    padding: 15px 17px;
+    border-left: 3px solid var(--med-orange);
+    border-radius: 9px;
+    color: #c1c5cd;
+    background: rgba(255,138,50,.07);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.med-back {
+    display: inline-block;
+    margin-bottom: 18px;
+    color: var(--med-orange-light);
+    font-size: 12px;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.med-back:hover {
+    color: white;
+}
+
+@media (max-width: 850px) {
+    .med-stats { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .med-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    .medicine-page { padding: 18px 13px 35px; }
+    .med-hero { align-items: flex-start; flex-direction: column; padding: 24px; }
+    .med-date { width: 100%; }
+    .med-dose { grid-template-columns: 78px minmax(0,1fr); gap: 12px; }
+    .med-dose-action { grid-column: 2; text-align: left; }
+    .med-stats { gap: 10px; }
+    .med-stat { padding: 15px; }
+    .med-stat strong { font-size: 24px; }
+    .med-history { min-width: 650px; }
+    .med-history-wrap { overflow-x: auto; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="medicine-page">
+
+    <a class="med-back" href="{{ url_for('patient.dashboard') }}">
+        ← Back to patient dashboard
+    </a>
+
+    <section class="med-hero">
+        <div>
+            <div class="med-eyebrow">Your personal care space</div>
+            <h1>Medicine Schedule</h1>
+            <p>
+                Keep track of your doctor-authorised medicines,
+                follow your prescribed timetable and review your
+                dose history in one place.
+            </p>
+        </div>
+
+        <div class="med-date">
+            <strong>{{ today.strftime('%d') }}</strong>
+            <span>{{ today.strftime('%B %Y') }}</span>
+        </div>
+    </section>
+
+    <section class="med-stats">
+        <div class="med-stat orange">
+            <span>Active medicines</span>
+            <strong>{{ active_schedules|length }}</strong>
+        </div>
+
+        <div class="med-stat">
+            <span>Total doses today</span>
+            <strong>{{ total_today }}</strong>
+        </div>
+
+        <div class="med-stat green">
+            <span>Doses taken</span>
+            <strong>{{ taken_count }}</strong>
+        </div>
+
+        <div class="med-stat red">
+            <span>Pending doses</span>
+            <strong>{{ pending_count }}</strong>
+        </div>
+    </section>
+
+    <section class="med-section">
+        <div class="med-section-heading">
+            <div>
+                <h2>Today's dose timetable</h2>
+                <p>Your scheduled medicine doses for today</p>
+            </div>
+            <span class="med-count">{{ total_today }} DOSES</span>
+        </div>
+
+        {% if today_doses %}
+        <div class="med-dose-list">
+            {% for dose in today_doses %}
+            <article class="med-dose">
+                <div class="med-dose-time">
+                    <strong>{{ dose.scheduled_for.strftime('%I:%M') }}</strong>
+                    <span>{{ dose.scheduled_for.strftime('%p') }}</span>
+                </div>
+
+                <div class="med-dose-info">
+                    <h3>{{ dose.medicine_name }}</h3>
+                    <p>
+                        {{ dose.dosage or 'Dosage not specified' }}
+                        {% if dose.frequency %} · {{ dose.frequency }}{% endif %}
+                    </p>
+                    {% if dose.meal_instruction %}
+                    <p>Meal instruction: {{ dose.meal_instruction }}</p>
+                    {% endif %}
+                    {% if dose.additional_instructions %}
+                    <p>{{ dose.additional_instructions }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="med-dose-action">
+                    {% if dose.dose_status == 'Taken' %}
+                        <span class="med-status taken">✓ Taken</span>
+                    {% elif dose.dose_status == 'Missed' %}
+                        <span class="med-status missed">Missed</span>
+                    {% else %}
+                        <span class="med-status pending">Scheduled</span>
+
+                        {% if dose.scheduled_for <= now %}
+                        <form method="POST"
+                              action="{{ url_for(
+                                  'patient.mark_medicine_dose_taken',
+                                  dose_log_id=dose.dose_log_id
+                              ) }}">
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+                            <button class="med-taken-button" type="submit">
+                                ✓ Mark as taken
+                            </button>
+                        </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="med-empty">
+            <div class="med-empty-icon">◷</div>
+            <h3>No doses scheduled for today</h3>
+            <p>
+                There are no active medicine dose times recorded for today.
+                Your schedule will appear here when a doctor-authorised
+                medicine schedule is available.
+            </p>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="med-section">
+        <div class="med-section-heading">
+            <div>
+                <h2>Your prescribed medicines</h2>
+                <p>Medicine details and prescribing doctor information</p>
+            </div>
+            <span class="med-count">
+                {{ active_schedules|length }} ACTIVE
+            </span>
+        </div>
+
+        {% if active_schedules %}
+        <div class="med-grid">
+            {% for medicine in active_schedules %}
+            <article class="med-card">
+                <div class="med-card-top">
+                    <h3>{{ medicine.medicine_name }}</h3>
+                    <span class="med-status taken">Active</span>
+                </div>
+
+                <div class="med-dosage">
+                    {{ medicine.dosage or 'Dosage not specified' }}
+                </div>
+
+                <div class="med-details">
+                    <div class="med-detail">
+                        <span>Frequency</span>
+                        <strong>{{ medicine.frequency or 'Not specified' }}</strong>
+                    </div>
+
+                    <div class="med-detail">
+                        <span>Duration</span>
+                        <strong>{{ medicine.duration or 'Not specified' }}</strong>
+                    </div>
+
+                    <div class="med-detail">
+                        <span>Start date</span>
+                        <strong>{{ medicine.start_date.strftime('%d %b %Y') if medicine.start_date else '—' }}</strong>
+                    </div>
+
+                    <div class="med-detail">
+                        <span>End date</span>
+                        <strong>{{ medicine.end_date.strftime('%d %b %Y') if medicine.end_date else 'As prescribed' }}</strong>
+                    </div>
+
+                    <div class="med-detail">
+                        <span>Meal instruction</span>
+                        <strong>{{ medicine.meal_instruction or 'Not specified' }}</strong>
+                    </div>
+
+                    <div class="med-detail">
+                        <span>Diagnosis</span>
+                        <strong>{{ medicine.diagnosis or '—' }}</strong>
+                    </div>
+                </div>
+
+                {% if medicine.parsed_times %}
+                <div class="med-doctor">
+                    <strong>Scheduled times:</strong>
+                    {% for dose_time in medicine.parsed_times %}
+                        {{ dose_time.label }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="med-doctor">
+                    Dose times have not been configured for this schedule.
+                    Please contact your healthcare provider.
+                </div>
+                {% endif %}
+
+                <div class="med-doctor">
+                    <strong>Prescribed by:</strong>
+                    {{ medicine.doctor_name or 'Healthcare provider' }}
+                    {% if medicine.specialization %}
+                        · {{ medicine.specialization }}
+                    {% endif %}
+                    <br>
+                    <strong>Additional instructions:</strong>
+                    {{ medicine.additional_instructions or medicine.prescription_instructions or 'No additional instructions recorded.' }}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="med-empty">
+            <div class="med-empty-icon">✚</div>
+            <h3>No active medicine schedules</h3>
+            <p>
+                Your doctor-authorised medicine schedules will appear here
+                once they have been added to your medical record.
+            </p>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="med-section">
+        <div class="med-section-heading">
+            <div>
+                <h2>Recent dose history</h2>
+                <p>Your previously recorded medicine doses</p>
+            </div>
+            <span class="med-count">{{ dose_history|length }} RECORDS</span>
+        </div>
+
+        {% if dose_history %}
+        <div class="med-history-wrap">
+            <table class="med-history">
+                <thead>
+                    <tr>
+                        <th>Medicine</th>
+                        <th>Scheduled date</th>
+                        <th>Scheduled time</th>
+                        <th>Dosage</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in dose_history %}
+                    <tr>
+                        <td>{{ item.medicine_name }}</td>
+                        <td>{{ item.scheduled_for.strftime('%d %b %Y') }}</td>
+                        <td>{{ item.scheduled_for.strftime('%I:%M %p') }}</td>
+                        <td>{{ item.dosage or '—' }}</td>
+                        <td>
+                            {% if item.dose_status == 'Taken' %}
+                                <span class="med-status taken">Taken</span>
+                            {% elif item.dose_status == 'Missed' %}
+                                <span class="med-status missed">Missed</span>
+                            {% else %}
+                                <span class="med-status pending">Scheduled</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="med-empty">
+            <h3>No previous dose records</h3>
+            <p>Your recorded dose history will appear here.</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <div class="med-note">
+        <strong>Important healthcare notice:</strong>
+        This page displays medicine schedules recorded by your healthcare
+        provider. It does not replace medical advice. Do not change your
+        dosage, stop a medicine or alter its timing without consulting
+        your doctor. If a dose is missed, follow your provider's instructions.
+    </div>
+
+</div>
+{% endblock %}

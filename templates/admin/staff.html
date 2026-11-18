@@ -1,0 +1,144 @@
+﻿{% extends "admin/base_admin.html" %}
+{% block title %}Staff Management | MEDIVERA{% endblock %}
+
+{% block content %}
+<style>
+.staff-page{color:#f4f4f5}
+.staff-page .hero,.staff-page .panel,.staff-page .stat{background:#202023;border:1px solid #39393d;border-radius:18px}
+.staff-page .hero{padding:25px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.staff-page h1{font-size:27px;margin:0 0 7px;font-weight:800}
+.staff-page .muted{color:#a1a1aa}
+.staff-page .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-bottom:20px}
+.staff-page .stat{padding:19px}
+.staff-page .stat small{color:#aaa}
+.staff-page .stat strong{display:block;font-size:27px;margin-top:8px}
+.staff-page .accent{color:#f28b28}
+.staff-page .panel{padding:20px}
+.staff-page .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.staff-page input,.staff-page select{background:#151518;color:#eee;border:1px solid #424248;border-radius:9px;padding:11px 12px;min-width:150px}
+.staff-page input:focus,.staff-page select:focus{outline:1px solid #f28b28}
+.staff-page .btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 16px;border-radius:9px;text-decoration:none;font-weight:750;border:0;cursor:pointer}
+.staff-page .primary{background:#f28b28;color:#171717}
+.staff-page .secondary{background:#35353a;color:#eee}
+.staff-page .table-wrap{overflow-x:auto}
+.staff-page table{width:100%;border-collapse:collapse;min-width:800px}
+.staff-page th{text-align:left;color:#aaa;font-size:12px;text-transform:uppercase;letter-spacing:.06em;padding:13px;border-bottom:1px solid #3b3b40}
+.staff-page td{padding:15px 13px;border-bottom:1px solid #333338}
+.staff-page tbody tr:hover{background:#29292d}
+.staff-page .name{font-weight:750;color:#fff}
+.staff-page .pill{display:inline-block;padding:5px 10px;border-radius:25px;font-size:11px;font-weight:800;text-transform:capitalize}
+.staff-page .active{background:#143c2c;color:#66e3a1}
+.staff-page .inactive{background:#482326;color:#ff9292}
+.staff-page .action{color:#f5a34d;text-decoration:none;font-weight:700;font-size:13px;margin-right:9px}
+.staff-page .empty{text-align:center;padding:40px;color:#aaa}
+.staff-page .pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+.staff-page .flash{padding:11px 14px;border-radius:9px;margin-bottom:12px;background:#482326;color:#ffc1c1}
+@media(max-width:700px){.staff-page .stats{grid-template-columns:1fr}.staff-page .hero{padding:19px}}
+</style>
+
+<div class="staff-page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <section class="hero">
+        <div>
+            <div class="muted">MEDIVERA / HUMAN RESOURCES</div>
+            <h1>Staff Management</h1>
+            <div class="muted">Manage employee records, designations, departments and employment status.</div>
+        </div>
+        <a class="btn primary" href="{{ url_for('admin.add_staff') }}">＋ Add Staff Member</a>
+    </section>
+
+    <section class="stats">
+        <div class="stat">
+            <small>Total staff members</small>
+            <strong>{{ summary.total_staff|default(0) }}</strong>
+        </div>
+        <div class="stat">
+            <small>Active employees</small>
+            <strong class="accent">{{ summary.active_staff|default(0) }}</strong>
+        </div>
+        <div class="stat">
+            <small>Inactive employees</small>
+            <strong>{{ summary.inactive_staff|default(0) }}</strong>
+        </div>
+    </section>
+
+    <section class="panel">
+        <form method="GET" action="{{ url_for('admin.staff') }}" class="filters">
+            <input type="search" name="q" placeholder="Search name, designation, phone..." value="{{ search }}">
+
+            <select name="department">
+                <option value="">All departments</option>
+                {% for department in departments %}
+                <option value="{{ department.department_id }}"
+                    {% if department_filter|string == department.department_id|string %}selected{% endif %}>
+                    {{ department.department_name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <select name="status">
+                <option value="">All employment statuses</option>
+                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+            </select>
+
+            <button type="submit" class="btn primary">Apply Filters</button>
+            <a href="{{ url_for('admin.staff') }}" class="btn secondary">Reset</a>
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Designation</th>
+                        <th>Department</th>
+                        <th>Phone</th>
+                        <th>Joining Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for member in staff_members %}
+                    <tr>
+                        <td>
+                            <div class="name">{{ member.staff_name }}</div>
+                            <small class="muted">{{ member.email or 'No email provided' }}</small>
+                        </td>
+                        <td>{{ member.designation }}</td>
+                        <td>{{ member.department_name or 'Unassigned' }}</td>
+                        <td>{{ member.phone or '—' }}</td>
+                        <td>{{ member.joining_date or '—' }}</td>
+                        <td><span class="pill {{ member.employment_status }}">{{ member.employment_status }}</span></td>
+                        <td>
+                            <a class="action" href="{{ url_for('admin.staff_detail', staff_id=member.staff_id) }}">View</a>
+                            <a class="action" href="{{ url_for('admin.edit_staff', staff_id=member.staff_id) }}">Edit</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="empty">No staff records found. Add an employee or adjust your filters.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <span class="muted">Showing {{ staff_members|length }} of {{ total_records }} records · Page {{ page }} of {{ total_pages }}</span>
+            <div>
+                {% if page > 1 %}
+                <a class="btn secondary" href="{{ url_for('admin.staff', q=search, department=department_filter, status=status_filter, page=page-1) }}">Previous</a>
+                {% endif %}
+                {% if page < total_pages %}
+                <a class="btn primary" href="{{ url_for('admin.staff', q=search, department=department_filter, status=status_filter, page=page+1) }}">Next</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

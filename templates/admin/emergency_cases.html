@@ -1,0 +1,634 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Emergency Cases | MEDIVERA{% endblock %}
+
+{% block extra_css %}
+<style>
+.emergency-page {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    color: #f2f3f5;
+}
+
+.emergency-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.emergency-heading h1 {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.emergency-heading p {
+    margin: 7px 0 0;
+    color: #92979e;
+    font-size: 13px;
+}
+
+.emergency-card {
+    background: #1c1f23;
+    border: 1px solid #30343a;
+    border-radius: 15px;
+    padding: 22px;
+}
+
+.emergency-card h2 {
+    font-size: 17px;
+    margin: 0 0 18px;
+    font-weight: 750;
+}
+
+.emergency-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.emergency-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.emergency-field.full {
+    grid-column: 1 / -1;
+}
+
+.emergency-field label {
+    font-size: 12px;
+    color: #c4c8ce;
+    font-weight: 650;
+}
+
+.emergency-field input,
+.emergency-field select,
+.emergency-field textarea,
+.filter-control input,
+.filter-control select {
+    width: 100%;
+    box-sizing: border-box;
+    background: #111315;
+    border: 1px solid #383d44;
+    border-radius: 9px;
+    padding: 11px 12px;
+    color: #f5f5f5;
+    outline: none;
+    font-size: 13px;
+}
+
+.emergency-field input:focus,
+.emergency-field select:focus,
+.emergency-field textarea:focus,
+.filter-control input:focus,
+.filter-control select:focus {
+    border-color: #f47721;
+}
+
+.emergency-field textarea {
+    min-height: 95px;
+    resize: vertical;
+}
+
+.emergency-field select option,
+.filter-control select option {
+    background: #17191c;
+}
+
+.emergency-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.emergency-btn {
+    border: 0;
+    border-radius: 9px;
+    padding: 11px 17px;
+    font-weight: 750;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.emergency-btn.primary {
+    color: white;
+    background: #f47721;
+}
+
+.emergency-btn.primary:hover {
+    background: #df6515;
+}
+
+.emergency-btn.secondary {
+    background: #30343a;
+    color: #e9eaec;
+}
+
+.emergency-filter-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.filter-control {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.filter-control label {
+    color: #aeb3ba;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.emergency-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.emergency-table {
+    width: 100%;
+    min-width: 950px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.emergency-table th {
+    padding: 13px 12px;
+    text-align: left;
+    color: #9da3aa;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    border-bottom: 1px solid #383d44;
+    white-space: nowrap;
+}
+
+.emergency-table td {
+    padding: 15px 12px;
+    border-bottom: 1px solid #30343a;
+    vertical-align: top;
+    color: #e4e6e9;
+}
+
+.emergency-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.case-number {
+    color: #ff9a50;
+    font-weight: 800;
+}
+
+.case-main {
+    font-weight: 750;
+    margin-bottom: 5px;
+}
+
+.case-muted {
+    color: #92979e;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.case-badge {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.severity-critical {
+    background: rgba(240, 70, 77, .15);
+    color: #ff777d;
+}
+
+.severity-high {
+    background: rgba(244, 119, 33, .15);
+    color: #ff9b55;
+}
+
+.severity-medium {
+    background: rgba(242, 190, 63, .15);
+    color: #f3ce69;
+}
+
+.severity-low {
+    background: rgba(39, 199, 130, .13);
+    color: #52d99d;
+}
+
+.status-reported {
+    background: rgba(70, 150, 255, .14);
+    color: #83baff;
+}
+
+.status-triaged {
+    background: rgba(174, 125, 255, .15);
+    color: #c2a0ff;
+}
+
+.status-progress {
+    background: rgba(244, 119, 33, .15);
+    color: #ff9b55;
+}
+
+.status-resolved {
+    background: rgba(39, 199, 130, .13);
+    color: #52d99d;
+}
+
+.status-cancelled {
+    background: rgba(150, 150, 150, .15);
+    color: #b7bbc1;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 35px 15px;
+    color: #92979e;
+}
+
+.empty-state strong {
+    display: block;
+    color: #e9eaec;
+    margin-bottom: 7px;
+}
+
+.required-mark {
+    color: #ff777d;
+}
+
+@media (max-width: 850px) {
+    .emergency-filter-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .emergency-card {
+        padding: 16px;
+    }
+
+    .emergency-form-grid,
+    .emergency-filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .emergency-heading h1 {
+        font-size: 21px;
+    }
+
+    .emergency-field.full {
+        grid-column: auto;
+    }
+}
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+Emergency Management / Emergency Cases
+{% endblock %}
+
+{% block content %}
+<div class="emergency-page">
+
+    <div class="emergency-heading">
+        <div>
+            <h1>Emergency Cases</h1>
+            <p>Register, monitor and manage hospital emergency incidents.</p>
+        </div>
+
+        <span class="case-badge status-reported">
+            {{ cases|length }} CASES FOUND
+        </span>
+    </div>
+
+    <!-- CREATE EMERGENCY CASE -->
+    <section class="emergency-card">
+        <h2>＋ Register New Emergency Case</h2>
+
+        <form method="POST"
+              action="{{ url_for('admin.create_emergency_case') }}">
+
+            <input type="hidden" name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <div class="emergency-form-grid">
+
+                <div class="emergency-field">
+                    <label>Case Number <span class="required-mark">*</span></label>
+                    <input type="text"
+                           name="case_number"
+                           maxlength="40"
+                           placeholder="Example: EMG-2026-001"
+                           required>
+                </div>
+
+                <div class="emergency-field">
+                    <label>Emergency Type <span class="required-mark">*</span></label>
+                    <select name="emergency_type" required>
+                        <option value="">Select emergency type</option>
+                        <option value="Medical Emergency">Medical Emergency</option>
+                        <option value="Cardiac Emergency">Cardiac Emergency</option>
+                        <option value="Accident">Accident</option>
+                        <option value="Trauma">Trauma</option>
+                        <option value="Respiratory Emergency">Respiratory Emergency</option>
+                        <option value="Stroke">Stroke</option>
+                        <option value="Burn Injury">Burn Injury</option>
+                        <option value="Obstetric Emergency">Obstetric Emergency</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="emergency-field">
+                    <label>Severity <span class="required-mark">*</span></label>
+                    <select name="severity" required>
+                        <option value="">Select severity</option>
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+
+                <div class="emergency-field">
+                    <label>Patient (Optional)</label>
+                    <select name="patient_id">
+                        <option value="">Not registered / Unknown patient</option>
+                        {% for patient in patients %}
+                        <option value="{{ patient.patient_id }}">
+                            {{ patient.first_name }} {{ patient.last_name }}
+                            {% if patient.phone %} — {{ patient.phone }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="emergency-field">
+                    <label>Assign Doctor (Optional)</label>
+                    <select name="assigned_doctor_id">
+                        <option value="">No doctor assigned</option>
+                        {% for doctor in doctors %}
+                        <option value="{{ doctor.doctor_id }}">
+                            {{ doctor.doctor_name }}
+                            {% if doctor.specialization %}
+                            — {{ doctor.specialization }}
+                            {% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="emergency-field">
+                    <label>Assign Emergency Staff (Optional)</label>
+                    <select name="assigned_staff_id">
+                        <option value="">No staff assigned</option>
+                        {% for member in staff_members %}
+                        <option value="{{ member.staff_id }}">
+                            {{ member.staff_name }}
+                            {% if member.designation %}
+                            — {{ member.designation }}
+                            {% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="emergency-field">
+                    <label>Emergency Location</label>
+                    <input type="text"
+                           name="emergency_location"
+                           maxlength="255"
+                           placeholder="Ward, room, address or location">
+                </div>
+
+                <div class="emergency-field">
+                    <label>Contact Person</label>
+                    <input type="text"
+                           name="contact_person"
+                           maxlength="100"
+                           placeholder="Contact person's name">
+                </div>
+
+                <div class="emergency-field">
+                    <label>Contact Phone</label>
+                    <input type="tel"
+                           name="contact_phone"
+                           maxlength="20"
+                           placeholder="Contact phone number">
+                </div>
+
+                <div class="emergency-field full">
+                    <label>Emergency Description</label>
+                    <textarea name="case_description"
+                              maxlength="5000"
+                              placeholder="Describe the emergency, symptoms, incident and immediate requirements..."></textarea>
+                </div>
+
+            </div>
+
+            <div class="emergency-actions">
+                <button type="submit" class="emergency-btn primary">
+                    Register Emergency Case
+                </button>
+            </div>
+
+        </form>
+    </section>
+
+    <!-- SEARCH AND FILTERS -->
+    <section class="emergency-card">
+        <h2>Search and Filter Cases</h2>
+
+        <form method="GET"
+              action="{{ url_for('admin.emergency_cases') }}">
+
+            <div class="emergency-filter-grid">
+
+                <div class="filter-control">
+                    <label>Search</label>
+                    <input type="text"
+                           name="search"
+                           value="{{ search or '' }}"
+                           placeholder="Case number, type, location or patient">
+                </div>
+
+                <div class="filter-control">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="">All statuses</option>
+                        {% for status in ['Reported', 'Triaged', 'In Progress', 'Resolved', 'Cancelled'] %}
+                        <option value="{{ status }}"
+                            {% if status_filter == status %}selected{% endif %}>
+                            {{ status }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-control">
+                    <label>Severity</label>
+                    <select name="severity">
+                        <option value="">All severities</option>
+                        {% for severity in ['Critical', 'High', 'Medium', 'Low'] %}
+                        <option value="{{ severity }}"
+                            {% if severity_filter == severity %}selected{% endif %}>
+                            {{ severity }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="emergency-actions">
+                    <button type="submit"
+                            class="emergency-btn primary">
+                        Apply Filters
+                    </button>
+
+                    <a href="{{ url_for('admin.emergency_cases') }}"
+                       class="emergency-btn secondary">
+                        Reset
+                    </a>
+                </div>
+
+            </div>
+        </form>
+    </section>
+
+    <!-- CASE REGISTER -->
+    <section class="emergency-card">
+        <h2>Emergency Case Register</h2>
+
+        <div class="emergency-table-wrap">
+            <table class="emergency-table">
+                <thead>
+                    <tr>
+                        <th>Case</th>
+                        <th>Emergency</th>
+                        <th>Severity</th>
+                        <th>Patient</th>
+                        <th>Assigned Doctor</th>
+                        <th>Assigned Staff</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Reported At</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for case in cases %}
+                    <tr>
+
+                        <td>
+                            <div class="case-number">
+                                {{ case.case_number }}
+                            </div>
+                            <div class="case-muted">
+                                ID: {{ case.emergency_case_id }}
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="case-main">
+                                {{ case.emergency_type }}
+                            </div>
+                            <div class="case-muted">
+                                {{ case.case_description or 'No description provided' }}
+                            </div>
+                        </td>
+
+                        <td>
+                            {% set severity_class = {
+                                'Critical': 'severity-critical',
+                                'High': 'severity-high',
+                                'Medium': 'severity-medium',
+                                'Low': 'severity-low'
+                            } %}
+                            <span class="case-badge {{ severity_class.get(case.severity, 'severity-low') }}">
+                                {{ case.severity }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if case.first_name or case.last_name %}
+                                <div class="case-main">
+                                    {{ case.first_name or '' }} {{ case.last_name or '' }}
+                                </div>
+                                <div class="case-muted">
+                                    {{ case.patient_phone or '' }}
+                                </div>
+                            {% else %}
+                                <span class="case-muted">Unregistered / Unknown</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ case.doctor_name or 'Not assigned' }}
+                        </td>
+
+                        <td>
+                            {{ case.assigned_staff_name or 'Not assigned' }}
+                        </td>
+
+                        <td>
+                            {{ case.emergency_location or 'Not specified' }}
+                        </td>
+
+                        <td>
+                            {% set status_class = {
+                                'Reported': 'status-reported',
+                                'Triaged': 'status-triaged',
+                                'In Progress': 'status-progress',
+                                'Resolved': 'status-resolved',
+                                'Cancelled': 'status-cancelled'
+                            } %}
+                            <span class="case-badge {{ status_class.get(case.case_status, 'status-reported') }}">
+                                {{ case.case_status }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if case.reported_at %}
+                                {{ case.reported_at.strftime('%d %b %Y') }}
+                                <div class="case-muted">
+                                    {{ case.reported_at.strftime('%I:%M %p') }}
+                                </div>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <strong>No emergency cases found</strong>
+                                No cases match your current search or filters.
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

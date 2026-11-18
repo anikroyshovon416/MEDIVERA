@@ -1,0 +1,265 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Create Account | MEDIVERA{% endblock %}
+
+{% block extra_css %}
+<style>
+.account-create {
+    max-width: 950px;
+    margin: 8px auto 35px;
+    color: #f5f1eb;
+}
+.account-hero {
+    padding: 25px;
+    border-radius: 19px;
+    background: linear-gradient(135deg,#302a25,#191817 70%,#412716);
+    border: 1px solid rgba(242,140,40,.35);
+    box-shadow: 0 12px 28px rgba(0,0,0,.35),
+                inset 0 1px 0 rgba(255,255,255,.07);
+    margin-bottom: 20px;
+}
+.account-hero h1 {
+    margin: 7px 0;
+    font-size: 29px;
+    font-weight: 850;
+}
+.account-hero p {
+    color: #c9c0b6;
+    margin: 0;
+}
+.account-form-panel {
+    padding: 25px;
+    border-radius: 18px;
+    background: linear-gradient(145deg,#292725,#191817);
+    border: 1px solid rgba(255,255,255,.07);
+    box-shadow: 8px 8px 20px rgba(0,0,0,.28),
+                inset 0 1px 0 rgba(255,255,255,.04);
+}
+.account-form-panel h2 {
+    font-size: 19px;
+    margin: 0 0 20px;
+}
+.account-grid {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 18px;
+}
+.account-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.account-field.full {
+    grid-column: 1 / -1;
+}
+.account-field label {
+    font-size: 13px;
+    font-weight: 750;
+    color: #e5ddd3;
+}
+.account-field input,
+.account-field select {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 10px;
+    padding: 11px 13px;
+    color: #ffffff !important;
+    background-color: #171615 !important;
+    border: 1px solid #55483c;
+    outline: none;
+    color-scheme: dark;
+    appearance: auto;
+}
+
+.account-field select option {
+    color: #ffffff !important;
+    background-color: #211f1d !important;
+}
+
+.account-field select option:checked {
+    color: #ffffff !important;
+    background-color: #b85b0a !important;
+}
+
+.account-field select option:disabled {
+    color: #999999 !important;
+}
+.account-field input:focus,
+.account-field select:focus {
+    border-color: #f28c28;
+    box-shadow: 0 0 0 3px rgba(242,140,40,.13);
+}
+.account-help {
+    color: #a9a096;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.account-notice {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 11px;
+    background: rgba(242,140,40,.09);
+    border: 1px solid rgba(242,140,40,.25);
+    color: #e7c5a4;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.account-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+.account-submit {
+    border: 0;
+    border-radius: 10px;
+    padding: 13px 21px;
+    font-weight: 850;
+    color: #21170e;
+    background: linear-gradient(145deg,#ffad56,#e57718);
+    box-shadow: 0 5px 0 #87420e, 0 9px 18px rgba(0,0,0,.3);
+    cursor: pointer;
+}
+.account-cancel {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 18px;
+    color: #eee;
+    background: linear-gradient(145deg,#45413c,#292725);
+    border-radius: 10px;
+    text-decoration: none;
+    box-shadow: 0 5px 0 #111;
+}
+@media(max-width:650px) {
+    .account-grid { grid-template-columns: 1fr; }
+    .account-field.full { grid-column: auto; }
+    .account-form-panel { padding: 17px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="account-create">
+
+    <section class="account-hero">
+        <div style="font-size:12px;color:#ff9b3d;
+                    font-weight:800;letter-spacing:.13em;">
+            MEDIVERA / USER MANAGEMENT
+        </div>
+        <h1>Create a User Account</h1>
+        <p>Create a secure login account and assign its initial system role.</p>
+    </section>
+
+    <section class="account-form-panel">
+        <h2>Account Information</h2>
+
+        <form method="POST"
+              action="{{ url_for('admin.create_user_account') }}">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <div class="account-grid">
+
+                <div class="account-field">
+                    <label for="username">Username *</label>
+                    <input id="username"
+                           name="username"
+                           type="text"
+                           minlength="3"
+                           maxlength="50"
+                           pattern="[A-Za-z0-9_.-]{3,50}"
+                           placeholder="e.g. lab.tech01"
+                           autocomplete="off"
+                           required>
+                    <span class="account-help">
+                        3–50 characters. Letters, numbers, dots,
+                        underscores and hyphens.
+                    </span>
+                </div>
+
+                <div class="account-field">
+                    <label for="email">Email Address *</label>
+                    <input id="email"
+                           name="email"
+                           type="email"
+                           maxlength="100"
+                           placeholder="employee@hospital.com"
+                           required>
+                    <span class="account-help">
+                        Login credentials will be emailed here.
+                    </span>
+                </div>
+
+                <div class="account-field full">
+                    <label for="role_id">System Role *</label>
+                    <select id="role_id" name="role_id" required>
+                        <option value="">Choose a role</option>
+                        {% for role in roles %}
+                            <option value="{{ role.role_id }}">
+                                {{ role.role_name }}
+                                {% if role.description %}
+                                    — {{ role.description }}
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <span class="account-help">
+                        This assignment controls access through MEDIVERA's
+                        existing role-based access-control system.
+                    </span>
+                </div>
+
+                <div class="account-field full">
+                    <label for="staff_id">
+                        Link Existing Staff Record (Optional)
+                    </label>
+                    <select id="staff_id" name="staff_id">
+                        <option value="">
+                            Do not link an existing staff record
+                        </option>
+                        {% for staff in staff_records %}
+                            <option value="{{ staff.staff_id }}">
+                                {{ staff.staff_name }}
+                                — {{ staff.designation }}
+                                {% if staff.email %}
+                                    — {{ staff.email }}
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <span class="account-help">
+                        Select an existing unlinked staff record.
+                        Its email must match the account email.
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="account-notice">
+                <strong>Credential delivery</strong><br>
+                MEDIVERA will generate a random temporary password.
+                Its hash will be stored in the database, and the
+                temporary password will be sent to the supplied email.
+                The user should change it immediately after signing in.
+                The current application does not yet enforce a
+                first-login password change.
+            </div>
+
+            <div class="account-buttons">
+                <button class="account-submit" type="submit">
+                    Create Account &amp; Send Credentials
+                </button>
+
+                <a class="account-cancel"
+                   href="{{ url_for('admin.user_accounts') }}">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+    </section>
+</div>
+{% endblock %}

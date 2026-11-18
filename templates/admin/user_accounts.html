@@ -1,0 +1,387 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}All Users | MEDIVERA{% endblock %}
+
+{% block extra_css %}
+<style>
+.user-page {
+    color: #f4f1ec;
+    padding: 8px 0 30px;
+}
+.user-hero {
+    background: linear-gradient(135deg, #292725, #171615 65%, #382316);
+    border: 1px solid rgba(242,140,40,.35);
+    border-radius: 20px;
+    padding: 26px;
+    margin-bottom: 22px;
+    box-shadow: 0 12px 28px rgba(0,0,0,.35),
+                inset 0 1px 0 rgba(255,255,255,.08);
+}
+.user-hero h1 {
+    margin: 0 0 8px;
+    font-size: clamp(24px, 3vw, 34px);
+    font-weight: 800;
+}
+.user-hero p {
+    color: #c8c1b8;
+    margin: 0;
+}
+.user-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+.user-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 17px;
+    border-radius: 11px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: linear-gradient(145deg,#f99b3d,#d96c13);
+    color: #17120d;
+    text-decoration: none;
+    font-weight: 800;
+    box-shadow: 0 5px 0 #86400d, 0 9px 18px rgba(0,0,0,.3);
+    transition: .18s ease;
+}
+.user-btn:hover {
+    transform: translateY(-2px);
+    color: #17120d;
+    filter: brightness(1.08);
+}
+.user-btn.secondary {
+    background: linear-gradient(145deg,#45413c,#292725);
+    color: #f4f1ec;
+    box-shadow: 0 5px 0 #111;
+}
+.user-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 15px;
+    margin-bottom: 22px;
+}
+.user-stat {
+    padding: 19px;
+    border-radius: 16px;
+    background: linear-gradient(145deg,#302e2b,#1c1b19);
+    border: 1px solid rgba(255,255,255,.07);
+    box-shadow: 7px 7px 16px rgba(0,0,0,.28),
+                -3px -3px 10px rgba(255,255,255,.025),
+                inset 0 1px 0 rgba(255,255,255,.05);
+}
+.user-stat span {
+    color: #aaa39a;
+    font-size: 13px;
+}
+.user-stat strong {
+    display: block;
+    margin-top: 7px;
+    font-size: 29px;
+    color: #ff9b3d;
+}
+.user-panel {
+    background: linear-gradient(145deg,#282624,#1a1918);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 17px;
+    padding: 20px;
+    box-shadow: 8px 8px 20px rgba(0,0,0,.25),
+                inset 0 1px 0 rgba(255,255,255,.04);
+}
+.user-panel h2 {
+    font-size: 19px;
+    margin: 0 0 17px;
+}
+.user-filter {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 17px;
+}
+.user-filter input,
+.user-filter select {
+    min-height: 43px;
+    background: #151413;
+    color: #f4f1ec;
+    border: 1px solid #51483f;
+    border-radius: 9px;
+    padding: 9px 12px;
+}
+.user-filter input {
+    flex: 1 1 230px;
+}
+.user-filter select {
+    min-width: 150px;
+}
+.user-table-wrap {
+    overflow-x: auto;
+}
+.user-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    min-width: 760px;
+}
+.user-table th {
+    color: #aaa39a;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    padding: 8px 12px;
+}
+.user-table td {
+    background: #211f1d;
+    padding: 13px 12px;
+    border-top: 1px solid rgba(255,255,255,.045);
+    border-bottom: 1px solid rgba(0,0,0,.3);
+    vertical-align: middle;
+}
+.user-table td:first-child {
+    border-radius: 10px 0 0 10px;
+}
+.user-table td:last-child {
+    border-radius: 0 10px 10px 0;
+}
+.user-name {
+    font-weight: 800;
+    color: #fff;
+}
+.user-muted {
+    color: #aaa39a;
+    font-size: 12px;
+    margin-top: 3px;
+}
+.user-role {
+    display: inline-block;
+    margin: 2px 3px 2px 0;
+    padding: 4px 8px;
+    border-radius: 20px;
+    background: rgba(242,140,40,.13);
+    border: 1px solid rgba(242,140,40,.25);
+    color: #ffb66d;
+    font-size: 11px;
+    font-weight: 700;
+}
+.user-status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+}
+.user-status.active {
+    color: #79df9d;
+    background: rgba(34,170,90,.12);
+    border: 1px solid rgba(34,170,90,.25);
+}
+.user-status.inactive {
+    color: #ff8585;
+    background: rgba(220,65,65,.12);
+    border: 1px solid rgba(220,65,65,.25);
+}
+.user-toggle {
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    padding: 7px 10px;
+    color: #fff;
+    background: #39332d;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+}
+.user-toggle.activate {
+    color: #8ce5a8;
+}
+.user-toggle.suspend {
+    color: #ff9999;
+}
+.user-empty {
+    text-align: center;
+    color: #aaa39a;
+    padding: 30px !important;
+}
+@media(max-width:760px) {
+    .user-stat-grid { grid-template-columns: 1fr; }
+    .user-hero { padding: 20px; }
+    .user-panel { padding: 13px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="user-page">
+
+    <section class="user-hero">
+        <div style="color:#ff9b3d;font-size:12px;font-weight:800;
+                    letter-spacing:.13em;">
+            MEDIVERA / SYSTEM ADMINISTRATION
+        </div>
+        <h1>All User Accounts</h1>
+        <p>Manage every account across the hospital, including administrators,
+           doctors, nurses, technicians and other staff.</p>
+
+        <div class="user-actions">
+            <a class="user-btn"
+               href="{{ url_for('admin.create_user_account') }}">
+                + Create New Account
+            </a>
+            <a class="user-btn secondary"
+               href="{{ url_for('admin.roles_permissions') }}">
+                Roles &amp; Permissions
+            </a>
+        </div>
+    </section>
+
+    <section class="user-stat-grid">
+        <div class="user-stat">
+            <span>Total Accounts</span>
+            <strong>{{ summary.total_users or 0 }}</strong>
+        </div>
+        <div class="user-stat">
+            <span>Active Accounts</span>
+            <strong>{{ summary.active_users or 0 }}</strong>
+        </div>
+        <div class="user-stat">
+            <span>Suspended Accounts</span>
+            <strong>{{ summary.inactive_users or 0 }}</strong>
+        </div>
+    </section>
+
+    <section class="user-panel">
+        <h2>Account Directory</h2>
+
+        <form method="GET"
+              action="{{ url_for('admin.user_accounts') }}"
+              class="user-filter">
+            <input type="search"
+                   name="q"
+                   value="{{ search }}"
+                   placeholder="Search username, email or user ID">
+
+            <select name="status">
+                <option value="all"
+                    {% if status == 'all' %}selected{% endif %}>
+                    All statuses
+                </option>
+                <option value="active"
+                    {% if status == 'active' %}selected{% endif %}>
+                    Active
+                </option>
+                <option value="inactive"
+                    {% if status == 'inactive' %}selected{% endif %}>
+                    Suspended
+                </option>
+            </select>
+
+            <button class="user-btn" type="submit">Search</button>
+            <a class="user-btn secondary"
+               href="{{ url_for('admin.user_accounts') }}">Reset</a>
+        </form>
+
+        <div class="user-table-wrap">
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>Assigned Roles</th>
+                        <th>Staff Link</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for account in accounts %}
+                    <tr>
+                        <td>
+                            <div class="user-name">
+                                {{ account.username }}
+                            </div>
+                            <div class="user-muted">
+                                ID: {{ account.user_id }}
+                                {% if account.email %}
+                                    · {{ account.email }}
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td>
+                            {% if account.assigned_roles %}
+                                {% for role in account.assigned_roles.split(', ') %}
+                                    <span class="user-role">{{ role }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="user-muted">No role assigned</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if account.staff_id %}
+                                <div class="user-name">
+                                    {{ account.staff_name }}
+                                </div>
+                                <div class="user-muted">
+                                    {{ account.designation or 'Staff' }}
+                                </div>
+                            {% else %}
+                                <span class="user-muted">Not linked</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if account.is_active %}
+                                <span class="user-status active">ACTIVE</span>
+                            {% else %}
+                                <span class="user-status inactive">SUSPENDED</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="user-muted">
+                                {{ account.created_at or '—' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <form method="POST"
+                                  action="{{ url_for(
+                                      'admin.toggle_user_account_status',
+                                      user_id=account.user_id
+                                  ) }}"
+                                  onsubmit="return confirm(
+                                    'Are you sure you want to change this account status?'
+                                  );">
+                                <input type="hidden"
+                                       name="csrf_token"
+                                       value="{{ csrf_token() }}">
+                                {% if account.is_active %}
+                                    <button class="user-toggle suspend"
+                                            type="submit">
+                                        Suspend
+                                    </button>
+                                {% else %}
+                                    <button class="user-toggle activate"
+                                            type="submit">
+                                        Activate
+                                    </button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="user-empty">
+                            No accounts match your search.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

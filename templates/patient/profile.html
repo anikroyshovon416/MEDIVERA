@@ -1,0 +1,470 @@
+﻿{% extends "base.html" %}
+
+{% block title %}My Profile | MEDIVERA{% endblock %}
+{% block breadcrumb %}My Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+.patient-profile {
+    color: #f5f5f5;
+}
+
+.profile-heading {
+    margin-bottom: 24px;
+}
+
+.profile-heading h1 {
+    margin-bottom: 7px;
+}
+
+.profile-heading p,
+.profile-muted {
+    color: #a5a7aa;
+}
+
+.profile-card {
+    background: #1c1f23;
+    border: 1px solid #30343a;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 20px;
+}
+
+.profile-identity {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.profile-avatar,
+.profile-photo {
+    width: 82px;
+    height: 82px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 20px;
+    object-fit: cover;
+    background: linear-gradient(135deg, #f47721, #a9440c);
+    color: white;
+    font-size: 30px;
+    font-weight: 800;
+    border: 2px solid #f47721;
+}
+
+.profile-identity h2 {
+    margin: 0 0 5px;
+}
+
+.profile-identity-details {
+    min-width: 0;
+}
+
+.profile-photo-section {
+    margin-top: 22px;
+    padding: 20px;
+    background: #22262b;
+    border: 1px solid #383d44;
+    border-radius: 13px;
+}
+
+.profile-photo-section h3 {
+    font-size: 16px;
+    margin: 0 0 7px;
+}
+
+.profile-photo-section p {
+    color: #a5a7aa;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.profile-upload-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.profile-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.profile-upload-label,
+.profile-save-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 17px;
+    border: 0;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #ff8a32, #e65b12);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.profile-upload-label:hover,
+.profile-save-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgba(244, 119, 33, .2);
+}
+
+.profile-save-button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.profile-file-name {
+    color: #b9bdc3;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.profile-preview {
+    display: none;
+    margin-top: 17px;
+    align-items: center;
+    gap: 14px;
+}
+
+.profile-preview img {
+    width: 76px;
+    height: 76px;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 2px solid #f47721;
+}
+
+.profile-preview-info {
+    color: #d7d9dc;
+    font-size: 13px;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.profile-field {
+    padding: 15px;
+    background: #22262b;
+    border: 1px solid #30343a;
+    border-radius: 10px;
+    min-width: 0;
+}
+
+.profile-field small {
+    display: block;
+    color: #a5a7aa;
+    margin-bottom: 8px;
+}
+
+.profile-field strong {
+    overflow-wrap: anywhere;
+    font-weight: 600;
+}
+
+.profile-card h2 {
+    font-size: 18px;
+    margin: 0 0 18px;
+}
+
+@media (max-width: 600px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-card {
+        padding: 18px;
+    }
+
+    .profile-identity {
+        align-items: flex-start;
+    }
+
+    .profile-avatar,
+    .profile-photo {
+        width: 68px;
+        height: 68px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="patient-profile">
+
+    <header class="profile-heading">
+        <h1>My Profile</h1>
+        <p>View and manage your personal information and registered healthcare details.</p>
+    </header>
+
+    <section class="profile-card">
+
+        <div class="profile-identity">
+
+            {% if profile_photo_url %}
+                <img
+                    id="profileCurrentPhoto"
+                    class="profile-photo"
+                    src="{{ profile_photo_url }}"
+                    alt="Your profile photo"
+                >
+            {% else %}
+                <div id="profileCurrentAvatar" class="profile-avatar">
+                    {{ patient.first_name[:1]|upper }}
+                </div>
+            {% endif %}
+
+            <div class="profile-identity-details">
+                <h2>{{ patient.first_name }} {{ patient.last_name }}</h2>
+                <span class="profile-muted">
+                    Patient ID: {{ patient.patient_id }}
+                </span>
+            </div>
+
+        </div>
+
+        <div class="profile-photo-section">
+            <h3>Profile photo</h3>
+            <p>
+                Upload a clear photo to personalize your MEDIVERA patient account.
+                PNG, JPG, JPEG and WEBP are supported. Maximum size: 5 MB.
+            </p>
+
+            <form
+                id="profilePhotoForm"
+                method="POST"
+                action="{{ url_for('patient.profile') }}"
+                enctype="multipart/form-data"
+            >
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <div class="profile-upload-row">
+
+                    <input
+                        type="file"
+                        id="profilePhotoInput"
+                        class="profile-file-input"
+                        name="profile_photo"
+                        accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+                        required
+                    >
+
+                    <label
+                        for="profilePhotoInput"
+                        class="profile-upload-label"
+                    >
+                        <span>📷</span>
+                        Choose photo
+                    </label>
+
+                    <span
+                        id="profileFileName"
+                        class="profile-file-name"
+                    >
+                        No new photo selected
+                    </span>
+
+                </div>
+
+                <div id="profilePreview" class="profile-preview">
+                    <img id="profilePreviewImage" src="" alt="Selected photo preview">
+                    <div class="profile-preview-info">
+                        <strong>Preview selected</strong>
+                        <div>Your current photo will be replaced after saving.</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <button
+                        type="submit"
+                        id="profileSaveButton"
+                        class="profile-save-button"
+                        disabled
+                    >
+                        Save profile photo
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        <h2 style="margin-top: 28px;">Personal information</h2>
+
+        <div class="profile-grid">
+
+            <div class="profile-field">
+                <small>First name</small>
+                <strong>{{ patient.first_name }}</strong>
+            </div>
+
+            <div class="profile-field">
+                <small>Last name</small>
+                <strong>{{ patient.last_name }}</strong>
+            </div>
+
+            <div class="profile-field">
+                <small>Date of birth</small>
+                <strong>{{ patient.date_of_birth or 'Not provided' }}</strong>
+            </div>
+
+            <div class="profile-field">
+                <small>Gender</small>
+                <strong>{{ patient.gender or 'Not provided' }}</strong>
+            </div>
+
+            <div class="profile-field">
+                <small>Blood group</small>
+                <strong>{{ patient.blood_group or 'Not provided' }}</strong>
+            </div>
+
+            <div class="profile-field">
+                <small>Phone number</small>
+                <strong>{{ patient.phone }}</strong>
+            </div>
+
+            <div class="profile-field">
+                <small>Email address</small>
+                <strong>{{ patient.email or 'Not provided' }}</strong>
+            </div>
+
+            <div class="profile-field">
+                <small>Registered on</small>
+                <strong>{{ patient.created_at or 'Not available' }}</strong>
+            </div>
+
+            <div class="profile-field" style="grid-column: 1 / -1;">
+                <small>Address</small>
+                <strong>{{ patient.address or 'Not provided' }}</strong>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="profile-card">
+        <h2>Emergency contact</h2>
+
+        <div class="profile-grid">
+
+            <div class="profile-field">
+                <small>Contact name</small>
+                <strong>
+                    {{ patient.emergency_contact_name or 'Not provided' }}
+                </strong>
+            </div>
+
+            <div class="profile-field">
+                <small>Contact phone</small>
+                <strong>
+                    {{ patient.emergency_contact_phone or 'Not provided' }}
+                </strong>
+            </div>
+
+        </div>
+    </section>
+
+    <p class="profile-muted">
+        Need to correct your information? Please contact the hospital
+        administration for assistance.
+    </p>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const input = document.getElementById("profilePhotoInput");
+    const preview = document.getElementById("profilePreview");
+    const previewImage = document.getElementById("profilePreviewImage");
+    const fileName = document.getElementById("profileFileName");
+    const saveButton = document.getElementById("profileSaveButton");
+    const form = document.getElementById("profilePhotoForm");
+
+    if (!input || !preview || !previewImage || !saveButton || !form) {
+        return;
+    }
+
+    let previewUrl = null;
+
+    input.addEventListener("change", function () {
+        const file = input.files && input.files[0];
+
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            previewUrl = null;
+        }
+
+        if (!file) {
+            preview.style.display = "none";
+            fileName.textContent = "No new photo selected";
+            saveButton.disabled = true;
+            return;
+        }
+
+        const allowedTypes = [
+            "image/png",
+            "image/jpeg",
+            "image/webp"
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+            alert("Please select a PNG, JPG, JPEG or WEBP image.");
+            input.value = "";
+            preview.style.display = "none";
+            fileName.textContent = "No new photo selected";
+            saveButton.disabled = true;
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert("The selected image must not exceed 5 MB.");
+            input.value = "";
+            preview.style.display = "none";
+            fileName.textContent = "No new photo selected";
+            saveButton.disabled = true;
+            return;
+        }
+
+        if (file.size === 0) {
+            alert("The selected image is empty.");
+            input.value = "";
+            saveButton.disabled = true;
+            return;
+        }
+
+        previewUrl = URL.createObjectURL(file);
+        previewImage.src = previewUrl;
+        preview.style.display = "flex";
+        fileName.textContent = file.name;
+        saveButton.disabled = false;
+    });
+
+    form.addEventListener("submit", function () {
+        saveButton.disabled = true;
+        saveButton.textContent = "Uploading photo...";
+    });
+
+    window.addEventListener("beforeunload", function () {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
+    });
+})();
+</script>
+{% endblock %}

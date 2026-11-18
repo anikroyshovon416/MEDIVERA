@@ -1,0 +1,90 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Meal Delivery | MEDIVERA{% endblock %}
+{% block breadcrumb %}Meal Delivery{% endblock %}
+
+{% block extra_css %}
+<style>
+.delivery-page{color:#f5f5f5}
+.delivery-page h1{margin-bottom:8px}
+.delivery-muted{color:#a5a9b2}
+.delivery-panel{background:#1c1f24;border:1px solid #30343b;border-radius:14px;padding:22px;margin-top:22px}
+.delivery-table{width:100%;border-collapse:collapse;margin-top:18px}
+.delivery-table th,.delivery-table td{padding:13px 11px;border-bottom:1px solid #343840;text-align:left;vertical-align:middle}
+.delivery-table th{color:#ff984c}
+.delivery-table td{color:#e5e7eb}
+.delivery-btn{background:#ff7417;border:0;color:white;padding:9px 13px;border-radius:8px;font-weight:700;cursor:pointer}
+.delivery-btn:hover{background:#e75f08}
+.delivery-status{display:inline-block;padding:5px 10px;border-radius:20px;background:#30343b;font-size:12px;font-weight:700}
+.delivery-empty{text-align:center;padding:28px;color:#a5a9b2}
+.delivery-note{color:#a5a9b2;font-size:12px;margin-top:5px}
+@media(max-width:800px){.delivery-table{display:block;overflow-x:auto}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delivery-page">
+    <h1>Meal Delivery Management</h1>
+    <p class="delivery-muted">Track accepted meals, preparation and patient delivery.</p>
+
+    <section class="delivery-panel">
+        <h2>Active Deliveries</h2>
+        <p class="delivery-muted">Accepted and prepared meal requests awaiting delivery.</p>
+
+        <table class="delivery-table">
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Patient ID</th>
+                    <th>Meal Date</th>
+                    <th>Meal</th>
+                    <th>Food Item</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Delivery Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in deliveries %}
+                <tr>
+                    <td>#{{ item.meal_request_id }}</td>
+                    <td>{{ item.patient_id }}</td>
+                    <td>{{ item.meal_date }}</td>
+                    <td>
+                        {{ item.meal_name }}
+                        <div class="delivery-note">{{ item.serving_start }} – {{ item.serving_end }}</div>
+                    </td>
+                    <td>
+                        <strong>{{ item.item_name }}</strong>
+                        {% if item.special_instructions %}
+                        <div class="delivery-note">Note: {{ item.special_instructions }}</div>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.quantity }}</td>
+                    <td><span class="delivery-status">{{ item.status }}</span></td>
+                    <td>
+                        {% if can_deliver and item.status == 'Accepted' %}
+                        <form method="POST" action="{{ url_for('admin.meal_request_update_status', request_id=item.meal_request_id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="status" value="Prepared">
+                            <button class="delivery-btn" type="submit">Mark Prepared</button>
+                        </form>
+                        {% elif can_deliver and item.status == 'Prepared' %}
+                        <form method="POST" action="{{ url_for('admin.meal_request_update_status', request_id=item.meal_request_id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="status" value="Delivered">
+                            <button class="delivery-btn" type="submit">Mark Delivered</button>
+                        </form>
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8" class="delivery-empty">No accepted or prepared meal requests are awaiting delivery.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+﻿{% extends "base.html" %}
+{% block title %}Pharmacy Checkout | MEDIVERA{% endblock %}
+{% block breadcrumb %}Pharmacy Checkout{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pharmacy.css') }}">
+{% endblock %}
+{% block content %}
+<div class="pharmacy-page"><div class="ph-wrap">
+    <section class="ph-hero">
+        <div class="ph-eyebrow">Secure Order Request</div>
+        <h1>Pharmacy checkout</h1>
+        <p>Choose delivery, attach your prescription if available, and submit your order request.</p>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="ph-alert {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="ph-two">
+        <section class="ph-card">
+            <h2>Delivery information</h2>
+            <form method="post" action="{{ url_for('pharmacy.checkout') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label for="delivery-method">Delivery method</label>
+                <select id="delivery-method" name="delivery_method" required>
+                    {% if admission %}
+                    <option value="Bedside">Bedside delivery — Room {{ admission.room_number }}{% if admission.bed_number %}, Bed {{ admission.bed_number }}{% endif %}</option>
+                    {% endif %}
+                    <option value="Pharmacy Collection">Pharmacy Collection</option>
+                </select>
+
+                <label for="prescription-document">Attach an existing prescription (optional)</label>
+                <select id="prescription-document" name="prescription_document_id">
+                    <option value="">No prescription selected</option>
+                    {% for document in prescriptions %}
+                    <option value="{{ document.document_id }}">{{ document.original_filename }} — {{ document.created_at }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="order-notes">Instructions for pharmacy (optional)</label>
+                <textarea id="order-notes" name="order_notes" rows="4" maxlength="2000" placeholder="Add delivery or order instructions..."></textarea>
+
+                <div class="ph-note" style="margin-top:15px">
+                    Your order will be submitted with status <strong>Requested</strong>. Pharmacy staff must review and approve it. This order request does not replace a doctor's prescription or medication administration record.
+                </div>
+                <button class="ph-btn" style="width:100%;margin-top:18px" type="submit">Submit Order Request</button>
+            </form>
+        </section>
+
+        <aside class="ph-card">
+            <h2>Upload a prescription</h2>
+            <p>Upload a prescription document to your patient records. You can then select it for this order.</p>
+            <form method="post" action="{{ url_for('pharmacy.upload_prescription') }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label for="prescription-file">Prescription file</label>
+                <input id="prescription-file" type="file" name="prescription_file" accept=".pdf,.png,.jpg,.jpeg,.webp" required>
+                <p class="ph-muted">PDF or image · Maximum 4 MB</p>
+                <button class="ph-btn secondary" type="submit">Upload Prescription</button>
+            </form>
+            <div class="ph-section">
+                <h2>Order summary</h2>
+                {% for item in items %}
+                <p><strong>{{ item.item_name }}</strong><br>
+                {{ item.quantity }} × ₹{{ '%.2f'|format(item.unit_price) }}
+                <span style="float:right">₹{{ '%.2f'|format(item.line_total) }}</span></p>
+                {% endfor %}
+                <div class="ph-total"><span>Subtotal</span><strong>₹{{ '%.2f'|format(subtotal) }}</strong></div>
+            </div>
+        </aside>
+    </div>
+</div></div>
+{% endblock %}

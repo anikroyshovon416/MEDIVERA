@@ -1,0 +1,783 @@
+
+{% extends "base.html" %}
+
+{% block title %}Medical Records | MEDIVERA{% endblock %}
+{% block breadcrumb %}Medical Records{% endblock %}
+{% block body_class %}patient-portal-body{% endblock %}
+
+{% block extra_css %}
+<style>
+/* =========================================================
+   MEDIVERA - PATIENT MEDICAL RECORDS
+   Premium Charcoal / Orange / White Interface
+========================================================= */
+
+.medical-records {
+    --mr-bg: #1c1f24;
+    --mr-panel: #24282f;
+    --mr-panel-light: #2b3038;
+    --mr-border: #373e48;
+    --mr-text: #f4f5f7;
+    --mr-muted: #a8afb9;
+    --mr-orange: #f47721;
+    --mr-orange-light: #ffad72;
+    --mr-green: #36c58b;
+    --mr-blue: #69a9ed;
+    --mr-purple: #b69af5;
+
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    color: var(--mr-text);
+}
+
+.medical-records *,
+.medical-records *::before,
+.medical-records *::after {
+    box-sizing: border-box;
+}
+
+.medical-records a {
+    text-decoration: none;
+}
+
+/* HERO */
+
+.mr-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 30px;
+    margin-bottom: 23px;
+    overflow: hidden;
+    border: 1px solid rgba(244,119,33,.25);
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at 90% 10%,rgba(244,119,33,.18),transparent 34%),
+        linear-gradient(120deg,#292d34,#1d2025);
+    box-shadow: 0 12px 30px rgba(0,0,0,.13);
+}
+
+.mr-hero-copy {
+    position: relative;
+    z-index: 1;
+}
+
+.mr-eyebrow {
+    color: var(--mr-orange-light);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.mr-hero h1 {
+    margin: 12px 0 9px;
+    color: #fff;
+    font-size: clamp(25px,4vw,35px);
+    font-weight: 800;
+    letter-spacing: -.8px;
+}
+
+.mr-hero p {
+    max-width: 620px;
+    margin: 0;
+    color: #bdc2ca;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.mr-hero-icon {
+    display: grid;
+    width: 76px;
+    height: 76px;
+    flex: 0 0 76px;
+    place-items: center;
+    border: 1px solid rgba(244,119,33,.25);
+    border-radius: 21px;
+    background: rgba(244,119,33,.12);
+    color: var(--mr-orange-light);
+    font-size: 35px;
+}
+
+/* BUTTONS */
+
+.mr-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 19px;
+}
+
+.mr-button {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 15px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: 800;
+    transition: .2s ease;
+}
+
+.mr-button-primary {
+    background: var(--mr-orange);
+    color: #fff;
+}
+
+.mr-button-primary:hover {
+    background: #ff9148;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.mr-button-secondary {
+    border-color: var(--mr-border);
+    background: #292e36;
+    color: #fff;
+}
+
+.mr-button-secondary:hover {
+    border-color: var(--mr-orange);
+    color: #fff;
+}
+
+/* SUMMARY */
+
+.mr-summary {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 13px;
+    margin-bottom: 24px;
+}
+
+.mr-summary-card {
+    padding: 18px;
+    border: 1px solid var(--mr-border);
+    border-radius: 14px;
+    background: linear-gradient(145deg,#282c33,#202329);
+}
+
+.mr-summary-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.mr-summary-top span {
+    color: var(--mr-muted);
+    font-size: 10px;
+}
+
+.mr-summary-icon {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: 9px;
+    background: rgba(244,119,33,.13);
+    color: var(--mr-orange-light);
+    font-size: 15px;
+}
+
+.mr-summary-card strong {
+    display: block;
+    margin-top: 10px;
+    color: #fff;
+    font-size: 27px;
+    font-weight: 800;
+}
+
+/* SECTION HEADER */
+
+.mr-section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 15px;
+    margin: 25px 0 15px;
+}
+
+.mr-section-header h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.mr-section-header p {
+    margin: 5px 0 0;
+    color: var(--mr-muted);
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+/* SEARCH AND FILTERS */
+
+.mr-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.mr-search {
+    flex: 1;
+    min-width: 200px;
+    min-height: 42px;
+    padding: 0 13px;
+    border: 1px solid var(--mr-border);
+    border-radius: 10px;
+    background: var(--mr-panel);
+    color: #fff;
+    font-size: 11px;
+}
+
+.mr-filter {
+    min-width: 155px;
+    min-height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--mr-border);
+    border-radius: 10px;
+    background: var(--mr-panel);
+    color: #fff;
+    font-size: 11px;
+}
+
+.mr-search:focus,
+.mr-filter:focus {
+    outline: 2px solid rgba(244,119,33,.35);
+    border-color: var(--mr-orange);
+}
+
+/* RECORD CARDS */
+
+.mr-record-list {
+    display: grid;
+    gap: 15px;
+}
+
+.mr-record-card {
+    min-width: 0;
+    padding: 21px;
+    border: 1px solid var(--mr-border);
+    border-radius: 16px;
+    background: linear-gradient(145deg,#272c33,#202329);
+    box-shadow: 0 7px 20px rgba(0,0,0,.09);
+    transition: border-color .2s ease,transform .2s ease;
+}
+
+.mr-record-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(244,119,33,.4);
+}
+
+.mr-record-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--mr-border);
+}
+
+.mr-record-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.mr-record-icon {
+    display: grid;
+    width: 43px;
+    height: 43px;
+    flex: 0 0 43px;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(244,119,33,.13);
+    color: var(--mr-orange-light);
+    font-size: 19px;
+}
+
+.mr-record-title h3 {
+    margin: 0 0 5px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.mr-record-title p {
+    margin: 0;
+    color: var(--mr-muted);
+    font-size: 10px;
+}
+
+.mr-record-reference {
+    color: #929ba8;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+.mr-record-body {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 12px;
+    padding-top: 16px;
+}
+
+.mr-information {
+    min-width: 0;
+    padding: 13px;
+    border: 1px solid rgba(255,255,255,.055);
+    border-radius: 10px;
+    background: rgba(255,255,255,.025);
+}
+
+.mr-information.full-width {
+    grid-column: 1/-1;
+}
+
+.mr-information h4 {
+    margin: 0 0 7px;
+    color: var(--mr-orange-light);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+}
+
+.mr-information p {
+    margin: 0;
+    color: #d0d5dd;
+    font-size: 11px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+}
+
+.mr-no-data {
+    color: #858e9b !important;
+    font-style: italic;
+}
+
+/* EMPTY STATE */
+
+.mr-empty {
+    padding: 48px 20px;
+    border: 1px dashed var(--mr-border);
+    border-radius: 16px;
+    background: var(--mr-panel);
+    text-align: center;
+}
+
+.mr-empty-icon {
+    display: block;
+    margin-bottom: 13px;
+    color: var(--mr-orange-light);
+    font-size: 35px;
+}
+
+.mr-empty h3 {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: 16px;
+}
+
+.mr-empty p {
+    max-width: 470px;
+    margin: 0 auto;
+    color: var(--mr-muted);
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+/* PRIVACY NOTICE */
+
+.mr-privacy {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 22px;
+    padding: 17px;
+    border: 1px solid rgba(105,169,237,.2);
+    border-radius: 12px;
+    background: rgba(105,169,237,.055);
+}
+
+.mr-privacy-icon {
+    display: grid;
+    width: 33px;
+    height: 33px;
+    flex: 0 0 33px;
+    place-items: center;
+    border-radius: 9px;
+    background: rgba(105,169,237,.12);
+    color: var(--mr-blue);
+}
+
+.mr-privacy strong {
+    display: block;
+    color: #dce9fb;
+    font-size: 10px;
+}
+
+.mr-privacy p {
+    margin: 5px 0 0;
+    color: #aebbd0;
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+.mr-hidden {
+    display: none !important;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:750px) {
+    .mr-hero { padding: 23px; }
+    .mr-record-heading { flex-direction: column; }
+    .mr-record-reference { white-space: normal; }
+}
+
+@media(max-width:550px) {
+    .mr-hero { padding: 20px; }
+    .mr-hero-icon { width: 52px; height: 52px; flex-basis: 52px; font-size: 24px; }
+    .mr-summary { grid-template-columns: 1fr; gap: 9px; }
+    .mr-summary-card { padding: 14px; }
+    .mr-summary-card strong { font-size: 23px; }
+    .mr-record-card { padding: 15px; }
+    .mr-record-body { grid-template-columns: 1fr; }
+    .mr-information.full-width { grid-column: auto; }
+    .mr-toolbar { flex-direction: column; }
+    .mr-search, .mr-filter { width: 100%; }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .medical-records * { transition: none !important; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="medical-records">
+
+    <!-- PAGE HEADER -->
+
+    <section class="mr-hero">
+        <div class="mr-hero-copy">
+            <div class="mr-eyebrow">
+                MEDIVERA · PERSONAL HEALTH INFORMATION
+            </div>
+
+            <h1>My Medical Records</h1>
+
+            <p>
+                Access your medical history, diagnoses, treatment
+                information and doctor-recorded prescriptions
+                securely from your patient portal.
+            </p>
+
+            <div class="mr-actions">
+                <a class="mr-button mr-button-primary"
+                   href="{{ url_for('patient.documents') }}">
+                    View medical documents
+                </a>
+
+                <a class="mr-button mr-button-secondary"
+                   href="{{ url_for('patient.dashboard') }}">
+                    Back to dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="mr-hero-icon" aria-hidden="true">
+            ✚
+        </div>
+    </section>
+
+
+    <!-- SUMMARY -->
+
+    <section class="mr-summary"
+             aria-label="Medical record summary">
+
+        <article class="mr-summary-card">
+            <div class="mr-summary-top">
+                <span>Total medical records</span>
+                <span class="mr-summary-icon">▤</span>
+            </div>
+            <strong>{{ records|length if records else 0 }}</strong>
+        </article>
+
+        <article class="mr-summary-card">
+            <div class="mr-summary-top">
+                <span>Patient portal</span>
+                <span class="mr-summary-icon">◉</span>
+            </div>
+            <strong>Active</strong>
+        </article>
+
+        <article class="mr-summary-card">
+            <div class="mr-summary-top">
+                <span>Record access</span>
+                <span class="mr-summary-icon">♢</span>
+            </div>
+            <strong>Secure</strong>
+        </article>
+
+    </section>
+
+
+    <!-- RECORD HISTORY -->
+
+    <section>
+
+        <div class="mr-section-header">
+            <div>
+                <h2>Medical history</h2>
+                <p>
+                    Medical information entered by your authorised
+                    healthcare professionals.
+                </p>
+            </div>
+        </div>
+
+
+        {% if records %}
+
+            <div class="mr-toolbar">
+                <input
+                    type="search"
+                    id="medicalRecordSearch"
+                    class="mr-search"
+                    placeholder="Search diagnosis, treatment or doctor..."
+                    aria-label="Search medical records">
+
+                <select id="medicalRecordFilter"
+                        class="mr-filter"
+                        aria-label="Filter medical records">
+                    <option value="all">All medical records</option>
+                    <option value="prescription">With prescription</option>
+                    <option value="no-prescription">Without prescription</option>
+                </select>
+            </div>
+
+
+            <div class="mr-record-list" id="medicalRecordList">
+
+                {% for record in records %}
+
+                    {% set has_prescription = record.prescription is defined and record.prescription %}
+
+                    <article class="mr-record-card medical-record-item"
+                        data-search="{{ (
+                            (record.diagnosis|default('')) ~ ' ' ~
+                            (record.symptoms|default('')) ~ ' ' ~
+                            (record.treatment|default('')) ~ ' ' ~
+                            (record.prescription|default('')) ~ ' ' ~
+                            (record.doctor_name|default(''))
+                        )|lower|e }}"
+                        data-prescription="{{ 'yes' if has_prescription else 'no' }}">
+
+                        <div class="mr-record-heading">
+
+                            <div class="mr-record-title">
+
+                                <span class="mr-record-icon">
+                                    ✚
+                                </span>
+
+                                <div>
+                                    <h3>
+                                        {{ record.diagnosis or 'Medical consultation' }}
+                                    </h3>
+
+                                    <p>
+                                        {{ record.doctor_name|default('Authorised healthcare professional') }}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <div class="mr-record-reference">
+                                RECORD #{{ record.record_id }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="mr-record-body">
+
+                            <div class="mr-information">
+                                <h4>Symptoms</h4>
+
+                                <p class="{{ 'mr-no-data' if not record.symptoms else '' }}">
+                                    {{ record.symptoms or 'No symptoms recorded.' }}
+                                </p>
+                            </div>
+
+
+                            <div class="mr-information">
+                                <h4>Treatment</h4>
+
+                                <p class="{{ 'mr-no-data' if not record.treatment else '' }}">
+                                    {{ record.treatment or 'No treatment details recorded.' }}
+                                </p>
+                            </div>
+
+
+                            <div class="mr-information full-width">
+                                <h4>Prescription information</h4>
+
+                                <p class="{{ 'mr-no-data' if not record.prescription else '' }}">
+                                    {{ record.prescription or 'No prescription information recorded in this medical record.' }}
+                                </p>
+                            </div>
+
+
+                            <div class="mr-information">
+                                <h4>Medical record date</h4>
+
+                                <p>
+                                    {{ record.record_date or record.created_at or 'Date not available' }}
+                                </p>
+                            </div>
+
+
+                            <div class="mr-information">
+                                <h4>Record reference</h4>
+
+                                <p>
+                                    MEDIVERA-{{ record.record_id }}
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="mr-empty mr-hidden" id="medicalRecordNoResults">
+                <span class="mr-empty-icon">⌕</span>
+                <h3>No matching records</h3>
+                <p>
+                    Try another search term or change the prescription filter.
+                </p>
+            </div>
+
+
+        {% else %}
+
+            <div class="mr-empty">
+                <span class="mr-empty-icon">▤</span>
+
+                <h3>No medical records available yet</h3>
+
+                <p>
+                    Your medical records will appear here after an
+                    authorised doctor or healthcare professional
+                    adds information to your patient record.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- PRIVACY NOTICE -->
+
+    <section class="mr-privacy">
+
+        <span class="mr-privacy-icon">ⓘ</span>
+
+        <div>
+            <strong>Your medical information is protected</strong>
+
+            <p>
+                Medical records are maintained through authorised
+                healthcare workflows. Patients can review their
+                records, but cannot directly change doctor-entered
+                diagnoses, treatment information or prescriptions.
+                Contact your healthcare provider if any information
+                needs correction.
+            </p>
+        </div>
+
+    </section>
+
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const search = document.getElementById("medicalRecordSearch");
+    const filter = document.getElementById("medicalRecordFilter");
+
+    const records = Array.from(
+        document.querySelectorAll(".medical-record-item")
+    );
+
+    const noResults = document.getElementById(
+        "medicalRecordNoResults"
+    );
+
+    function filterRecords() {
+
+        const query = (search?.value || "").trim().toLowerCase();
+        const selected = filter?.value || "all";
+
+        let visibleCount = 0;
+
+        records.forEach(function (record) {
+
+            const text = record.dataset.search || "";
+            const prescription = record.dataset.prescription || "no";
+
+            const matchesSearch = text.includes(query);
+
+            const matchesFilter =
+                selected === "all" ||
+                (selected === "prescription" && prescription === "yes") ||
+                (selected === "no-prescription" && prescription === "no");
+
+            const visible = matchesSearch && matchesFilter;
+
+            record.classList.toggle("mr-hidden", !visible);
+
+            if (visible) {
+                visibleCount++;
+            }
+
+        });
+
+        if (noResults) {
+            noResults.classList.toggle(
+                "mr-hidden",
+                visibleCount !== 0
+            );
+        }
+
+    }
+
+    search?.addEventListener("input", filterRecords);
+    filter?.addEventListener("change", filterRecords);
+
+});
+</script>
+{% endblock %}

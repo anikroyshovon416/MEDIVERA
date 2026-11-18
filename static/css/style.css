@@ -1,0 +1,1631 @@
+
+/* =========================================================
+   MEDICARE+ | SMART HEALTHCARE MANAGEMENT SYSTEM
+   PREMIUM DESIGN SYSTEM
+   Theme: Beige | Burgundy | Forest Green | Black | White
+   ========================================================= */
+
+
+/* =========================================================
+   01. ROOT VARIABLES
+   ========================================================= */
+
+:root {
+    --beige: #F2EBDD;
+    --beige-light: #F8F5EE;
+    --beige-dark: #E8DFCE;
+
+    --red: #8F2635;
+    --red-dark: #701B29;
+    --red-light: #F7E9EB;
+
+    --green: #245B43;
+    --green-dark: #194631;
+    --green-light: #E8F0EA;
+
+    --black: #20221F;
+    --black-soft: #343630;
+
+    --white: #FFFFFF;
+    --off-white: #FCFBF8;
+
+    --text-primary: #24251F;
+    --text-secondary: #77776E;
+    --text-muted: #A09D91;
+
+    --border: #EAE5DA;
+    --border-dark: #DCD5C8;
+
+    --success: #2D7652;
+    --warning: #B57B28;
+    --danger: #A92F3C;
+    --info: #557C8C;
+
+    --shadow-sm:
+        0 2px 8px rgba(32, 34, 31, 0.04);
+
+    --shadow-md:
+        0 8px 24px rgba(32, 34, 31, 0.07);
+
+    --shadow-lg:
+        0 16px 40px rgba(32, 34, 31, 0.10);
+
+    --radius-sm: 7px;
+    --radius-md: 12px;
+    --radius-lg: 17px;
+    --radius-xl: 22px;
+
+    --sidebar-width: 265px;
+    --header-height: 100px;
+
+    --transition:
+        all 0.25s ease;
+}
+
+
+/* =========================================================
+   02. GLOBAL RESET
+   ========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--beige-dark) transparent;
+}
+
+body {
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--beige-light);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+::selection {
+    background: var(--green);
+    color: var(--white);
+}
+
+
+/* =========================================================
+   03. APP STRUCTURE
+   ========================================================= */
+
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.main-area {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    margin-left: var(--sidebar-width);
+    transition: var(--transition);
+}
+
+.content-container {
+    flex: 1;
+    width: 100%;
+    padding: 32px 38px;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   04. SIDEBAR
+   ========================================================= */
+
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+
+    display: flex;
+    flex-direction: column;
+
+    background: var(--black);
+    color: var(--white);
+
+    padding: 25px 17px 18px;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    border-right: 1px solid rgba(255,255,255,0.05);
+
+    transition: var(--transition);
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #55564E;
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   05. SIDEBAR BRAND
+   ========================================================= */
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px 27px;
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-logo {
+    width: 45px;
+    height: 45px;
+    border-radius: 13px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--green);
+    color: var(--white);
+
+    font-size: 23px;
+    box-shadow: 0 5px 15px rgba(36,91,67,0.25);
+}
+
+.brand-text h2 {
+    color: var(--white);
+    font-family: 'Playfair Display', serif;
+    font-size: 23px;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+
+.brand-text h2 span {
+    color: #C78B8E;
+}
+
+.brand-text p {
+    color: #A9AAA0;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    margin-top: 5px;
+}
+
+.sidebar-close {
+    display: none;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+}
+
+
+/* =========================================================
+   06. HOSPITAL INFORMATION
+   ========================================================= */
+
+.hospital-info {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 13px 12px;
+    margin-bottom: 25px;
+
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 11px;
+
+    background: rgba(255,255,255,0.045);
+}
+
+.hospital-avatar {
+    width: 35px;
+    height: 35px;
+
+    display: grid;
+    place-items: center;
+
+    background: rgba(36,91,67,0.35);
+    color: #A7D2B4;
+
+    border-radius: 9px;
+    font-size: 17px;
+}
+
+.hospital-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.hospital-details strong {
+    display: block;
+    font-size: 11px;
+    color: white;
+    font-weight: 700;
+}
+
+.hospital-details span {
+    display: block;
+    font-size: 9px;
+    color: #A7AAA1;
+    margin-top: 2px;
+}
+
+.hospital-arrow {
+    font-size: 11px;
+    color: #A7AAA1;
+}
+
+
+/* =========================================================
+   07. SIDEBAR NAVIGATION
+   ========================================================= */
+
+.sidebar-navigation {
+    display: flex;
+    flex-direction: column;
+    gap: 23px;
+    flex: 1;
+}
+
+.nav-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nav-heading {
+    color: #8C8D84;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    padding: 0 11px;
+    margin-bottom: 7px;
+}
+
+.nav-link {
+    min-height: 43px;
+    padding: 10px 12px;
+
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    color: #C0C0B8;
+    font-size: 12px;
+    font-weight: 500;
+
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+
+    transition: var(--transition);
+    position: relative;
+}
+
+.nav-link > i {
+    width: 19px;
+    text-align: center;
+    font-size: 16px;
+    color: #A6A89F;
+}
+
+.nav-link:hover {
+    color: var(--white);
+    background: rgba(255,255,255,0.07);
+}
+
+.nav-link:hover > i {
+    color: #B4D2BD;
+}
+
+.nav-link.active {
+    color: var(--white);
+    background: rgba(36,91,67,0.32);
+    border-left-color: #73AA85;
+    font-weight: 700;
+}
+
+.nav-link.active > i {
+    color: #9CC9A9;
+}
+
+.nav-indicator {
+    margin-left: auto;
+    background: var(--red);
+    color: white;
+    font-size: 8px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.4px;
+}
+
+
+/* =========================================================
+   08. SIDEBAR SUPPORT
+   ========================================================= */
+
+.sidebar-bottom {
+    margin-top: 25px;
+    padding-top: 15px;
+}
+
+.sidebar-help {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 10px;
+    border-radius: 10px;
+
+    background: rgba(242,235,221,0.07);
+    margin-bottom: 17px;
+
+    transition: var(--transition);
+}
+
+.sidebar-help:hover {
+    background: rgba(242,235,221,0.12);
+}
+
+.help-icon {
+    width: 32px;
+    height: 32px;
+
+    display: grid;
+    place-items: center;
+
+    background: rgba(143,38,53,0.35);
+    color: #E6B0B4;
+
+    border-radius: 8px;
+}
+
+.help-content {
+    flex: 1;
+}
+
+.help-content strong {
+    display: block;
+    font-size: 10px;
+    color: white;
+}
+
+.help-content span {
+    display: block;
+    font-size: 9px;
+    color: #AAA99F;
+    margin-top: 2px;
+}
+
+.sidebar-help > i {
+    color: #9A9C91;
+    font-size: 12px;
+}
+
+.sidebar-system-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 14px 5px 5px;
+
+    border-top: 1px solid rgba(255,255,255,0.10);
+
+    color: #A8AA9F;
+    font-size: 9px;
+}
+
+.status-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #65B782;
+    box-shadow: 0 0 0 4px rgba(101,183,130,0.10);
+}
+
+.status-version {
+    margin-left: auto;
+    color: #74776E;
+}
+
+
+/* =========================================================
+   09. TOP HEADER
+   ========================================================= */
+
+.top-header {
+    min-height: var(--header-height);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 17px 38px;
+
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.page-heading h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 25px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--black);
+    margin-top: 3px;
+}
+
+.page-heading p {
+    color: var(--text-secondary);
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 9px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.breadcrumb i {
+    font-size: 8px;
+}
+
+.breadcrumb-current {
+    color: var(--green);
+}
+
+
+/* =========================================================
+   10. HEADER ACTIONS
+   ========================================================= */
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.menu-toggle {
+    display: none;
+    border: none;
+    background: transparent;
+    color: var(--black);
+    font-size: 23px;
+}
+
+
+/* =========================================================
+   11. SEARCH BOX
+   ========================================================= */
+
+.header-search {
+    width: 230px;
+    height: 41px;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 0 11px;
+
+    background: var(--beige-light);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    transition: var(--transition);
+}
+
+.header-search:focus-within {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(36,91,67,0.08);
+}
+
+.header-search > i {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.header-search input {
+    width: 100%;
+    min-width: 0;
+
+    background: transparent;
+    border: none;
+    outline: none;
+
+    color: var(--text-primary);
+    font-size: 10px;
+}
+
+.header-search input::placeholder {
+    color: var(--text-muted);
+}
+
+.header-search kbd {
+    white-space: nowrap;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 5px;
+
+    color: var(--text-muted);
+    font-size: 8px;
+}
+
+
+/* =========================================================
+   12. NOTIFICATIONS
+   ========================================================= */
+
+.header-icon-button {
+    width: 40px;
+    height: 40px;
+
+    position: relative;
+
+    display: grid;
+    place-items: center;
+
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    color: var(--black);
+    font-size: 16px;
+
+    transition: var(--transition);
+}
+
+.header-icon-button:hover {
+    background: var(--beige-light);
+    border-color: var(--border-dark);
+}
+
+.notification-badge {
+    width: 7px;
+    height: 7px;
+
+    position: absolute;
+    top: 8px;
+    right: 8px;
+
+    background: var(--red);
+    border: 1px solid white;
+    border-radius: 50%;
+}
+
+
+/* =========================================================
+   13. PROFILE
+   ========================================================= */
+
+.header-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 16px;
+    border-left: 1px solid var(--border);
+}
+
+.profile-avatar {
+    width: 39px;
+    height: 39px;
+
+    display: grid;
+    place-items: center;
+
+    background: var(--beige);
+    border: 1px solid var(--beige-dark);
+    border-radius: 50%;
+
+    color: var(--red);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.profile-information strong {
+    display: block;
+    color: var(--black);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.profile-information span {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 9px;
+    margin-top: 2px;
+}
+
+.profile-menu-button {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 11px;
+    padding: 5px;
+}
+
+
+/* =========================================================
+   14. PAGE CONTENT
+   ========================================================= */
+
+.content-container {
+    width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
+    padding: 32px 38px;
+    flex: 1;
+}
+
+
+/* =========================================================
+   15. FOOTER
+   ========================================================= */
+
+.main-footer {
+    min-height: 52px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+
+    padding: 12px 38px;
+
+    background: var(--white);
+    border-top: 1px solid var(--border);
+
+    color: var(--text-secondary);
+    font-size: 9px;
+}
+
+.footer-left,
+.footer-right {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.footer-brand {
+    color: var(--green);
+    font-weight: 800;
+}
+
+.footer-separator {
+    color: var(--red);
+}
+
+
+/* =========================================================
+   16. COMMON BUTTONS
+   ========================================================= */
+
+.btn {
+    min-height: 39px;
+    padding: 9px 15px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border: 1px solid transparent;
+    border-radius: 7px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    transition: var(--transition);
+}
+
+.btn-primary {
+    background: var(--green);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--green-dark);
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background: var(--red);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: var(--red-dark);
+}
+
+.btn-secondary {
+    background: var(--beige);
+    border-color: var(--border-dark);
+    color: var(--black);
+}
+
+.btn-secondary:hover {
+    background: var(--beige-dark);
+}
+
+.btn-outline {
+    background: transparent;
+    border-color: var(--border-dark);
+    color: var(--text-primary);
+}
+
+.btn-outline:hover {
+    border-color: var(--green);
+    color: var(--green);
+}
+
+
+/* =========================================================
+   17. DASHBOARD SECTION HEADINGS
+   ========================================================= */
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 17px;
+}
+
+.section-heading h2 {
+    color: var(--black);
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.section-heading p {
+    color: var(--text-secondary);
+    font-size: 10px;
+    margin-top: 3px;
+}
+
+
+/* =========================================================
+   18. STATISTICS CARDS
+   ========================================================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 17px;
+    margin-bottom: 27px;
+}
+
+.stat-card {
+    min-width: 0;
+    padding: 20px;
+
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-sm);
+
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-card::after {
+    content: "";
+    position: absolute;
+    right: -22px;
+    bottom: -28px;
+
+    width: 90px;
+    height: 90px;
+
+    background: var(--beige-light);
+    border-radius: 50%;
+    opacity: 0.7;
+}
+
+.stat-card.green {
+    border-top: 3px solid var(--green);
+}
+
+.stat-card.red {
+    border-top: 3px solid var(--red);
+}
+
+.stat-card.beige {
+    border-top: 3px solid #C2A778;
+}
+
+.stat-card.black {
+    border-top: 3px solid var(--black);
+}
+
+.stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.stat-icon {
+    width: 39px;
+    height: 39px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+    font-size: 17px;
+}
+
+.stat-icon.green {
+    background: var(--green-light);
+    color: var(--green);
+}
+
+.stat-icon.red {
+    background: var(--red-light);
+    color: var(--red);
+}
+
+.stat-icon.beige {
+    background: var(--beige);
+    color: #95713C;
+}
+
+.stat-icon.black {
+    background: #EAEAE7;
+    color: var(--black);
+}
+
+.stat-value {
+    color: var(--black);
+    font-size: 27px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+.stat-change {
+    font-size: 9px;
+    font-weight: 700;
+    margin-top: 12px;
+}
+
+.stat-change.positive {
+    color: var(--green);
+}
+
+.stat-change.negative {
+    color: var(--red);
+}
+
+
+/* =========================================================
+   19. CONTENT CARDS
+   ========================================================= */
+
+.panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 21px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.panel-title {
+    color: var(--black);
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.panel-subtitle {
+    color: var(--text-secondary);
+    font-size: 9px;
+    margin-top: 3px;
+}
+
+
+/* =========================================================
+   20. DASHBOARD GRIDS
+   ========================================================= */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 19px;
+    margin-bottom: 25px;
+}
+
+.dashboard-grid-equal {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 19px;
+}
+
+.dashboard-grid-three {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 17px;
+}
+
+
+/* =========================================================
+   21. DATA TABLES
+   ========================================================= */
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.data-table thead {
+    background: var(--beige-light);
+}
+
+.data-table th {
+    padding: 12px 13px;
+    color: var(--text-secondary);
+    text-align: left;
+
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+    padding: 13px;
+    font-size: 10px;
+    color: var(--text-primary);
+    border-bottom: 1px solid #F1EEE8;
+}
+
+.data-table tbody tr {
+    transition: var(--transition);
+}
+
+.data-table tbody tr:hover {
+    background: var(--beige-light);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   22. STATUS BADGES
+   ========================================================= */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    padding: 5px 9px;
+    border-radius: 20px;
+
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.status-success {
+    background: var(--green-light);
+    color: var(--green);
+}
+
+.status-success::before {
+    background: var(--green);
+}
+
+.status-danger {
+    background: var(--red-light);
+    color: var(--red);
+}
+
+.status-danger::before {
+    background: var(--red);
+}
+
+.status-warning {
+    background: #F8F0DF;
+    color: #956B25;
+}
+
+.status-warning::before {
+    background: #B57B28;
+}
+
+.status-neutral {
+    background: #EEEEEB;
+    color: #66675E;
+}
+
+.status-neutral::before {
+    background: #77776E;
+}
+
+
+/* =========================================================
+   23. FORMS
+   ========================================================= */
+
+.form-group {
+    margin-bottom: 17px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--black);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.form-control {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+
+    border: 1px solid var(--border-dark);
+    border-radius: 7px;
+
+    background: var(--white);
+    color: var(--text-primary);
+
+    outline: none;
+    font-size: 11px;
+
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(36,91,67,0.09);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+.form-help {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 9px;
+    margin-top: 5px;
+}
+
+.form-error {
+    color: var(--red);
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+
+/* =========================================================
+   24. ACTION BUTTONS
+   ========================================================= */
+
+.icon-action {
+    width: 30px;
+    height: 30px;
+
+    display: inline-grid;
+    place-items: center;
+
+    border: 1px solid var(--border);
+    border-radius: 7px;
+
+    background: var(--white);
+    color: var(--text-secondary);
+
+    transition: var(--transition);
+}
+
+.icon-action:hover {
+    background: var(--green-light);
+    color: var(--green);
+    border-color: var(--green);
+}
+
+.icon-action.delete:hover {
+    background: var(--red-light);
+    color: var(--red);
+    border-color: var(--red);
+}
+
+
+/* =========================================================
+   25. ALERTS
+   ========================================================= */
+
+.alert {
+    padding: 13px 15px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 11px;
+    border: 1px solid transparent;
+}
+
+.alert-success {
+    background: var(--green-light);
+    border-color: #D1E5D7;
+    color: var(--green-dark);
+}
+
+.alert-danger {
+    background: var(--red-light);
+    border-color: #EAD0D4;
+    color: var(--red-dark);
+}
+
+.alert-warning {
+    background: #F8F0DF;
+    border-color: #EBDDBD;
+    color: #88621F;
+}
+
+
+/* =========================================================
+   26. EMPTY STATES
+   ========================================================= */
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-state i {
+    font-size: 38px;
+    color: var(--beige-dark);
+}
+
+.empty-state h3 {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--black);
+}
+
+.empty-state p {
+    margin-top: 5px;
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   27. LOADING STATES
+   ========================================================= */
+
+.loading-spinner {
+    width: 23px;
+    height: 23px;
+
+    border: 3px solid var(--beige-dark);
+    border-top-color: var(--green);
+
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   28. ANIMATIONS
+   ========================================================= */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.content-container {
+    animation: fadeIn 0.35s ease both;
+}
+
+.stat-card {
+    animation: fadeIn 0.4s ease both;
+}
+
+
+/* =========================================================
+   29. SCROLLBARS
+   ========================================================= */
+
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--beige-dark);
+    border-radius: 20px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: #C9BEAA;
+}
+
+
+/* =========================================================
+   30. RESPONSIVE: LAPTOP
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    :root {
+        --sidebar-width: 240px;
+    }
+
+    .content-container {
+        padding: 27px;
+    }
+
+    .top-header {
+        padding: 16px 27px;
+    }
+
+    .stats-grid {
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+}
+
+
+/* =========================================================
+   31. RESPONSIVE: TABLET
+   ========================================================= */
+
+@media (max-width: 950px) {
+
+    :root {
+        --sidebar-width: 230px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header-search {
+        width: 175px;
+    }
+
+    .header-right {
+        gap: 12px;
+    }
+
+}
+
+
+/* =========================================================
+   32. RESPONSIVE: MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    :root {
+        --header-height: 80px;
+    }
+
+    .sidebar {
+        width: 270px;
+        max-width: 85vw;
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .sidebar-close {
+        display: block;
+    }
+
+    .main-area {
+        margin-left: 0;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .top-header {
+        min-height: 80px;
+        padding: 12px 15px;
+        gap: 10px;
+    }
+
+    .page-heading h1 {
+        font-size: 20px;
+    }
+
+    .page-heading p {
+        font-size: 9px;
+    }
+
+    .header-search {
+        display: none;
+    }
+
+    .profile-information,
+    .profile-menu-button {
+        display: none;
+    }
+
+    .header-profile {
+        padding-left: 8px;
+    }
+
+    .content-container {
+        padding: 19px 14px;
+    }
+
+    .dashboard-grid,
+    .dashboard-grid-equal,
+    .dashboard-grid-three {
+        grid-template-columns: 1fr;
+    }
+
+    .main-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+}
+
+
+/* =========================================================
+   33. SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 18px;
+    }
+
+    .page-heading h1 {
+        font-size: 18px;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .panel {
+        padding: 15px;
+    }
+
+}
+
+
+/* =========================================================
+   34. SIDEBAR OVERLAY
+   ========================================================= */
+
+.sidebar-overlay {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+
+    background: rgba(20, 22, 19, 0.48);
+    backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+
+/* =========================================================
+   35. ACCESSIBILITY
+   ========================================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+
+}
+
+/* =========================================
+   MEDICARE+ ANIMATED DOCTOR ICON
+========================================= */
+
+.doctor-animated-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center;
+    animation: doctorFloat 3s ease-in-out infinite;
+    transition: color 0.3s ease;
+}
+
+.doctor-animated-icon svg {
+    display: block;
+    transition: filter 0.3s ease;
+}
+
+/* Gentle floating animation */
+
+@keyframes doctorFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+/* Elegant hover glow */
+
+.nav-link:hover .doctor-animated-icon svg {
+    filter: drop-shadow(0 0 5px rgba(242, 235, 221, 0.55));
+}
+
+/* Accessibility: respect reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+    .doctor-animated-icon {
+        animation: none;
+    }
+}
+
+
+
+/* =========================================================
+   END OF MEDICARE+ DESIGN FOUNDATION
+   ========================================================= */

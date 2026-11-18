@@ -1,0 +1,1280 @@
+﻿{% extends "admin/base_admin.html" %}
+
+{% block title %}Order Details | MEDIVERA Pharmacy{% endblock %}
+{% block breadcrumb %}Pharmacy / Order Details{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ============================================================
+   MEDIVERA PHARMACY ADMIN — ORDER DETAILS
+   Premium charcoal / orange / white interface
+   Responsive layout, accessible states, clear order hierarchy
+============================================================ */
+
+.ph-order-page {
+    --ph-bg: #111318;
+    --ph-panel: #191c23;
+    --ph-panel-soft: #20242d;
+    --ph-border: rgba(255,255,255,.085);
+    --ph-text: #f4f5f7;
+    --ph-muted: #9da4b1;
+    --ph-orange: #ff8a24;
+    --ph-orange-light: #ffad60;
+    --ph-green: #35c98a;
+    --ph-red: #ff626b;
+    --ph-blue: #65aaff;
+    color: var(--ph-text);
+    padding: 8px 0 35px;
+}
+
+.ph-order-page * {
+    box-sizing: border-box;
+}
+
+.ph-order-page a {
+    text-decoration: none;
+}
+
+.ph-order-page .page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.ph-order-page .eyebrow {
+    color: var(--ph-orange-light);
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 9px;
+}
+
+.ph-order-page h1 {
+    color: var(--ph-text);
+    font-size: clamp(25px, 3vw, 34px);
+    font-weight: 850;
+    letter-spacing: -.8px;
+    margin: 0;
+}
+
+.ph-order-page .subtitle {
+    color: var(--ph-muted);
+    font-size: 13px;
+    margin-top: 9px;
+    line-height: 1.7;
+}
+
+.ph-order-page .heading-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.ph-order-page .ph-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 11px 16px;
+    border-radius: 11px;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid var(--ph-border);
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.ph-order-page .ph-btn:hover {
+    transform: translateY(-2px);
+}
+
+.ph-order-page .ph-btn-primary {
+    color: #17120c;
+    background: linear-gradient(135deg, #ffad60, #ff8119);
+    border-color: transparent;
+    box-shadow: 0 7px 20px rgba(255,138,36,.17);
+}
+
+.ph-order-page .ph-btn-secondary {
+    color: var(--ph-text);
+    background: var(--ph-panel);
+}
+
+.ph-order-page .ph-btn-secondary:hover {
+    border-color: rgba(255,138,36,.5);
+    color: var(--ph-orange-light);
+}
+
+.ph-order-page .order-hero {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 90% 10%, rgba(255,138,36,.15), transparent 35%),
+        linear-gradient(125deg, #242832, #171a20 70%);
+    border: 1px solid var(--ph-border);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.17);
+}
+
+.ph-order-page .order-hero::after {
+    content: "";
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    border: 1px solid rgba(255,138,36,.12);
+    border-radius: 50%;
+    right: -75px;
+    top: -90px;
+    pointer-events: none;
+}
+
+.ph-order-page .hero-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.ph-order-page .order-number-label {
+    color: var(--ph-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.7px;
+    font-weight: 800;
+}
+
+.ph-order-page .order-number {
+    color: #fff;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 900;
+    margin-top: 7px;
+    overflow-wrap: anywhere;
+}
+
+.ph-order-page .order-date {
+    color: var(--ph-muted);
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.ph-order-page .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.ph-order-page .status-pill::before {
+    content: "";
+    height: 7px;
+    width: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.ph-order-page .status-requested {
+    color: #ffc16f;
+    background: rgba(255,193,111,.11);
+    border-color: rgba(255,193,111,.2);
+}
+
+.ph-order-page .status-approved {
+    color: #73b4ff;
+    background: rgba(101,170,255,.11);
+    border-color: rgba(101,170,255,.2);
+}
+
+.ph-order-page .status-processing {
+    color: #c2a2ff;
+    background: rgba(194,162,255,.11);
+    border-color: rgba(194,162,255,.2);
+}
+
+.ph-order-page .status-ready {
+    color: #55d7b0;
+    background: rgba(85,215,176,.11);
+    border-color: rgba(85,215,176,.2);
+}
+
+.ph-order-page .status-delivered {
+    color: #49d995;
+    background: rgba(73,217,149,.11);
+    border-color: rgba(73,217,149,.2);
+}
+
+.ph-order-page .status-rejected,
+.ph-order-page .status-cancelled {
+    color: #ff8188;
+    background: rgba(255,98,107,.11);
+    border-color: rgba(255,98,107,.2);
+}
+
+.ph-order-page .status-unknown {
+    color: #c0c5ce;
+    background: rgba(192,197,206,.1);
+    border-color: rgba(192,197,206,.15);
+}
+
+.ph-order-page .detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(280px, .85fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.ph-order-page .main-column,
+.ph-order-page .side-column {
+    display: grid;
+    gap: 20px;
+    min-width: 0;
+}
+
+.ph-order-page .panel {
+    background: var(--ph-panel);
+    border: 1px solid var(--ph-border);
+    border-radius: 17px;
+    overflow: hidden;
+    min-width: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,.12);
+}
+
+.ph-order-page .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--ph-border);
+}
+
+.ph-order-page .panel-title {
+    color: var(--ph-text);
+    font-size: 14px;
+    font-weight: 850;
+    margin: 0;
+}
+
+.ph-order-page .panel-kicker {
+    color: var(--ph-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.1px;
+    text-transform: uppercase;
+}
+
+.ph-order-page .panel-body {
+    padding: 20px;
+}
+
+.ph-order-page .medicine-count {
+    background: rgba(255,138,36,.12);
+    color: var(--ph-orange-light);
+    border: 1px solid rgba(255,138,36,.2);
+    padding: 6px 10px;
+    border-radius: 30px;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.ph-order-page .medicine-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.ph-order-page .medicine-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 520px;
+}
+
+.ph-order-page .medicine-table th {
+    color: var(--ph-muted);
+    font-size: 10px;
+    font-weight: 850;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--ph-border);
+}
+
+.ph-order-page .medicine-table td {
+    color: #e9ebef;
+    font-size: 12px;
+    padding: 16px 10px;
+    border-bottom: 1px solid rgba(255,255,255,.055);
+    vertical-align: middle;
+}
+
+.ph-order-page .medicine-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.ph-order-page .medicine-name {
+    color: #fff;
+    font-weight: 850;
+    font-size: 13px;
+}
+
+.ph-order-page .medicine-caption {
+    color: var(--ph-muted);
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+.ph-order-page .quantity-value {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 35px;
+    padding: 6px 9px;
+    border-radius: 8px;
+    background: var(--ph-panel-soft);
+    font-weight: 850;
+}
+
+.ph-order-page .money {
+    color: #fff;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.ph-order-page .total-panel {
+    background: var(--ph-panel-soft);
+    border: 1px solid var(--ph-border);
+    border-radius: 13px;
+    padding: 17px;
+    margin-top: 18px;
+}
+
+.ph-order-page .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    color: var(--ph-muted);
+    font-size: 12px;
+    padding: 7px 0;
+}
+
+.ph-order-page .total-row strong {
+    color: var(--ph-text);
+    font-weight: 850;
+}
+
+.ph-order-page .total-divider {
+    border: 0;
+    border-top: 1px dashed rgba(255,255,255,.13);
+    margin: 10px 0;
+}
+
+.ph-order-page .grand-total {
+    color: var(--ph-orange-light);
+    font-size: 20px;
+    font-weight: 950;
+}
+
+.ph-order-page .info-list {
+    display: grid;
+    gap: 17px;
+}
+
+.ph-order-page .info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+}
+
+.ph-order-page .info-icon {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255,138,36,.11);
+    color: var(--ph-orange-light);
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.ph-order-page .info-copy {
+    min-width: 0;
+}
+
+.ph-order-page .info-label {
+    color: var(--ph-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.ph-order-page .info-value {
+    color: #f4f5f7;
+    font-size: 12px;
+    line-height: 1.6;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.ph-order-page .info-subvalue {
+    color: var(--ph-muted);
+    font-size: 10px;
+    line-height: 1.6;
+    margin-top: 3px;
+    overflow-wrap: anywhere;
+}
+
+.ph-order-page .delivery-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    color: #8fc3ff;
+    background: rgba(101,170,255,.1);
+    border: 1px solid rgba(101,170,255,.18);
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.ph-order-page .prescription-card {
+    background: linear-gradient(135deg, rgba(255,138,36,.1), rgba(255,138,36,.025));
+    border: 1px solid rgba(255,138,36,.2);
+    border-radius: 13px;
+    padding: 15px;
+}
+
+.ph-order-page .prescription-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ph-order-page .prescription-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,138,36,.15);
+    color: var(--ph-orange-light);
+    font-size: 19px;
+    flex-shrink: 0;
+}
+
+.ph-order-page .prescription-name {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 850;
+    overflow-wrap: anywhere;
+}
+
+.ph-order-page .prescription-meta {
+    color: var(--ph-muted);
+    font-size: 10px;
+    margin-top: 5px;
+    line-height: 1.6;
+}
+
+.ph-order-page .prescription-note {
+    color: #c9ced7;
+    font-size: 11px;
+    line-height: 1.7;
+    margin-top: 13px;
+}
+
+.ph-order-page .notice {
+    padding: 13px 14px;
+    border-radius: 11px;
+    font-size: 11px;
+    line-height: 1.7;
+    border: 1px solid var(--ph-border);
+}
+
+.ph-order-page .notice-warning {
+    color: #ffd49f;
+    background: rgba(255,169,74,.08);
+    border-color: rgba(255,169,74,.2);
+}
+
+.ph-order-page .notice-info {
+    color: #a9d0ff;
+    background: rgba(101,170,255,.08);
+    border-color: rgba(101,170,255,.18);
+}
+
+.ph-order-page .notes-content {
+    color: #e0e3e9;
+    background: var(--ph-panel-soft);
+    border: 1px solid var(--ph-border);
+    border-radius: 11px;
+    padding: 14px;
+    font-size: 12px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.ph-order-page .empty-value {
+    color: var(--ph-muted);
+    font-style: italic;
+    font-size: 11px;
+}
+
+.ph-order-page .timeline {
+    position: relative;
+    display: grid;
+    gap: 19px;
+    padding-left: 5px;
+}
+
+.ph-order-page .timeline-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    position: relative;
+}
+
+.ph-order-page .timeline-dot {
+    flex: 0 0 11px;
+    height: 11px;
+    margin-top: 4px;
+    border-radius: 50%;
+    background: var(--ph-orange);
+    box-shadow: 0 0 0 5px rgba(255,138,36,.11);
+}
+
+.ph-order-page .timeline-copy strong {
+    color: #f4f5f7;
+    font-size: 11px;
+    display: block;
+}
+
+.ph-order-page .timeline-copy span {
+    color: var(--ph-muted);
+    font-size: 10px;
+    display: block;
+    margin-top: 4px;
+    line-height: 1.6;
+}
+
+.ph-order-page .security-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: var(--ph-muted);
+    font-size: 10px;
+    line-height: 1.7;
+    padding: 13px;
+    background: rgba(255,255,255,.025);
+    border: 1px solid var(--ph-border);
+    border-radius: 11px;
+}
+
+.ph-order-page .security-note strong {
+    color: #e8ebf0;
+}
+
+.ph-order-page .back-link {
+    color: var(--ph-orange-light);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.ph-order-page .back-link:hover {
+    color: #fff;
+}
+
+.ph-order-page .section-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-top: 17px;
+    margin-top: 17px;
+    border-top: 1px solid var(--ph-border);
+}
+
+.ph-order-page .muted-small {
+    color: var(--ph-muted);
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+@media (max-width: 1000px) {
+    .ph-order-page .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ph-order-page .side-column {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .ph-order-page {
+        padding-top: 3px;
+    }
+
+    .ph-order-page .order-hero {
+        padding: 19px;
+    }
+
+    .ph-order-page .panel-header {
+        padding: 15px;
+    }
+
+    .ph-order-page .panel-body {
+        padding: 15px;
+    }
+
+    .ph-order-page .side-column {
+        grid-template-columns: 1fr;
+    }
+
+    .ph-order-page .heading-actions {
+        width: 100%;
+    }
+
+    .ph-order-page .heading-actions .ph-btn {
+        flex: 1;
+    }
+
+    .ph-order-page .hero-content {
+        align-items: flex-start;
+    }
+}
+
+@media print {
+    .ph-order-page {
+        color: #111;
+        background: #fff;
+    }
+
+    .ph-order-page .heading-actions,
+    .ph-order-page .back-link {
+        display: none !important;
+    }
+
+    .ph-order-page .panel,
+    .ph-order-page .order-hero {
+        box-shadow: none;
+        break-inside: avoid;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ph-order-page">
+
+    {% set order_status = order.get('order_status', 'Unknown') %}
+    {% set status_class = order_status|lower|replace(' ', '-') %}
+
+    <div class="page-heading">
+        <div>
+            <div class="eyebrow">Pharmacy operations / Order management</div>
+            <h1>Order Details</h1>
+            <p class="subtitle">
+                Review the order, patient information, medicine quantities,
+                delivery instructions, and attached prescription details.
+            </p>
+        </div>
+
+        <div class="heading-actions">
+            <a class="ph-btn ph-btn-secondary"
+               href="{{ url_for('pharmacy.admin_orders') }}">
+                <span aria-hidden="true">←</span>
+                Back to Orders
+            </a>
+            <button class="ph-btn ph-btn-primary"
+                    type="button"
+                    onclick="window.print()">
+                <span aria-hidden="true">▤</span>
+                Print Details
+            </button>
+        </div>
+    </div>
+
+    <!-- ORDER SUMMARY -->
+    <section class="order-hero">
+        <div class="hero-content">
+            <div>
+                <div class="order-number-label">Pharmacy order reference</div>
+                <div class="order-number">
+                    #{{ order.get('pharmacy_order_id', 'N/A') }}
+                </div>
+                <div class="order-date">
+                    Ordered:
+                    {{ order.get('ordered_at').strftime('%d %b %Y, %I:%M %p')
+                       if order.get('ordered_at') else 'Date unavailable' }}
+                </div>
+            </div>
+
+            <div>
+                <span class="status-pill status-{{ status_class
+                    if status_class in [
+                        'requested', 'approved', 'processing',
+                        'ready', 'delivered', 'rejected', 'cancelled'
+                    ] else 'unknown' }}">
+                    {{ order_status }}
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <div class="detail-grid">
+
+        <div class="main-column">
+
+            <!-- MEDICINE ITEMS -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-kicker">Order contents</div>
+                        <h2 class="panel-title">Medicines in this order</h2>
+                    </div>
+                    <span class="medicine-count">
+                        {{ items|length }} item(s)
+                    </span>
+                </div>
+
+                <div class="panel-body">
+                    {% if items %}
+                    <div class="medicine-table-wrap">
+                        <table class="medicine-table">
+                            <thead>
+                                <tr>
+                                    <th>Medicine</th>
+                                    <th>Quantity</th>
+                                    <th>Unit price</th>
+                                    <th>Line total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>
+                                        <div class="medicine-name">
+                                            {{ item.get('medicine_name', 'Medicine') }}
+                                        </div>
+                                        <div class="medicine-caption">
+                                            Item #{{ item.get('order_item_id', loop.index) }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="quantity-value">
+                                            {{ item.get('quantity', 0) }}
+                                        </span>
+                                    </td>
+                                    <td class="money">
+                                        ₹{{ "%.2f"|format(item.get('unit_price') or 0) }}
+                                    </td>
+                                    <td class="money">
+                                        ₹{{ "%.2f"|format(item.get('line_total') or 0) }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="notice notice-warning">
+                        No medicine items were found for this order.
+                        Please verify the order record before processing it.
+                    </div>
+                    {% endif %}
+
+                    <div class="total-panel">
+                        <div class="total-row">
+                            <span>Number of medicine lines</span>
+                            <strong>{{ items|length }}</strong>
+                        </div>
+                        <div class="total-row">
+                            <span>Order subtotal</span>
+                            <strong>
+                                ₹{{ "%.2f"|format(order.get('subtotal') or 0) }}
+                            </strong>
+                        </div>
+                        <hr class="total-divider">
+                        <div class="total-row">
+                            <strong>Order total</strong>
+                            <span class="grand-total">
+                                ₹{{ "%.2f"|format(order.get('subtotal') or 0) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ORDER NOTES -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-kicker">Patient instructions</div>
+                        <h2 class="panel-title">Order notes</h2>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    {% if order.get('order_notes') %}
+                        <div class="notes-content">{{ order.get('order_notes') }}</div>
+                    {% else %}
+                        <span class="empty-value">
+                            No additional instructions were provided.
+                        </span>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- PRESCRIPTION DOCUMENT -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-kicker">Clinical documentation</div>
+                        <h2 class="panel-title">Prescription attachment</h2>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    {% if prescription_document %}
+                    <div class="prescription-card">
+                        <div class="prescription-top">
+                            <div class="prescription-icon" aria-hidden="true">
+                                ▤
+                            </div>
+                            <div>
+                                <div class="prescription-name">
+                                    {{ prescription_document.get('original_filename', 'Prescription document') }}
+                                </div>
+                                <div class="prescription-meta">
+                                    Document ID:
+                                    {{ prescription_document.get('document_id', 'N/A') }}
+                                    <br>
+                                    Type:
+                                    {{ prescription_document.get('mime_type', 'Not specified') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="prescription-meta">
+                            Uploaded:
+                            {{ prescription_document.get('created_at').strftime('%d %b %Y, %I:%M %p')
+                               if prescription_document.get('created_at') else 'Date unavailable' }}
+                            <br>
+                            File size:
+                            {% if prescription_document.get('file_size') is not none %}
+                                {{ (prescription_document.get('file_size') / 1024)|round(1) }} KB
+                            {% else %}
+                                Not available
+                            {% endif %}
+                        </div>
+
+                        <div class="prescription-note">
+                            A prescription document is attached to this order.
+                            Review it through an authorized, patient-scoped
+                            document access route before making clinical decisions.
+                        </div>
+                    </div>
+
+                    <div class="notice notice-info" style="margin-top:13px;">
+                        <strong>Document access:</strong>
+                        This page displays document metadata only. It does not
+                        expose the stored file path or create a public download URL.
+                    </div>
+                    {% elif order.get('prescription_document_id') %}
+                    <div class="notice notice-warning">
+                        A prescription document ID is associated with this order,
+                        but its metadata could not be loaded. Verify document access
+                        and patient ownership before proceeding.
+                    </div>
+                    {% else %}
+                    <div class="notice notice-info">
+                        No prescription document was attached to this order.
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+        </div>
+
+        <aside class="side-column">
+
+            <!-- DELIVERY INFORMATION -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-kicker">Fulfilment</div>
+                        <h2 class="panel-title">Delivery information</h2>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="info-list">
+                        <div class="info-item">
+                            <div class="info-icon" aria-hidden="true">⌂</div>
+                            <div class="info-copy">
+                                <div class="info-label">Delivery method</div>
+                                <div class="info-value">
+                                    {{ order.get('delivery_method') or 'Not specified' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon" aria-hidden="true">⌖</div>
+                            <div class="info-copy">
+                                <div class="info-label">Delivery location</div>
+                                <div class="info-value">
+                                    {{ order.get('delivery_location') or 'No location recorded' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon" aria-hidden="true">◷</div>
+                            <div class="info-copy">
+                                <div class="info-label">Last updated</div>
+                                <div class="info-value">
+                                    {{ order.get('updated_at').strftime('%d %b %Y, %I:%M %p')
+                                       if order.get('updated_at') else 'Not available' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-footer">
+                        <span class="panel-kicker">Fulfilment type</span>
+                        <span class="delivery-badge">
+                            {{ order.get('delivery_method') or 'Unspecified' }}
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PATIENT INFORMATION -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-kicker">Patient record</div>
+                        <h2 class="panel-title">Patient information</h2>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="info-list">
+                        <div class="info-item">
+                            <div class="info-icon" aria-hidden="true">♙</div>
+                            <div class="info-copy">
+                                <div class="info-label">Patient name</div>
+                                <div class="info-value">
+                                    {% if order.get('first_name') or order.get('last_name') %}
+                                        {{ order.get('first_name', '') }}
+                                        {{ order.get('last_name', '') }}
+                                    {% else %}
+                                        Patient information unavailable
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon" aria-hidden="true">#</div>
+                            <div class="info-copy">
+                                <div class="info-label">Patient ID</div>
+                                <div class="info-value">
+                                    {{ order.get('patient_id', 'Not available') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon" aria-hidden="true">☎</div>
+                            <div class="info-copy">
+                                <div class="info-label">Contact number</div>
+                                <div class="info-value">
+                                    {{ order.get('phone') or 'Not available' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon" aria-hidden="true">✉</div>
+                            <div class="info-copy">
+                                <div class="info-label">Email address</div>
+                                <div class="info-value">
+                                    {{ order.get('email') or 'Not available' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="muted-small" style="margin-top:17px;">
+                        Patient details are shown only when returned by the
+                        authorized order-detail query.
+                    </p>
+                </div>
+            </section>
+
+            <!-- ORDER RECORD -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-kicker">Record information</div>
+                        <h2 class="panel-title">Order timeline</h2>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <span class="timeline-dot"></span>
+                            <div class="timeline-copy">
+                                <strong>Order submitted</strong>
+                                <span>
+                                    {{ order.get('ordered_at').strftime('%d %b %Y, %I:%M %p')
+                                       if order.get('ordered_at') else 'Timestamp unavailable' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <span class="timeline-dot"></span>
+                            <div class="timeline-copy">
+                                <strong>Current order status</strong>
+                                <span>{{ order_status }}</span>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <span class="timeline-dot"></span>
+                            <div class="timeline-copy">
+                                <strong>Last record update</strong>
+                                <span>
+                                    {{ order.get('updated_at').strftime('%d %b %Y, %I:%M %p')
+                                       if order.get('updated_at') else 'Timestamp unavailable' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PHARMACY SAFETY -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-kicker">Operational safeguards</div>
+                        <h2 class="panel-title">Pharmacy checks</h2>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="security-note">
+                        <span aria-hidden="true">●</span>
+                        <div>
+                            <strong>Stock protection</strong><br>
+                            Patient checkout does not deduct inventory.
+                            Stock must be checked and deducted through the
+                            authorized pharmacist dispensing workflow.
+                        </div>
+                    </div>
+
+                    <div class="security-note" style="margin-top:10px;">
+                        <span aria-hidden="true">●</span>
+                        <div>
+                            <strong>Prescription safety</strong><br>
+                            An attached document is not automatically verified.
+                            Do not treat its presence as pharmacist approval.
+                        </div>
+                    </div>
+
+                    <div class="security-note" style="margin-top:10px;">
+                        <span aria-hidden="true">●</span>
+                        <div>
+                            <strong>Order integrity</strong><br>
+                            Order status changes and inventory transactions
+                            must be performed by authorized backend actions.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        
+            <!-- ORDER ACTIONS ? PHARMACY WORKFLOW -->
+            <section class="panel" style="margin-top:18px;">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-kicker">Controlled workflow</div>
+                        <h2 class="panel-title">Order actions</h2>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    {% if order_status == 'Requested' %}
+                        <p class="muted-small">
+                            Review the requested medicines and prescription information
+                            before approving or rejecting this order.
+                        </p>
+
+                        <form method="post"
+                              action="{{ url_for('pharmacy.update_pharmacy_order_status', order_id=order.get('pharmacy_order_id')) }}"
+                              style="margin-top:14px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="target_status" value="Approved">
+                            <button type="submit" class="btn btn-primary" style="width:100%;">
+                                Approve order
+                            </button>
+                        </form>
+
+                        <form method="post"
+                              action="{{ url_for('pharmacy.update_pharmacy_order_status', order_id=order.get('pharmacy_order_id')) }}"
+                              style="margin-top:9px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="target_status" value="Rejected">
+                            <button type="submit" class="btn btn-danger" style="width:100%;">
+                                Reject order
+                            </button>
+                        </form>
+
+                        <form method="post"
+                              action="{{ url_for('pharmacy.update_pharmacy_order_status', order_id=order.get('pharmacy_order_id')) }}"
+                              style="margin-top:9px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="target_status" value="Cancelled">
+                            <button type="submit" class="btn btn-secondary" style="width:100%;">
+                                Cancel order
+                            </button>
+                        </form>
+
+                    {% elif order_status == 'Approved' %}
+                        <p class="muted-small">
+                            Approval is complete. Move the order into preparation
+                            when pharmacy staff begin processing it.
+                        </p>
+
+                        <form method="post"
+                              action="{{ url_for('pharmacy.update_pharmacy_order_status', order_id=order.get('pharmacy_order_id')) }}"
+                              style="margin-top:14px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="target_status" value="Processing">
+                            <button type="submit" class="btn btn-primary" style="width:100%;">
+                                Start processing
+                            </button>
+                        </form>
+
+                        <form method="post"
+                              action="{{ url_for('pharmacy.update_pharmacy_order_status', order_id=order.get('pharmacy_order_id')) }}"
+                              style="margin-top:9px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="target_status" value="Cancelled">
+                            <button type="submit" class="btn btn-secondary" style="width:100%;">
+                                Cancel order
+                            </button>
+                        </form>
+
+                    {% elif order_status == 'Processing' %}
+                        <div class="security-note">
+                            <span aria-hidden="true">?</span>
+                            <div>
+                                <strong>Final dispensing check</strong><br>
+                                Dispensing deducts stock and records an inventory
+                                transaction. All items must pass validation.
+                            </div>
+                        </div>
+
+                        {% if 'pharmacy_admin' in roles %}
+                        <form method="post"
+                              action="{{ url_for('pharmacy.dispense_pharmacy_order', order_id=order.get('pharmacy_order_id')) }}"
+                              style="margin-top:14px;"
+                              onsubmit="return confirm('Dispense this entire order and deduct the required stock? This action cannot be repeated.');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <label style="display:flex;gap:10px;align-items:flex-start;margin:14px 0;font-size:13px;line-height:1.5;">
+                                <input type="checkbox"
+                                       name="confirm_prescription_review"
+                                       value="1"
+                                       required
+                                       style="margin-top:3px;">
+                                <span>
+                                    I confirm that prescription requirements have been checked,
+                                    and any attached prescription has been reviewed.
+                                    If no prescription is required, I have verified that requirement.
+                                </span>
+                            </label>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">
+                                Dispense and mark Ready
+                            </button>
+                        </form>
+                        {% else %}
+                        <div class="notice notice-warning" style="margin-top:12px;">
+                            Dispensing is restricted to an authorized Pharmacy Admin
+                            with an active linked staff record.
+                        </div>
+                        {% endif %}
+
+                    {% elif order_status == 'Ready' %}
+                        <p class="muted-small">
+                            The order has been dispensed. Confirm handover to the
+                            patient or authorized recipient.
+                        </p>
+
+                        <form method="post"
+                              action="{{ url_for('pharmacy.update_pharmacy_order_status', order_id=order.get('pharmacy_order_id')) }}"
+                              style="margin-top:14px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="target_status" value="Delivered">
+                            <button type="submit" class="btn btn-primary" style="width:100%;">
+                                Mark as Delivered
+                            </button>
+                        </form>
+
+                    {% elif order_status == 'Delivered' %}
+                        <div class="notice notice-success">
+                            This order has been delivered. No further action is available.
+                        </div>
+
+                    {% elif order_status == 'Rejected' %}
+                        <div class="notice notice-warning">
+                            This order was rejected. Inventory was not deducted.
+                        </div>
+
+                    {% elif order_status == 'Cancelled' %}
+                        <div class="notice notice-warning">
+                            This order was cancelled. Inventory was not deducted.
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+
+        </aside>
+    </div>
+
+    <div style="margin-top:22px;">
+        <a class="back-link" href="{{ url_for('pharmacy.admin_orders') }}">
+            ← Return to Pharmacy Orders
+        </a>
+    </div>
+
+</div>
+{% endblock %}

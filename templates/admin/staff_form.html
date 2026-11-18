@@ -1,0 +1,131 @@
+﻿{% extends "admin/base_admin.html" %}
+{% block title %}{{ page_heading }} | MEDIVERA{% endblock %}
+
+{% block content %}
+<style>
+.staff-form{color:#f4f4f5;max-width:1050px}
+.staff-form .hero,.staff-form .panel{background:#202023;border:1px solid #39393d;border-radius:18px;padding:24px;margin-bottom:18px}
+.staff-form h1{margin:0 0 8px;font-size:26px}
+.staff-form .muted{color:#a1a1aa}
+.staff-form .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.staff-form label{display:block;font-size:13px;font-weight:700;margin-bottom:8px;color:#ddd}
+.staff-form input,.staff-form select{width:100%;box-sizing:border-box;background:#151518;color:#fff;border:1px solid #44444a;border-radius:9px;padding:12px}
+.staff-form input:focus,.staff-form select:focus{outline:1px solid #f28b28}
+.staff-form .full{grid-column:1/-1}
+.staff-form .hint{font-size:12px;color:#999;margin-top:6px}
+.staff-form .actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.staff-form .btn{display:inline-block;border:0;border-radius:9px;padding:12px 18px;text-decoration:none;font-weight:800;cursor:pointer}
+.staff-form .primary{background:#f28b28;color:#171717}
+.staff-form .secondary{background:#35353a;color:#eee}
+.staff-form .flash{padding:11px 14px;border-radius:9px;margin-bottom:10px;background:#482326;color:#ffc1c1}
+@media(max-width:650px){.staff-form .grid{grid-template-columns:1fr}.staff-form .full{grid-column:auto}}
+</style>
+
+<div class="staff-form">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <section class="hero">
+        <div class="muted">MEDIVERA / HUMAN RESOURCES</div>
+        <h1>{{ page_heading }}</h1>
+        <div class="muted">Maintain accurate employee and employment information.</div>
+    </section>
+
+    <section class="panel">
+        {% set fd = form_data or {} %}
+        <form method="POST" action="{{ form_action }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="grid">
+                <div>
+                    <label for="staff_name">Full name *</label>
+                    <input id="staff_name" name="staff_name" maxlength="100" required
+                           value="{{ fd.get('staff_name', staff_member.staff_name if staff_member else '') }}">
+                </div>
+
+                <div>
+                    <label for="designation">Designation *</label>
+                    <input id="designation" name="designation" maxlength="100" required
+                           placeholder="e.g. Senior Nurse, Lab Technician"
+                           value="{{ fd.get('designation', staff_member.designation if staff_member else '') }}">
+                </div>
+
+                <div>
+                    <label for="gender">Gender</label>
+                    {% set selected_gender = fd.get('gender', staff_member.gender if staff_member else '') %}
+                    <select id="gender" name="gender">
+                        <option value="">Not specified</option>
+                        {% for option in gender_options %}
+                        <option value="{{ option }}" {% if selected_gender == option %}selected{% endif %}>
+                            {{ option|capitalize }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="department_id">Department</label>
+                    {% set selected_department = fd.get('department_id', staff_member.department_id if staff_member else '') %}
+                    <select id="department_id" name="department_id">
+                        <option value="">Unassigned</option>
+                        {% for department in departments %}
+                        <option value="{{ department.department_id }}"
+                            {% if selected_department|string == department.department_id|string %}selected{% endif %}>
+                            {{ department.department_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="phone">Phone number</label>
+                    <input id="phone" name="phone" maxlength="15"
+                           value="{{ fd.get('phone', staff_member.phone if staff_member else '') }}">
+                </div>
+
+                <div>
+                    <label for="email">Email address</label>
+                    <input id="email" name="email" type="email" maxlength="100"
+                           value="{{ fd.get('email', staff_member.email if staff_member else '') }}">
+                </div>
+
+                <div>
+                    <label for="salary">Salary (INR)</label>
+                    <input id="salary" name="salary" type="number" min="0"
+                           max="99999999.99" step="0.01"
+                           value="{{ fd.get('salary', staff_member.salary if staff_member else '') }}">
+                    <div class="hint">Leave blank if salary is not recorded.</div>
+                </div>
+
+                <div>
+                    <label for="joining_date">Joining date</label>
+                    <input id="joining_date" name="joining_date" type="date"
+                           value="{{ fd.get('joining_date', (staff_member.joining_date|string)[:10] if staff_member and staff_member.joining_date else '') }}">
+                </div>
+
+                <div class="full">
+                    <label for="employment_status">Employment status *</label>
+                    {% set selected_status = fd.get('employment_status', staff_member.employment_status if staff_member else 'active') %}
+                    <select id="employment_status" name="employment_status" required>
+                        {% for option in employment_options %}
+                        <option value="{{ option }}" {% if selected_status == option %}selected{% endif %}>
+                            {{ option|capitalize }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <p class="hint">Fields marked * are required. Existing linked user accounts are preserved. This form does not create or change login credentials.</p>
+
+            <div class="actions">
+                <button type="submit" class="btn primary">Save Staff Record</button>
+                <a href="{{ url_for('admin.staff') }}" class="btn secondary">Cancel</a>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

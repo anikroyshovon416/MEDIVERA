@@ -1,0 +1,89 @@
+﻿{% extends "admin/base_admin.html" %}
+{% block title %}Doctor Profile | MEDIVERA{% endblock %}
+
+{% block content %}
+<style>
+.doctor-detail{color:#f4f4f5}
+.doctor-detail .hero,.doctor-detail .panel{background:#202023;border:1px solid #39393d;border-radius:18px;padding:23px;margin-bottom:18px}
+.doctor-detail .hero{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.doctor-detail h1{font-size:27px;margin:5px 0}
+.doctor-detail h2{font-size:17px;margin:0 0 18px}
+.doctor-detail .muted{color:#a1a1aa}
+.doctor-detail .btn{display:inline-block;padding:11px 16px;border-radius:9px;text-decoration:none;font-weight:800}
+.doctor-detail .primary{background:#f28b28;color:#171717}
+.doctor-detail .secondary{background:#35353a;color:#eee}
+.doctor-detail .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.doctor-detail .item{padding:13px;background:#171719;border:1px solid #333338;border-radius:11px;min-width:0}
+.doctor-detail .item small{display:block;color:#999;margin-bottom:7px}
+.doctor-detail .item strong{overflow-wrap:anywhere}
+.doctor-detail .pill{display:inline-block;padding:5px 10px;border-radius:25px;font-size:11px;font-weight:800;text-transform:capitalize}
+.doctor-detail .available{background:#143c2c;color:#66e3a1}
+.doctor-detail .unavailable{background:#482326;color:#ff9292}
+.doctor-detail table{width:100%;border-collapse:collapse;min-width:600px}
+.doctor-detail th,.doctor-detail td{text-align:left;padding:13px;border-bottom:1px solid #39393d}
+.doctor-detail th{font-size:12px;color:#aaa;text-transform:uppercase}
+.doctor-detail .table-wrap{overflow-x:auto}
+.doctor-detail .empty{color:#aaa;padding:20px 0}
+@media(max-width:750px){.doctor-detail .grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){.doctor-detail .grid{grid-template-columns:1fr}}
+</style>
+
+<div class="doctor-detail">
+    <section class="hero">
+        <div>
+            <div class="muted">MEDIVERA / DOCTOR PROFILE</div>
+            <h1>{{ doctor.doctor_name }}</h1>
+            <div class="muted">{{ doctor.specialization or 'Medical professional' }} · {{ doctor.department_name or 'Department not assigned' }}</div>
+        </div>
+        <div>
+            <a class="btn primary" href="{{ url_for('admin.edit_doctor', doctor_id=doctor.doctor_id) }}">Edit Profile</a>
+            <a class="btn secondary" href="{{ url_for('admin.doctors') }}">Back to Directory</a>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Professional Information</h2>
+        <div class="grid">
+            <div class="item"><small>Doctor ID</small><strong>#{{ doctor.doctor_id }}</strong></div>
+            <div class="item"><small>Department</small><strong>{{ doctor.department_name or 'Not assigned' }}</strong></div>
+            <div class="item"><small>Specialization</small><strong>{{ doctor.specialization or 'Not provided' }}</strong></div>
+            <div class="item"><small>Experience</small><strong>{{ doctor.experience_years or 0 }} years</strong></div>
+            <div class="item"><small>Consultation fee</small><strong>₹{{ "%.2f"|format(doctor.consultation_fee or 0) }}</strong></div>
+            <div class="item"><small>Availability</small><strong><span class="pill {{ doctor.availability_status }}">{{ doctor.availability_status }}</span></strong></div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Contact Information</h2>
+        <div class="grid">
+            <div class="item"><small>Phone</small><strong>{{ doctor.phone or 'Not provided' }}</strong></div>
+            <div class="item"><small>Email</small><strong>{{ doctor.email or 'Not provided' }}</strong></div>
+            <div class="item"><small>Linked user account</small><strong>{{ doctor.account_username or 'No linked account' }}</strong></div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Recent Appointment History</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Appointment</th><th>Patient</th><th>Date</th><th>Time</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                {% for appointment in appointments %}
+                    <tr>
+                        <td>#{{ appointment.appointment_id }}</td>
+                        <td>{{ appointment.first_name or '' }} {{ appointment.last_name or '' }}</td>
+                        <td>{{ appointment.appointment_date }}</td>
+                        <td>{{ appointment.appointment_time }}</td>
+                        <td>{{ appointment.status }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="empty">No appointments are currently recorded for this doctor.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

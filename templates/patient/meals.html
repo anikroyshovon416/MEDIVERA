@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}Meals & Dining | MEDIVERA{% endblock %}
+{% block breadcrumb %}Meals & Dining{% endblock %}
+{% block body_class %}patient-portal-body{% endblock %}
+
+{% block extra_css %}
+<style>
+.patient-meals {
+    color: var(--pd-text, #f5f5f5);
+    padding: 12px 0 38px;
+}
+.pm-heading, .pm-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.pm-heading { margin-bottom: 22px; }
+.pm-heading h1 { margin: 0 0 8px; }
+.pm-muted { color: #a5abb5; }
+.pm-panel {
+    background: #1c1f24;
+    border: 1px solid #343a43;
+    border-radius: 17px;
+    padding: 22px;
+    margin: 20px 0;
+}
+.pm-panel h2 { margin: 0 0 7px; }
+.pm-btn {
+    display: inline-block;
+    border: 0;
+    border-radius: 9px;
+    padding: 11px 16px;
+    background: #ff7417;
+    color: #fff;
+    font-weight: 750;
+    text-decoration: none;
+    cursor: pointer;
+}
+.pm-btn:hover { background: #e65f08; color: #fff; }
+.pm-date, .pm-field {
+    box-sizing: border-box;
+    background: #111317;
+    border: 1px solid #454c57;
+    border-radius: 9px;
+    padding: 10px;
+    color: #fff;
+}
+.pm-date { min-width: 155px; }
+.pm-count {
+    color: #ff984c;
+    font-size: 28px;
+    font-weight: 850;
+}
+.pm-schedule {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 13px;
+    margin-top: 18px;
+}
+.pm-slot {
+    background: #242830;
+    border: 1px solid #3a414b;
+    border-radius: 13px;
+    padding: 16px;
+}
+.pm-slot h3 { margin: 0 0 8px; }
+.pm-slot-time { color: #ff9a52; font-weight: 700; font-size: 13px; }
+.pm-slot-label { color: #a5abb5; font-size: 12px; margin-top: 7px; }
+.pm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+    gap: 15px;
+    margin-top: 18px;
+}
+.pm-card {
+    background: #242830;
+    border: 1px solid #3a4049;
+    border-radius: 14px;
+    padding: 18px;
+}
+.pm-card h3 { margin: 9px 0; }
+
+.pm-meal-group { margin-top: 25px; }
+.pm-meal-group-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; border-bottom:1px solid #3a414b; padding-bottom:12px; }
+.pm-meal-group-heading h3 { margin:0 0 5px; }
+.pm-meal-group-heading span { color:#ff9a52; font-size:13px; }
+.pm-meal-item-count { color:#a5abb5 !important; }
+.pm-food-image { display:block; width:100%; height:190px; object-fit:cover; border-radius:10px; margin-bottom:13px; background:#17191e; }
+.pm-food-placeholder { height:130px; display:flex; align-items:center; justify-content:center; border-radius:10px; background:#17191e; border:1px dashed #454c57; color:#a5abb5; font-size:12px; margin-bottom:13px; }
+
+.pm-time { color: #ff9a52; font-size: 13px; font-weight: 700; }
+.pm-diet {
+    display: inline-block;
+    background: #343a43;
+    color: #dce1e9;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    margin: 8px 0;
+}
+.pm-card form { margin-top: 12px; }
+.pm-card label { display: block; color: #d5d8df; font-size: 13px; }
+.pm-field { width: 100%; margin: 6px 0 11px; }
+.pm-card textarea { resize: vertical; }
+.pm-empty {
+    text-align: center;
+    padding: 27px 16px;
+    color: #a5abb5;
+    background: #20242a;
+    border: 1px dashed #454c57;
+    border-radius: 12px;
+}
+.pm-taken {
+    color: #f3c17d;
+    background: #3a3024;
+    border-radius: 9px;
+    padding: 11px;
+    font-size: 13px;
+    margin-top: 12px;
+}
+.pm-table-wrap { overflow-x: auto; }
+.pm-table { width: 100%; border-collapse: collapse; min-width: 650px; }
+.pm-table th, .pm-table td {
+    text-align: left;
+    padding: 13px 10px;
+    border-bottom: 1px solid #373d46;
+}
+.pm-table th { color: #ff9a52; }
+.pm-status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: #343a43;
+    font-size: 12px;
+}
+.pm-cancel {
+    border: 1px solid #ed6868;
+    color: #ff8585;
+    background: transparent;
+    border-radius: 7px;
+    padding: 7px 10px;
+    cursor: pointer;
+}
+.pm-alert {
+    padding: 13px 16px;
+    border-radius: 10px;
+    margin: 12px 0;
+    border: 1px solid #454c57;
+    background: #252a31;
+}
+.pm-alert.success { border-color: #397d58; color: #a8e6bd; }
+.pm-alert.error { border-color: #9b4545; color: #ffaaaa; }
+.pm-alert.warning { border-color: #98703b; color: #f3cc91; }
+.pm-note { color: #a5abb5; font-size: 12px; }
+@media (max-width: 600px) {
+    .pm-panel { padding: 16px; }
+    .pm-heading .pm-btn { width: 100%; text-align: center; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="patient-meals">
+
+    <div class="pm-heading">
+        <div>
+            <h1>Meals & Dining</h1>
+            <p class="pm-muted">
+                Fresh meals, thoughtful care and bedside delivery.
+            </p>
+        </div>
+        <a class="pm-btn" href="{{ url_for('patient.dashboard') }}">
+            Back to Dashboard
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="pm-alert {{ category }}" role="status">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <section class="pm-panel">
+        <div class="pm-toolbar">
+            <div>
+                <h2>My Active Meal Requests</h2>
+                <p class="pm-muted">
+                    Track meals requested for your hospital stay.
+                </p>
+            </div>
+            <div class="pm-count">{{ active_count }}</div>
+        </div>
+    </section>
+
+    <section class="pm-panel">
+        <h2>Meal Schedule</h2>
+        <p class="pm-muted">
+            Daily hospital meal and serving hours.
+        </p>
+
+        <div class="pm-schedule">
+            {% for slot in meal_schedule %}
+                <article class="pm-slot">
+                    <h3>{{ slot.meal_name }}</h3>
+                    <div class="pm-slot-time">
+                        {{ slot.serving_start }} - {{ slot.serving_end }}
+                    </div>
+                    <div class="pm-slot-label">Daily serving hours</div>
+                </article>
+            {% else %}
+                <div class="pm-empty">
+                    The hospital meal schedule has not been configured yet.
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="pm-panel">
+        <div class="pm-toolbar">
+            <div>
+                <h2>Hospital Menu</h2>
+                <p class="pm-muted">
+                    Choose a date to view published meals and request your food.
+                </p>
+            </div>
+
+            <form method="GET"
+                  action="{{ url_for('patient.patient_meals') }}"
+                  accept-charset="UTF-8"
+                  style="display:flex;gap:8px;flex-wrap:wrap;">
+                <input class="pm-date"
+                       type="date"
+                       name="date"
+                       min="{{ today.isoformat() }}"
+                       value="{{ selected_date.isoformat() }}"
+                       required>
+                <button class="pm-btn" type="submit">View Menu</button>
+            </form>
+        </div>
+
+        <p class="pm-note">
+            Showing menu for {{ selected_date.strftime('%A, %d %B %Y') }}.
+        </p>
+
+        {% if menu %}
+            {% for slot in meal_schedule %}
+                {% set slot_items = menu|selectattr('meal_type_id', 'equalto', slot.meal_type_id)|list %}
+                <div class="pm-meal-group">
+                    <div class="pm-meal-group-heading">
+                        <div>
+                            <h3>{{ slot.meal_name }}</h3>
+                            <span>{{ slot.serving_start }} - {{ slot.serving_end }}</span>
+                        </div>
+                        <span class="pm-meal-item-count">{{ slot_items|length }} item(s)</span>
+                    </div>
+
+                    {% if slot_items %}
+                    <div class="pm-grid">
+                        {% for item in slot_items %}
+                            <article class="pm-card">
+                                {% if item.image_path %}
+                                <img class="pm-food-image"
+                                     src="{{ url_for('static', filename=item.image_path) }}"
+                                     alt="{{ item.item_name }}"
+                                     loading="lazy">
+                                {% else %}
+                                <div class="pm-food-placeholder">
+                                    <span>Food photograph not provided</span>
+                                </div>
+                                {% endif %}
+
+                                <div class="pm-time">{{ slot.meal_name }} ? {{ item.serving_start }} - {{ item.serving_end }}</div>
+                                <h3>{{ item.item_name }}</h3>
+
+                                {% if item.item_description %}
+                                    <p class="pm-muted">{{ item.item_description }}</p>
+                                {% endif %}
+
+                                <span class="pm-diet">{{ item.dietary_type }}</span>
+
+                                {% if selected_date < today %}
+                                    <div class="pm-taken">This is a past menu. Meal booking is closed.</div>
+                                {% elif item.meal_type_id in requested_slot_ids %}
+                                    <div class="pm-taken">
+                                        You already have a request for this meal slot on this date.
+                                        See your request history below.
+                                    </div>
+                                {% else %}
+                                    <form method="POST"
+                                          action="{{ url_for('patient.patient_meal_request') }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="menu_id" value="{{ item.menu_id }}">
+
+                                        <label>Quantity</label>
+                                        <input class="pm-field" type="number" name="quantity"
+                                               min="1" max="10" value="1" required>
+
+                                        <label>Special instructions (optional)</label>
+                                        <textarea class="pm-field" name="special_instructions"
+                                                  maxlength="255" rows="2"
+                                                  placeholder="Any meal instructions?"></textarea>
+
+                                        <button type="submit" class="pm-btn">Request This Meal</button>
+                                    </form>
+                                {% endif %}
+                            </article>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="pm-empty">
+                        No food items have been published for {{ slot.meal_name }} on this date.
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="pm-empty" style="margin-top:18px;">
+                <h3>No food menu published for this date</h3>
+                <p>Your daily meal schedule is shown above, but the hospital has not published food items for this date yet.</p>
+                <p>Please select another date or check again after the Meal Management team publishes the menu.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="pm-panel">
+        <h2>My Meal Request History</h2>
+        <p class="pm-muted">
+            Follow your meal from request to delivery.
+        </p>
+
+        <div class="pm-table-wrap">
+            <table class="pm-table">
+                <thead>
+                    <tr>
+                        <th>Request</th>
+                        <th>Date</th>
+                        <th>Meal</th>
+                        <th>Food</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in my_requests %}
+                        <tr>
+                            <td>#{{ item.meal_request_id }}</td>
+                            <td>{{ item.meal_date }}</td>
+                            <td>{{ item.meal_name }}</td>
+                            <td>{{ item.item_name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>
+                                <span class="pm-status">{{ item.status }}</span>
+                            </td>
+                            <td>
+                                {% if item.status == 'Requested' and item.meal_date >= today %}
+                                    <form method="POST"
+                                          action="{{ url_for(
+                                              'patient.patient_cancel_meal_request',
+                                              meal_request_id=item.meal_request_id
+                                          ) }}">
+                                        <input type="hidden"
+                                               name="csrf_token"
+                                               value="{{ csrf_token() }}">
+                                        <button class="pm-cancel" type="submit">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    ?
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="pm-empty">
+                                You haven't requested any meals yet.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

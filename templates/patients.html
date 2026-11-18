@@ -1,0 +1,406 @@
+
+{% extends "base.html" %}
+
+{% block title %}Patient Management | MediCare+{% endblock %}
+
+{% block breadcrumb %}
+<span>Management</span>
+<i class="fas fa-chevron-right"></i>
+<span class="breadcrumb-current">Patients</span>
+{% endblock %}
+
+{% block page_heading %}Patient Management{% endblock %}
+
+{% block page_subtitle %}
+Manage patient registrations and medical records
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE ACTIONS -->
+<div class="section-heading">
+    <div>
+        <h2>Patient Records</h2>
+        <p>Register, search and manage hospital patients</p>
+    </div>
+
+    <button class="btn btn-primary"
+            type="button"
+            onclick="document.getElementById('patientFormSection').scrollIntoView({behavior:'smooth'})">
+        <i class="fas fa-plus"></i>
+        Add New Patient
+    </button>
+</div>
+
+<!-- FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endwith %}
+
+<!-- PATIENT STATISTICS -->
+<div class="stats-grid">
+
+    <div class="stat-card green">
+        <div class="stat-top">
+            <div class="stat-icon green">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ total_patients|default(0) }}</div>
+        <div class="stat-label">Total Registered Patients</div>
+    </div>
+
+    <div class="stat-card red">
+        <div class="stat-top">
+            <div class="stat-icon red">
+                <i class="fas fa-user-plus"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ today_patients|default(0) }}</div>
+        <div class="stat-label">Registered Today</div>
+    </div>
+
+    <div class="stat-card beige">
+        <div class="stat-top">
+            <div class="stat-icon beige">
+                <i class="fas fa-venus-mars"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ male_patients|default(0) }}</div>
+        <div class="stat-label">Male Patients</div>
+    </div>
+
+    <div class="stat-card black">
+        <div class="stat-top">
+            <div class="stat-icon black">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ female_patients|default(0) }}</div>
+        <div class="stat-label">Female Patients</div>
+    </div>
+
+</div>
+
+<!-- ADD PATIENT FORM -->
+<div class="panel" id="patientFormSection">
+
+    <div class="panel-header">
+        <div>
+            <h3 class="panel-title">Register New Patient</h3>
+            <p class="panel-subtitle">
+                Enter the patient's personal and contact information
+            </p>
+        </div>
+    </div>
+
+    <form action="{{ url_for('add_patient') }}"
+          method="POST">
+
+        <div class="patient-form-grid">
+
+            <div class="form-group">
+                <label class="form-label">First Name *</label>
+                <input type="text"
+                       name="first_name"
+                       class="form-control"
+                       placeholder="Enter first name"
+                       maxlength="100"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Last Name *</label>
+                <input type="text"
+                       name="last_name"
+                       class="form-control"
+                       placeholder="Enter last name"
+                       maxlength="100"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Date of Birth *</label>
+                <input type="date"
+                       name="date_of_birth"
+                       class="form-control"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Gender *</label>
+                <select name="gender"
+                        class="form-control"
+                        required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Blood Group</label>
+                <select name="blood_group"
+                        class="form-control">
+                    <option value="">Select Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                <input type="tel"
+                       name="phone"
+                       class="form-control"
+                       placeholder="Enter phone number"
+                       maxlength="20"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email"
+                       name="email"
+                       class="form-control"
+                       placeholder="Enter email address"
+                       maxlength="150">
+            </div>
+
+            <div class="form-group patient-address">
+                <label class="form-label">Residential Address</label>
+                <textarea name="address"
+                          class="form-control"
+                          rows="3"
+                          placeholder="Enter complete address"></textarea>
+            </div>
+
+        </div>
+
+        <div class="patient-form-actions">
+            <button type="reset" class="btn btn-secondary">
+                <i class="fas fa-undo"></i>
+                Reset
+            </button>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                Register Patient
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<!-- PATIENT RECORDS TABLE -->
+<div class="panel patient-records-panel">
+
+    <div class="panel-header">
+        <div>
+            <h3 class="panel-title">All Patients</h3>
+            <p class="panel-subtitle">
+                View and manage registered patient information
+            </p>
+        </div>
+    </div>
+
+    <form method="GET"
+          action="{{ url_for('patients') }}"
+          class="patient-search">
+
+        <i class="fas fa-search"></i>
+
+        <input type="text"
+               name="search"
+               value="{{ search_query|default('') }}"
+               placeholder="Search by patient name, ID or phone">
+
+        <button type="submit" class="btn btn-primary">
+            Search
+        </button>
+
+        <a href="{{ url_for('patients') }}"
+           class="btn btn-secondary">
+            Clear
+        </a>
+
+    </form>
+
+    <div class="table-wrapper">
+
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Patient Name</th>
+                    <th>Date of Birth</th>
+                    <th>Gender</th>
+                    <th>Blood Group</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for patient in patients %}
+
+                <tr>
+                    <td>#{{ patient.patient_id }}</td>
+
+                    <td>
+                        <strong>
+                            {{ patient.first_name }}
+                            {{ patient.last_name }}
+                        </strong>
+                    </td>
+
+                    <td>{{ patient.date_of_birth }}</td>
+
+                    <td>{{ patient.gender }}</td>
+
+                    <td>{{ patient.blood_group or '—' }}</td>
+
+                    <td>{{ patient.phone }}</td>
+
+                    <td>{{ patient.email or '—' }}</td>
+
+                    <td>
+                        <div class="patient-actions">
+
+                            <a href="{{ url_for('edit_patient', patient_id=patient.patient_id) }}"
+                               class="icon-action"
+                               title="Edit Patient">
+                                <i class="fas fa-edit"></i>
+                            </a>
+
+                            <form method="POST"
+                                  action="{{ url_for('delete_patient', patient_id=patient.patient_id) }}"
+                                  onsubmit="return confirm('Are you sure you want to delete this patient?');">
+
+                                <button type="submit"
+                                        class="icon-action delete"
+                                        title="Delete Patient">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i class="fas fa-user-injured"></i>
+                            <h3>No Patient Records Found</h3>
+                            <p>Register a new patient to see records here.</p>
+                        </div>
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.patient-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 20px;
+}
+
+.patient-address {
+    grid-column: 1 / -1;
+}
+
+.patient-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+}
+
+.patient-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: var(--beige-light);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.patient-search > i {
+    color: var(--text-secondary);
+}
+
+.patient-search input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 11px;
+}
+
+.patient-records-panel {
+    margin-top: 25px;
+}
+
+.patient-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.patient-actions form {
+    display: inline;
+}
+
+@media (max-width: 650px) {
+    .patient-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .patient-address {
+        grid-column: auto;
+    }
+
+    .patient-search {
+        flex-wrap: wrap;
+    }
+
+    .patient-search input {
+        flex-basis: 75%;
+    }
+}
+</style>
+{% endblock %}

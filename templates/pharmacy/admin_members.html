@@ -1,0 +1,282 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Pharmacy Admin Members | MEDIVERA{% endblock %}
+{% block breadcrumb %}Pharmacy / Admin Members{% endblock %}
+
+{% block extra_css %}
+<style>
+.ph-members {
+    --pm-bg: #17191d;
+    --pm-panel: #202329;
+    --pm-line: rgba(255,255,255,.09);
+    --pm-muted: #a1a6b0;
+    --pm-orange: #ff8a24;
+    color: #f5f5f6;
+}
+.pm-heading {
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap:18px; flex-wrap:wrap; margin-bottom:24px;
+}
+.pm-eyebrow {
+    color:var(--pm-orange); font-size:11px; font-weight:800;
+    letter-spacing:2px; text-transform:uppercase;
+}
+.pm-heading h1 { margin:7px 0; font-size:clamp(25px,3vw,34px); }
+.pm-heading p { margin:0; color:var(--pm-muted); max-width:680px; line-height:1.6; }
+.pm-badge {
+    display:inline-flex; align-items:center; gap:8px; padding:9px 13px;
+    border:1px solid rgba(255,138,36,.3); border-radius:30px;
+    color:#ffc080; background:rgba(255,138,36,.08); font-size:12px;
+    font-weight:700;
+}
+.pm-grid {
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:15px; margin-bottom:22px;
+}
+.pm-stat,.pm-panel {
+    background:linear-gradient(145deg,#24272d,#1b1e23);
+    border:1px solid var(--pm-line); border-radius:17px;
+    box-shadow:0 14px 35px rgba(0,0,0,.16);
+}
+.pm-stat { padding:19px; }
+.pm-stat span { display:block; color:var(--pm-muted); font-size:12px; }
+.pm-stat strong { display:block; margin-top:9px; font-size:29px; }
+.pm-stat small { color:var(--pm-orange); }
+.pm-layout {
+    display:grid; grid-template-columns:minmax(290px,.85fr) minmax(0,1.5fr);
+    gap:18px; align-items:start;
+}
+.pm-panel { padding:21px; min-width:0; }
+.pm-panel h2 { margin:0 0 7px; font-size:18px; }
+.pm-subtitle { color:var(--pm-muted); font-size:12px; line-height:1.5; margin:0 0 19px; }
+.pm-field { margin-bottom:14px; }
+.pm-field label {
+    display:block; margin-bottom:7px; color:#d6d8dc;
+    font-size:12px; font-weight:700;
+}
+.pm-field input,.pm-field select {
+    width:100%; box-sizing:border-box; min-height:43px; padding:10px 12px;
+    color:#f5f5f6; background:#15171b; border:1px solid #383d45;
+    border-radius:9px; outline:none; font:inherit;
+}
+.pm-field input:focus,.pm-field select:focus {
+    border-color:var(--pm-orange); box-shadow:0 0 0 3px rgba(255,138,36,.1);
+}
+.pm-field select option { background:#202329; }
+.pm-two { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+.pm-help { color:var(--pm-muted); font-size:11px; line-height:1.5; margin-top:6px; }
+.pm-button {
+    border:0; border-radius:9px; padding:12px 16px; font-weight:800;
+    cursor:pointer; font:inherit; transition:.2s;
+}
+.pm-primary { width:100%; color:#17191d; background:var(--pm-orange); }
+.pm-primary:hover { filter:brightness(1.1); transform:translateY(-1px); }
+.pm-table-wrap { overflow-x:auto; }
+.pm-table { width:100%; border-collapse:collapse; min-width:620px; }
+.pm-table th {
+    text-align:left; color:#9da3ad; font-size:10px; letter-spacing:1px;
+    text-transform:uppercase; padding:12px 10px; border-bottom:1px solid var(--pm-line);
+}
+.pm-table td {
+    padding:14px 10px; border-bottom:1px solid var(--pm-line);
+    font-size:12px; vertical-align:middle;
+}
+.pm-person { display:flex; align-items:center; gap:10px; min-width:150px; }
+.pm-avatar {
+    width:35px; height:35px; border-radius:11px; display:grid;
+    place-items:center; background:rgba(255,138,36,.14);
+    color:#ffb36e; font-weight:900;
+}
+.pm-person strong { display:block; font-size:12px; }
+.pm-person small,.pm-muted { display:block; color:var(--pm-muted); margin-top:4px; }
+.pm-status {
+    display:inline-block; padding:5px 9px; border-radius:30px;
+    font-size:10px; font-weight:800;
+}
+.pm-active { color:#83e0aa; background:rgba(39,174,96,.13); }
+.pm-inactive { color:#ff9a9a; background:rgba(231,76,60,.13); }
+.pm-action {
+    padding:7px 10px; border-radius:7px; border:1px solid var(--pm-line);
+    background:#292d34; color:#f4f4f4; font-size:11px; font-weight:800; cursor:pointer;
+}
+.pm-action:hover { border-color:var(--pm-orange); }
+.pm-empty {
+    text-align:center; padding:35px 15px; color:var(--pm-muted);
+}
+.pm-empty strong { display:block; color:#f3f3f3; margin-bottom:7px; }
+.pm-security {
+    margin-top:15px; padding:13px; border-radius:10px;
+    background:rgba(39,174,96,.07); border:1px solid rgba(39,174,96,.18);
+    color:#a9dfbf; font-size:11px; line-height:1.6;
+}
+@media(max-width:1050px) {
+    .pm-layout { grid-template-columns:1fr; }
+}
+@media(max-width:650px) {
+    .pm-grid { grid-template-columns:1fr; }
+    .pm-two { grid-template-columns:1fr; gap:0; }
+    .pm-panel { padding:16px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ph-members">
+
+    <div class="pm-heading">
+        <div>
+            <div class="pm-eyebrow">Super Admin Control Centre</div>
+            <h1>Pharmacy Admin Members</h1>
+            <p>Create and manage dedicated Pharmacy Admin accounts. All assignments are recorded against your existing MEDIVERA role and staff records.</p>
+        </div>
+        <span class="pm-badge">? Super Admin access</span>
+    </div>
+
+    <div class="pm-grid">
+        <div class="pm-stat">
+            <span>Total Pharmacy Admin Members</span>
+            <strong>{{ total_members }}</strong>
+            <small>Registered accounts</small>
+        </div>
+        <div class="pm-stat">
+            <span>Active Members</span>
+            <strong>{{ active_count }}</strong>
+            <small>Can sign in</small>
+        </div>
+        <div class="pm-stat">
+            <span>Inactive Members</span>
+            <strong>{{ inactive_count }}</strong>
+            <small>Access disabled</small>
+        </div>
+    </div>
+
+    <div class="pm-layout">
+
+        <section class="pm-panel">
+            <h2>Create Pharmacy Admin</h2>
+            <p class="pm-subtitle">Create a login account and linked staff profile. Use the member's real details.</p>
+
+            <form method="post" action="{{ url_for('pharmacy.create_admin_member') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="pm-field">
+                    <label for="staff_name">Full staff name *</label>
+                    <input id="staff_name" name="staff_name" maxlength="100" required autocomplete="name" placeholder="Enter real full name">
+                </div>
+
+                <div class="pm-two">
+                    <div class="pm-field">
+                        <label for="username">Username *</label>
+                        <input id="username" name="username" maxlength="50" required autocomplete="username" placeholder="Login username">
+                    </div>
+                    <div class="pm-field">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender">
+                            <option value="">Prefer not to specify</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pm-field">
+                    <label for="email">Email address *</label>
+                    <input id="email" name="email" type="email" maxlength="100" required autocomplete="email" placeholder="member@hospital.com">
+                </div>
+
+                <div class="pm-field">
+                    <label for="phone">Phone number</label>
+                    <input id="phone" name="phone" type="tel" maxlength="15" autocomplete="tel" placeholder="Optional phone number">
+                </div>
+
+                <div class="pm-field">
+                    <label for="password">Temporary login password *</label>
+                    <input id="password" name="password" type="password" minlength="12" required autocomplete="new-password" placeholder="At least 12 characters">
+                    <div class="pm-help">Use a strong, unique password and share it securely with the member.</div>
+                </div>
+
+                <div class="pm-field">
+                    <label for="confirm_password">Confirm password *</label>
+                    <input id="confirm_password" name="confirm_password" type="password" minlength="12" required autocomplete="new-password" placeholder="Re-enter password">
+                </div>
+
+                <button class="pm-button pm-primary" type="submit">? Create Pharmacy Admin Account</button>
+            </form>
+
+            <div class="pm-security">
+                <strong>Security and audit protection</strong><br>
+                Passwords are securely hashed. Account creation, staff association and role assignment are committed together. No existing account is overwritten.
+            </div>
+        </section>
+
+        <section class="pm-panel">
+            <h2>Pharmacy Admin Directory</h2>
+            <p class="pm-subtitle">Review membership, linked staff profiles and account access.</p>
+
+            <div class="pm-table-wrap">
+                <table class="pm-table">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Contact</th>
+                            <th>Account</th>
+                            <th>Staff ID</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for member in members %}
+                        <tr>
+                            <td>
+                                <div class="pm-person">
+                                    <span class="pm-avatar">{{ (member.staff_name or member.username or 'P')[:1]|upper }}</span>
+                                    <span>
+                                        <strong>{{ member.staff_name or member.username }}</strong>
+                                        <small>@{{ member.username }}</small>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                {{ member.email or '?' }}
+                                <small class="pm-muted">{{ member.phone or 'No phone recorded' }}</small>
+                            </td>
+                            <td>
+                                {% if member.is_active %}
+                                    <span class="pm-status pm-active">ACTIVE</span>
+                                {% else %}
+                                    <span class="pm-status pm-inactive">INACTIVE</span>
+                                {% endif %}
+                                <small class="pm-muted">{{ member.designation or 'Pharmacy Administrator' }}</small>
+                            </td>
+                            <td>{{ member.staff_id or '?' }}</td>
+                            <td>
+                                <form method="post" action="{{ url_for('pharmacy.toggle_admin_member', user_id=member.user_id) }}"
+                                      onsubmit="return confirm('Are you sure you want to change this member account status?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    {% if member.is_active %}
+                                        <button class="pm-action" type="submit">Deactivate</button>
+                                    {% else %}
+                                        <button class="pm-action" type="submit">Activate</button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5">
+                                <div class="pm-empty">
+                                    <strong>No Pharmacy Admin members yet</strong>
+                                    Create the first member using the form on the left.
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+</div>
+{% endblock %}

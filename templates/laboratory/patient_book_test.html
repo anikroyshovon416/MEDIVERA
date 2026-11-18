@@ -1,0 +1,761 @@
+﻿<style id="medivera-lab-orange-theme">
+/* MEDIVERA Diagnostic Booking — Charcoal & Orange Theme */
+:root {
+    --lab-bg: #111318;
+    --lab-surface: #1b1e25;
+    --lab-surface-2: #232731;
+    --lab-orange: #ff8a24;
+    --lab-orange-light: #ffad59;
+    --lab-white: #f7f8fa;
+    --lab-muted: #aeb4c0;
+    --lab-border: rgba(255,255,255,.09);
+}
+
+body {
+    background:
+        radial-gradient(ellipse at 12% 5%, rgba(255,138,36,.13), transparent 35%),
+        radial-gradient(ellipse at 90% 35%, rgba(255,138,36,.07), transparent 32%),
+        linear-gradient(135deg, #111318 0%, #191b21 55%, #111318 100%) !important;
+    color: var(--lab-white) !important;
+}
+
+.patient-portal-body,
+main,
+.container,
+.container-fluid {
+    background-color: transparent !important;
+}
+
+.lab-page,
+.lab-booking-page,
+.lab-container {
+    color: var(--lab-white);
+}
+
+.lab-test-option,
+.lab-test-card,
+.test-card,
+.lab-card,
+.booking-card,
+.booking-summary,
+.lab-filter-card {
+    background: linear-gradient(145deg, #242832, #1a1d24) !important;
+    color: var(--lab-white) !important;
+    border: 1px solid var(--lab-border) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 28px rgba(0,0,0,.22);
+}
+
+.lab-test-option:hover,
+.lab-test-card:hover,
+.test-card:hover {
+    border-color: rgba(255,138,36,.65) !important;
+    box-shadow: 0 12px 30px rgba(255,138,36,.10);
+    transform: translateY(-2px);
+}
+
+h1, h2, h3, h4, h5,
+.page-title,
+.section-title {
+    color: var(--lab-white) !important;
+}
+
+p, label, .form-label {
+    color: #d7dbe2;
+}
+
+small, .text-muted, .muted {
+    color: var(--lab-muted) !important;
+}
+
+input:not([type="checkbox"]),
+select,
+textarea {
+    background-color: #171a21 !important;
+    color: #f7f8fa !important;
+    border: 1px solid #3b414d !important;
+    border-radius: 10px !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #9299a6 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--lab-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255,138,36,.15) !important;
+    outline: none;
+}
+
+select option {
+    background: #1b1e25;
+    color: #fff;
+}
+
+input[type="checkbox"] {
+    accent-color: var(--lab-orange);
+}
+
+button,
+.btn-primary,
+input[type="submit"] {
+    background: linear-gradient(135deg, #ff9b38, #f47716) !important;
+    color: #171717 !important;
+    border: none !important;
+    font-weight: 750 !important;
+    border-radius: 10px !important;
+}
+
+button:hover,
+.btn-primary:hover,
+input[type="submit"]:hover {
+    background: linear-gradient(135deg, #ffb15f, #ff8a24) !important;
+    color: #111 !important;
+}
+
+.btn-outline-primary,
+.btn-outline-secondary {
+    color: var(--lab-orange-light) !important;
+    border: 1px solid var(--lab-orange) !important;
+    background: transparent !important;
+}
+
+hr {
+    border-color: var(--lab-border) !important;
+}
+
+.badge,
+.category-badge {
+    background: rgba(255,138,36,.15) !important;
+    color: #ffb15f !important;
+    border: 1px solid rgba(255,138,36,.25);
+}
+
+.lab-test-option [hidden] {
+    display: none !important;
+}
+
+.lab-test-option[hidden] {
+    display: none !important;
+}
+
+a {
+    color: var(--lab-orange-light);
+}
+
+a:hover {
+    color: #ffc17e;
+}
+
+@media (max-width: 768px) {
+    .lab-test-option,
+    .lab-test-card,
+    .booking-summary {
+        border-radius: 13px !important;
+    }
+}
+</style>
+{% extends "base.html" %}
+
+{% block title %}Book Laboratory Tests | MEDIVERA{% endblock %}
+{% block breadcrumb %}Book Laboratory Tests{% endblock %}
+{% block body_class %}patient-portal-body{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/laboratory.css') }}">
+
+<style>
+.lab-booking {
+    max-width: 1120px;
+    margin: 25px auto;
+    padding: 0 12px 35px;
+    color: #f5f5f5;
+}
+
+.lab-booking-header {
+    background: linear-gradient(125deg,#292d35,#17191d);
+    border: 1px solid #414650;
+    border-radius: 22px;
+    padding: 30px;
+    margin-bottom: 24px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.20);
+}
+
+.lab-eyebrow {
+    color: #ff9a3d;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.lab-booking-header h1 {
+    margin: 0 0 10px;
+    font-size: clamp(25px,4vw,34px);
+}
+
+.lab-booking-header p,
+.lab-muted {
+    color: #b9bdc6;
+    line-height: 1.7;
+}
+
+.lab-back {
+    display: inline-block;
+    margin-top: 12px;
+    color: #ffad61;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.lab-panel {
+    background: #202329;
+    border: 1px solid #393d45;
+    border-radius: 19px;
+    padding: 23px;
+    margin-bottom: 22px;
+}
+
+.lab-panel h2 {
+    margin: 0 0 12px;
+    font-size: 19px;
+}
+
+.lab-section-number {
+    color: #ff9a3d;
+    margin-right: 8px;
+}
+
+.lab-search-tools {
+    display: grid;
+    grid-template-columns: minmax(0,2fr) minmax(180px,1fr);
+    gap: 13px;
+    margin: 22px 0;
+}
+
+.lab-search-box {
+    position: relative;
+}
+
+.lab-search-box input,
+.lab-category-select,
+.lab-booking select,
+.lab-booking input[type="datetime-local"] {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #454a54;
+    border-radius: 11px;
+    background: #292d35;
+    color: white;
+    outline: none;
+}
+
+.lab-search-box input:focus,
+.lab-category-select:focus,
+.lab-booking select:focus,
+.lab-booking input:focus {
+    border-color: #ff8a24;
+    box-shadow: 0 0 0 3px rgba(255,138,36,.12);
+}
+
+.lab-filter-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: #aeb3bd;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.lab-test-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 17px;
+    margin: 12px 0;
+    border: 1px solid #41454e;
+    border-radius: 14px;
+    background: #282c33;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.lab-test-option[hidden] { display: none !important; }
+.lab-test-option:hover {
+    border-color: #ff8a24;
+    transform: translateY(-2px);
+}
+
+.lab-test-option:has(input:checked) {
+    border-color: #ff8a24;
+    background: #332a22;
+}
+
+.lab-test-option input {
+    width: 19px;
+    height: 19px;
+    accent-color: #ff8a24;
+    flex-shrink: 0;
+}
+
+.lab-test-name {
+    font-weight: 800;
+    color: #fff;
+}
+
+.lab-test-description {
+    color: #adb2bc;
+    font-size: 13px;
+    margin-top: 6px;
+    line-height: 1.6;
+}
+
+.lab-category-tag {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 9px;
+    border-radius: 20px;
+    color: #ffbd82;
+    background: rgba(255,138,36,.12);
+    border: 1px solid rgba(255,138,36,.25);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.lab-price {
+    color: #ff9a3d;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.lab-empty {
+    color: #c0c4cc;
+    text-align: center;
+    padding: 35px 15px;
+    border: 1px dashed #4b505a;
+    border-radius: 14px;
+}
+
+.lab-booking label.form-label {
+    display: block;
+    margin: 16px 0 8px;
+    font-weight: 700;
+}
+
+.lab-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 17px;
+    border-radius: 12px;
+    background: #302820;
+    color: #ffad61;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 14px 0;
+}
+
+.lab-submit {
+    width: 100%;
+    padding: 16px;
+    background: #ff8a24;
+    color: #17191d;
+    font-size: 16px;
+    font-weight: 900;
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.lab-submit:hover {
+    background: #ffa34f;
+    transform: translateY(-1px);
+}
+
+.lab-submit:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.lab-reset {
+    border: 1px solid #555b66;
+    color: #ddd;
+    background: transparent;
+    padding: 8px 13px;
+    border-radius: 9px;
+    cursor: pointer;
+}
+
+.lab-reset:hover {
+    border-color: #ff8a24;
+    color: #ffad61;
+}
+
+.lab-flash {
+    padding: 14px 17px;
+    border-radius: 11px;
+    margin-bottom: 12px;
+    background: #302820;
+    border: 1px solid #72502e;
+    color: #ffcb9d;
+}
+
+@media(max-width:650px) {
+    .lab-search-tools {
+        grid-template-columns: 1fr;
+    }
+
+    .lab-panel {
+        padding: 17px;
+    }
+
+    .lab-test-option {
+        align-items: flex-start;
+    }
+
+    .lab-price {
+        font-size: 13px;
+    }
+
+    .lab-booking-header {
+        padding: 22px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lab-booking">
+
+    <header class="lab-booking-header">
+        <div class="lab-eyebrow">
+            MEDIVERA Â· CONNECTED HEALTHCARE
+        </div>
+
+        <h1>Book Laboratory Tests</h1>
+
+        <p>
+            Discover diagnostic tests, search the catalogue,
+            select your tests and submit your preferred date.
+        </p>
+
+        <a href="{{ url_for('laboratory.patient_lab_tests') }}"
+           class="lab-back">
+            â† Back to My Laboratory Tests
+        </a>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="lab-flash">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST"
+          action="{{ url_for('laboratory.patient_book_lab_tests') }}">
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token() }}">
+
+        <section class="lab-panel">
+
+            <h2>
+                <span class="lab-section-number">01 Â·</span>
+                Explore Test Catalogue
+            </h2>
+
+            <p class="lab-muted">
+                Search by test name or description, or filter
+                the available tests by medical category.
+            </p>
+
+            <div class="lab-search-tools">
+
+                <div class="lab-search-box">
+                    <input type="search"
+                           id="lab-test-search"
+                           placeholder="Search tests, e.g. Blood Sugar, Thyroid..."
+                           autocomplete="off"
+                           aria-label="Search laboratory tests">
+                </div>
+
+                <select id="lab-category-filter"
+                        class="lab-category-select"
+                        aria-label="Filter by category">
+
+                    <option value="">All Categories</option>
+
+                </select>
+
+            </div>
+
+            <div class="lab-filter-meta">
+                <span id="lab-result-count">
+                    {{ catalogue|length }} tests available
+                </span>
+
+                <button type="button"
+                        class="lab-reset"
+                        id="lab-reset-filters">
+                    Reset filters
+                </button>
+            </div>
+
+            {% if catalogue %}
+                <div id="lab-test-list">
+
+                    {% for test in catalogue %}
+                    <label class="lab-test-option"
+                           data-category="{{ (test.test_category or 'Other')|trim|lower }}"
+                           data-search="{{ (test.test_name ~ ' ' ~ (test.description or '') ~ ' ' ~ (test.preparation_instructions or '') ~ ' ' ~ (test.test_category or ''))|lower }}">
+
+                        <div style="display:flex;align-items:flex-start;gap:13px;min-width:0;">
+
+                            <input type="checkbox"
+                                   name="catalogue_ids"
+                                   value="{{ test.catalogue_id }}"
+                                   class="lab-test-checkbox"
+                                   data-price="{{ test.default_charge }}"
+                                   aria-label="Select {{ test.test_name }}">
+
+                            <div>
+                                <div class="lab-test-name">
+                                    {{ test.test_name }}
+                                </div>
+
+                                <div class="lab-test-description">
+                                    {{ test.description or 'Diagnostic laboratory test' }}
+                                </div>
+
+                                {% if test.preparation_instructions %}
+                                <div class="lab-test-description">
+                                    Preparation: {{ test.preparation_instructions }}
+                                </div>
+                                {% endif %}
+
+                                <span class="lab-category-tag">
+                                    {{ test.test_category or 'Other' }}
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="lab-price">
+                            {% if test.default_charge|float > 0 %}
+                        â‚¹{{ "%.2f"|format(test.default_charge|float) }}
+                    {% else %}
+                        Price to be confirmed
+                    {% endif %}
+                        </div>
+
+                    </label>
+                    {% endfor %}
+
+                </div>
+
+                <div class="lab-empty"
+                     id="lab-no-results"
+                     hidden>
+                    <strong>No matching tests found.</strong>
+                    <p>Try another search term or choose a different category.</p>
+                </div>
+
+            {% else %}
+
+                <div class="lab-empty">
+                    No active laboratory tests are currently available.
+                    Please contact the hospital laboratory.
+                </div>
+
+            {% endif %}
+
+        </section>
+
+        <section class="lab-panel">
+
+            <h2>
+                <span class="lab-section-number">02 Â·</span>
+                Doctor Selection
+            </h2>
+
+            <label class="form-label" for="doctor_id">
+                Select Responsible Doctor
+            </label>
+
+            <select id="doctor_id" name="doctor_id" required>
+                <option value="">Choose a doctor</option>
+
+                {% for doctor in doctors %}
+                <option value="{{ doctor.doctor_id }}">
+                    {{ doctor.doctor_name }}
+                    â€” {{ doctor.specialization or 'General' }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <h2 style="margin-top:20px;">
+                <span class="lab-section-number">03 Â·</span>
+                Preferred Date and Time
+            </h2>
+
+            <label class="form-label" for="test_date">
+                Preferred Test Date and Time
+            </label>
+
+            <input type="datetime-local"
+                   id="test_date"
+                   name="test_date"
+                   required>
+
+            <p class="lab-muted" style="font-size:13px;">
+                This is your requested date and time.
+                The hospital must confirm the actual appointment separately.
+            </p>
+
+        </section>
+
+        <section class="lab-panel">
+
+            <h2>
+                <span class="lab-section-number">04 Â·</span>
+                Booking Summary
+            </h2>
+
+            <div class="lab-total">
+                <span>Selected Tests</span>
+                <span id="selected-count">0</span>
+            </div>
+
+            <div class="lab-total">
+                <span>Estimated Total</span>
+                <span id="selected-total">â‚¹0.00</span>
+            </div>
+
+            <button type="submit"
+                    class="lab-submit"
+                    id="lab-submit"
+                    {% if not catalogue or not doctors %}disabled{% endif %}>
+                Submit Laboratory Booking â†’
+            </button>
+
+        </section>
+
+    </form>
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    const searchInput = document.getElementById("lab-test-search");
+    const categoryFilter = document.getElementById("lab-category-filter");
+    const testList = document.getElementById("lab-test-list");
+    const resultCount = document.getElementById("lab-result-count");
+    const noResults = document.getElementById("lab-no-results");
+    const resetButton = document.getElementById("lab-reset-filters");
+
+    const checkboxes = document.querySelectorAll(".lab-test-checkbox");
+    const count = document.getElementById("selected-count");
+    const total = document.getElementById("selected-total");
+
+    const cards = testList
+        ? Array.from(testList.querySelectorAll(".lab-test-option"))
+        : [];
+
+    // Build category choices from actual database records.
+    const categories = [...new Set(
+        cards.map(card => card.dataset.category || "other")
+    )].sort();
+
+    categories.forEach(category => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category
+            .split(" ")
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+
+        categoryFilter.appendChild(option);
+    });
+
+    function filterTests() {
+        const term = searchInput.value.trim().toLowerCase();
+        const category = categoryFilter.value;
+
+        let visible = 0;
+
+        cards.forEach(card => {
+            const matchesSearch =
+                !term || (card.dataset.search || "").includes(term);
+
+            const matchesCategory =
+                !category || card.dataset.category === category;
+
+            const show = matchesSearch && matchesCategory;
+
+            card.hidden = !show;
+
+            if (show) visible++;
+        });
+
+        resultCount.textContent =
+            visible + (visible === 1 ? " test found" : " tests found");
+
+        noResults.hidden = visible !== 0;
+    }
+
+    function updateSummary() {
+        let selected = 0;
+        let amount = 0;
+
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selected++;
+                amount += Number(checkbox.dataset.price || 0);
+            }
+        });
+
+        count.textContent = selected;
+        total.textContent = "â‚¹" + amount.toFixed(2);
+    }
+
+    searchInput.addEventListener("input", filterTests);
+    categoryFilter.addEventListener("change", filterTests);
+
+    resetButton.addEventListener("click", function () {
+        searchInput.value = "";
+        categoryFilter.value = "";
+        filterTests();
+        searchInput.focus();
+    });
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener("change", updateSummary);
+    });
+
+    const dateInput = document.getElementById("test_date");
+
+    if (dateInput) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        dateInput.min = now.toISOString().slice(0, 16);
+    }
+
+    filterTests();
+    updateSummary();
+
+})();
+</script>
+{% endblock %}
+

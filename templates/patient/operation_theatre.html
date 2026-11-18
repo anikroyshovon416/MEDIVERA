@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Operation Theatre | MEDIVERA{% endblock %}
+{% block breadcrumb %}Operation Theatre{% endblock %}
+{% block body_class %}patient-portal-body{% endblock %}
+
+{% block extra_css %}
+<style>
+.ot-page{max-width:1450px;margin:0 auto;color:#f4f5f7}.ot-back{display:inline-block;margin:0 0 14px;color:#ffb17f;text-decoration:none;font-size:12px}
+.ot-hero{padding:26px 28px;border:1px solid rgba(244,119,33,.3);border-radius:18px;background:radial-gradient(circle at 90% 8%,rgba(244,119,33,.18),transparent 35%),linear-gradient(135deg,#292d34,#191c21);box-shadow:0 14px 32px #0002}
+.ot-kicker{color:#ffb17f;font-size:10px;font-weight:800;letter-spacing:1.4px}.ot-hero h1{margin:8px 0;color:#fff;font-size:26px}.ot-hero p{max-width:850px;margin:0;color:#b8c0cb;font-size:12px;line-height:1.8}
+.ot-info{margin-top:14px;padding:12px 14px;border:1px solid #755a2d;border-radius:10px;background:#332a1d;color:#f3d49c;font-size:11px;line-height:1.7}
+.ot-panel{margin-top:18px;padding:22px;border:1px solid #363c45;border-radius:16px;background:linear-gradient(145deg,#252a31,#1b1e23);box-shadow:0 9px 24px #0002}.ot-panel h2{margin:0 0 5px;color:#fff;font-size:17px}.ot-sub{margin:0 0 18px;color:#aeb6c1;font-size:11px;line-height:1.6}
+.ot-section{margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid #3b414a;color:#ffbd91;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.ot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.ot-field{display:flex;flex-direction:column;gap:7px}.ot-field.full{grid-column:1/-1}.ot-field label{color:#e9edf2;font-size:11px;font-weight:700}.ot-field small{color:#929daa;font-size:10px;line-height:1.5}
+.ot-field input,.ot-field select,.ot-field textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid #414852;border-radius:9px;background:#111419;color:#f5f6f8;font:inherit;font-size:12px}.ot-field textarea{min-height:95px;resize:vertical}.ot-actions{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap}.ot-button{display:inline-flex;align-items:center;justify-content:center;padding:12px 19px;border:0;border-radius:9px;background:linear-gradient(135deg,#ffa34d,#e87520);color:#17191d;font-weight:800;font-size:11px;text-decoration:none;cursor:pointer}.ot-table-wrap{overflow-x:auto} .ot-table{width:100%;border-collapse:collapse;min-width:760px}.ot-table th,.ot-table td{padding:12px 10px;border-bottom:1px solid #373d46;text-align:left;vertical-align:top;font-size:11px}.ot-table th{color:#ffbd91;font-size:10px;text-transform:uppercase;letter-spacing:.6px}.ot-table td{color:#e8ebef}.ot-status{display:inline-block;padding:5px 9px;border-radius:20px;background:#343b45;color:#e7eaf0;font-size:9px;font-weight:800}.ot-status.pending,.ot-status.under-review,.ot-status.changes-requested{background:#58451f;color:#f3cf7a}.ot-status.approved{background:#164c3b;color:#7ce0b6}.ot-status.rejected,.ot-status.cancelled{background:#572d32;color:#ff9ba2}.ot-empty{padding:24px;text-align:center;color:#aeb6c1;font-size:12px}
+@media(max-width:700px){.ot-grid{grid-template-columns:1fr}.ot-field.full{grid-column:auto}.ot-hero{padding:20px}.ot-panel{padding:16px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ot-page">
+  <a class="ot-back" href="{{ url_for('patient.dashboard') }}">← Back to patient dashboard</a>
+  <section class="ot-hero">
+    <div class="ot-kicker">SPECIALISED SURGICAL CARE</div>
+    <h1>Operation Theatre & Surgical Requests</h1>
+    <p>Choose the surgical specialty and the kind of assistance you need. Your submission will be sent to the hospital team for clinical and administrative review. The hospital will confirm the appropriate surgeon, theatre, date and preparation instructions.</p>
+    <div class="ot-info"><strong>Important:</strong> This portal is for planned or non-emergency requests. If you have severe pain, heavy bleeding, breathing difficulty or another emergency, contact the hospital emergency department immediately. Do not wait for an online request to be reviewed.</div>
+  </section>
+
+  <section class="ot-panel">
+    <h2>Submit a structured request</h2>
+    <p class="ot-sub">Please provide the information you know. A request is not a confirmed operation booking or medical approval.</p>
+    <form method="post" class="ot-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="ot-section ot-field full">01 · Request classification</div>
+      <div class="ot-field"><label for="request_kind">What do you need? *</label>
+        <select id="request_kind" name="request_kind" required>
+          <option value="">Select request type</option>
+          <option>New surgery / procedure consultation</option><option>Pre-operative assessment</option><option>Surgery scheduling request</option><option>Second opinion for a proposed surgery</option><option>Post-operative follow-up</option><option>Operation theatre related assistance</option>
+        </select>
+      </div>
+      <div class="ot-field"><label for="specialty">Surgical specialty / department *</label>
+        <select id="specialty" name="specialty" required>
+          <option value="">Select specialty</option>
+          <option>General & Laparoscopic Surgery</option><option>Orthopaedics & Joint Replacement</option><option>Neurosurgery</option><option>Cardiothoracic & Vascular Surgery</option><option>Cardiac Surgery</option><option>Urology</option><option>Obstetrics & Gynaecology</option><option>ENT / Head & Neck Surgery</option><option>Ophthalmology</option><option>Plastic & Reconstructive Surgery</option><option>Paediatric Surgery</option><option>Gastrointestinal / GI Surgery</option><option>Onco-Surgery</option><option>Dental & Maxillofacial Surgery</option><option>Other / Not sure</option>
+        </select>
+      </div>
+      <div class="ot-field"><label for="procedure_name">Procedure / operation name</label><input id="procedure_name" name="procedure_name" maxlength="180" placeholder="Enter if known; otherwise leave blank"><small>If you are unsure, the treating doctor can determine the appropriate procedure.</small></div>
+      <div class="ot-field"><label for="urgency">Requested priority *</label>
+        <select id="urgency" name="urgency" required><option value="">Select priority</option><option>Routine / Elective</option><option>Time-sensitive (doctor advised)</option><option>Priority review requested</option></select>
+      </div>
+
+      <div class="ot-section ot-field full">02 · Clinical and referral information</div>
+      <div class="ot-field"><label for="referring_doctor">Referring / treating doctor</label><input id="referring_doctor" name="referring_doctor" maxlength="150" placeholder="Doctor's name, if known"></div>
+      <div class="ot-field"><label for="preferred_date">Preferred consultation / review date</label><input id="preferred_date" name="preferred_date" type="date" min="{{ min_date }}"><small>This is a preference only; the hospital will confirm availability.</small></div>
+      <div class="ot-field full"><label for="diagnosis">Diagnosis or reason for the request *</label><textarea id="diagnosis" name="diagnosis" maxlength="1500" required placeholder="Describe the condition, symptoms, diagnosis or reason your doctor discussed surgery."></textarea></div>
+      <div class="ot-field full"><label for="clinical_notes">Relevant medical details</label><textarea id="clinical_notes" name="clinical_notes" maxlength="2000" placeholder="Mention relevant medical history, previous operations, allergies, current medicines or other information the clinical team should know."></textarea></div>
+
+      <div class="ot-section ot-field full">03 · Contact and supporting information</div>
+      <div class="ot-field"><label for="contact_phone">Preferred contact number</label><input id="contact_phone" name="contact_phone" maxlength="20" placeholder="Phone number for coordination"></div>
+      <div class="ot-field"><label for="supporting_documents">Supporting documents</label><input id="supporting_documents" type="text" value="Upload reports from Patient Dashboard → Medical Documents" readonly><small>For safety and compatibility, attach existing reports through the Medical Documents section. Mention the report names in the notes if useful.</small></div>
+      <div class="ot-field full"><label for="additional_notes">Additional request / questions</label><textarea id="additional_notes" name="additional_notes" maxlength="1500" placeholder="Any other information or question for the operation theatre coordination team."></textarea></div>
+      <div class="ot-field full"><label style="display:flex;gap:9px;align-items:flex-start;font-weight:500"><input type="checkbox" name="confirmation" value="yes" required style="width:auto;margin-top:2px"> I understand that this is a request for review, not a confirmed surgery date, theatre booking or medical advice.</label></div>
+      <div class="ot-field full ot-actions"><button class="ot-button" type="submit">Submit surgical request →</button></div>
+    </form>
+  </section>
+
+  <section class="ot-panel">
+    <h2>My surgical requests</h2><p class="ot-sub">Track requests you have submitted and review any administrative response.</p>
+    {% if requests_list %}<div class="ot-table-wrap"><table class="ot-table"><thead><tr><th>Request ID / Details</th><th>Submitted</th><th>Status</th><th>Hospital response</th></tr></thead><tbody>
+    {% for item in requests_list %}<tr><td><strong>#{{ item.request_id }} · {{ item.request_title }}</strong><br><span style="color:#aeb6c1;white-space:pre-line">{{ item.request_description }}</span></td><td>{{ item.submitted_at }}</td><td><span class="ot-status {{ item.status|lower|replace(' ','-') }}">{{ item.status }}</span></td><td>{{ item.admin_suggestion or item.admin_remarks or 'Awaiting hospital review' }}</td></tr>{% endfor %}
+    </tbody></table></div>{% else %}<div class="ot-empty">You have not submitted a surgical request yet.</div>{% endif %}
+  </section>
+</div>
+{% endblock %}

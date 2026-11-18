@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Room | MediCare+{% endblock %}
+
+{% block breadcrumb %}Hospital Management / Rooms / Edit{% endblock %}
+
+{% block page_heading %}Edit Room{% endblock %}
+
+{% block page_subtitle %}
+Update room information, charges and availability.
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-room-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .edit-room-panel {
+        background: #fff;
+        border: 1px solid #e9e2d8;
+        border-radius: 14px;
+        padding: 28px;
+    }
+
+    .edit-room-panel h3 {
+        color: #542c37;
+        font-size: 19px;
+        margin: 0 0 22px;
+    }
+
+    .edit-room-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .edit-room-field {
+        margin-bottom: 17px;
+    }
+
+    .edit-room-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .edit-room-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #514747;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .edit-room-field .form-control {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .edit-room-buttons {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    .edit-room-buttons .btn {
+        min-width: 140px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .edit-room-note {
+        background: #f7f3ed;
+        border-left: 4px solid #754653;
+        padding: 12px 15px;
+        margin-bottom: 22px;
+        border-radius: 5px;
+        color: #665b55;
+        font-size: 13px;
+    }
+
+    .edit-room-cancel {
+        background: #eee8dc;
+        color: #594334;
+    }
+
+    @media (max-width: 650px) {
+        .edit-room-grid {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .edit-room-field.full-width {
+            grid-column: auto;
+        }
+
+        .edit-room-panel {
+            padding: 18px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="edit-room-container">
+
+    <section class="edit-room-panel">
+
+        <h3>Room Information — #{{ room.room_id }}</h3>
+
+        <div class="edit-room-note">
+            Update the room details below. A room with an active patient
+            admission must remain marked as Occupied.
+        </div>
+
+
+        <form
+            action="{{ url_for('edit_room', room_id=room.room_id) }}"
+            method="POST"
+        >
+
+            <div class="edit-room-grid">
+
+                <!-- ROOM NUMBER -->
+                <div class="edit-room-field">
+
+                    <label for="room_number">Room Number *</label>
+
+                    <input
+                        type="text"
+                        name="room_number"
+                        id="room_number"
+                        class="form-control"
+                        value="{{ room.room_number }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- ROOM TYPE -->
+                <div class="edit-room-field">
+
+                    <label for="room_type">Room Type *</label>
+
+                    <input
+                        type="text"
+                        name="room_type"
+                        id="room_type"
+                        class="form-control"
+                        value="{{ room.room_type }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- FLOOR -->
+                <div class="edit-room-field">
+
+                    <label for="floor_number">Floor Number *</label>
+
+                    <input
+                        type="number"
+                        name="floor_number"
+                        id="floor_number"
+                        class="form-control"
+                        min="0"
+                        value="{{ room.floor_number }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- DAILY CHARGE -->
+                <div class="edit-room-field">
+
+                    <label for="daily_charge">Daily Charge (₹) *</label>
+
+                    <input
+                        type="number"
+                        name="daily_charge"
+                        id="daily_charge"
+                        class="form-control"
+                        min="0"
+                        step="0.01"
+                        value="{{ room.daily_charge }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- STATUS -->
+                <div class="edit-room-field full-width">
+
+                    <label for="room_status">Room Status *</label>
+
+                    <select
+                        name="room_status"
+                        id="room_status"
+                        class="form-control"
+                        required
+                    >
+
+                        <option
+                            value="available"
+                            {% if room.room_status == 'available' %}selected{% endif %}
+                        >
+                            Available
+                        </option>
+
+                        <option
+                            value="occupied"
+                            {% if room.room_status == 'occupied' %}selected{% endif %}
+                        >
+                            Occupied
+                        </option>
+
+                        <option
+                            value="maintenance"
+                            {% if room.room_status == 'maintenance' %}selected{% endif %}
+                        >
+                            Under Maintenance
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="edit-room-buttons">
+
+                <button type="submit" class="btn">
+                    Save Changes
+                </button>
+
+                <a
+                    href="{{ url_for('rooms') }}"
+                    class="btn edit-room-cancel"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

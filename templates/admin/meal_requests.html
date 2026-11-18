@@ -1,0 +1,117 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Meal Requests | MEDIVERA{% endblock %}
+{% block breadcrumb %}Meal Requests{% endblock %}
+
+{% block extra_css %}
+<style>
+.meal-requests-page { color:#f5f5f5; }
+.meal-requests-head { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:22px; }
+.meal-requests-head h1 { margin:0; font-size:26px; }
+.meal-requests-head p { color:#aeb2bc; margin:7px 0 0; }
+.meal-filter { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+.meal-filter select { background:#202329; color:#fff; border:1px solid #454a55; border-radius:9px; padding:10px; }
+.meal-filter button { background:#f28c28; color:#17191d; border:0; border-radius:9px; padding:10px 16px; font-weight:750; cursor:pointer; }
+.meal-requests-panel { background:#202329; border:1px solid #393d46; border-radius:15px; padding:18px; overflow:hidden; }
+.meal-requests-table-wrap { overflow-x:auto; }
+.meal-requests-table { width:100%; min-width:850px; border-collapse:collapse; }
+.meal-requests-table th { text-align:left; color:#aeb2bc; font-size:12px; text-transform:uppercase; padding:12px; border-bottom:1px solid #3c414b; }
+.meal-requests-table td { padding:13px 12px; border-bottom:1px solid #353a43; font-size:13px; vertical-align:top; }
+.meal-status { display:inline-block; border-radius:30px; padding:5px 9px; background:#373c46; font-weight:700; font-size:11px; }
+.meal-status.Requested { color:#ffce79; background:#49391e; }
+.meal-status.Accepted { color:#8dc7ff; background:#1e3850; }
+.meal-status.Prepared { color:#d0b0ff; background:#3c2c51; }
+.meal-status.Delivered { color:#83e3a4; background:#1d422d; }
+.meal-status.Rejected,.meal-status.Cancelled { color:#ff9da3; background:#4a2528; }
+.meal-update-form { display:flex; gap:6px; }
+.meal-update-form select { background:#17191e; color:#fff; border:1px solid #454a55; border-radius:7px; padding:7px; }
+.meal-update-form button { background:#f28c28; border:0; border-radius:7px; padding:7px 10px; font-weight:750; cursor:pointer; }
+.meal-empty { text-align:center; padding:25px; color:#aeb2bc; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="meal-requests-page">
+    <div class="meal-requests-head">
+        <div>
+            <h1>Meal Requests</h1>
+            <p>Review patient orders and track meal preparation and delivery.</p>
+        </div>
+        <a href="{{ url_for('admin.meals_dashboard') }}" style="color:#ffad59;text-decoration:none;font-weight:700">← Dashboard</a>
+    </div>
+
+    <form class="meal-filter" method="GET">
+        <select name="status">
+            <option value="">All statuses</option>
+            {% for s in statuses %}
+            <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Filter Requests</button>
+    </form>
+
+    <section class="meal-requests-panel">
+        <div class="meal-requests-table-wrap">
+            <table class="meal-requests-table">
+                <thead>
+                    <tr>
+                        <th>Request</th>
+                        <th>Patient</th>
+                        <th>Meal / Food</th>
+                        <th>Date</th>
+                        <th>Qty</th>
+                        <th>Instructions</th>
+                        <th>Status</th>
+                        <th>Update</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for r in requests %}
+                    <tr>
+                        <td>#{{ r.meal_request_id }}</td>
+                        <td>Patient #{{ r.patient_id }}</td>
+                        <td><strong>{{ r.meal_name }}</strong><br>{{ r.item_name }}</td>
+                        <td>{{ r.meal_date }}</td>
+                        <td>{{ r.quantity }}</td>
+                        <td>{{ r.special_instructions or '—' }}</td>
+                        <td><span class="meal-status {{ r.status }}">{{ r.status }}</span></td>
+                        <td>
+                            {% if can_approve and r.status == 'Requested' %}
+                            <form class="meal-update-form" method="POST"
+                                  action="{{ url_for('admin.meal_request_update_status', request_id=r.meal_request_id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <select name="status" aria-label="Approval decision">
+                                    <option value="Accepted">Accept</option>
+                                    <option value="Rejected">Reject</option>
+                                </select>
+                                <button type="submit">Save</button>
+                            </form>
+                            {% elif can_deliver and r.status == 'Accepted' %}
+                            <form class="meal-update-form" method="POST"
+                                  action="{{ url_for('admin.meal_request_update_status', request_id=r.meal_request_id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="status" value="Prepared">
+                                <button type="submit">Mark Prepared</button>
+                            </form>
+                            {% elif can_deliver and r.status == 'Prepared' %}
+                            <form class="meal-update-form" method="POST"
+                                  action="{{ url_for('admin.meal_request_update_status', request_id=r.meal_request_id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="status" value="Delivered">
+                                <button type="submit">Mark Delivered</button>
+                            </form>
+                            {% else %}
+                            <span style="color:#9297a2">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="8" class="meal-empty">No meal requests found.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

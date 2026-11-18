@@ -1,0 +1,158 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ 'Edit' if item else 'Add' }} Meal | MEDIVERA{% endblock %}
+{% block breadcrumb %}Meal Menu{% endblock %}
+
+{% block extra_css %}
+<style>
+.meal-form-wrap{max-width:820px;background:#202329;border:1px solid #393d46;border-radius:16px;padding:25px;color:#f5f5f5}
+.meal-form-wrap h1{font-size:25px;margin:0 0 8px}
+.meal-form-wrap p{color:#aeb2bc;margin-bottom:24px}
+.meal-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.meal-field{display:flex;flex-direction:column;gap:8px}
+.meal-field.full{grid-column:1/-1}
+.meal-field label{color:#e8e9ed;font-weight:650;font-size:13px}
+.meal-field input,.meal-field select,.meal-field textarea{width:100%;box-sizing:border-box;padding:12px;color:#f5f5f5;background:#17191e;border:1px solid #454a55;border-radius:9px;outline:none}
+.meal-field input:focus,.meal-field select:focus,.meal-field textarea:focus{border-color:#f28c28}
+.meal-form-actions{display:flex;gap:12px;margin-top:22px;align-items:center;flex-wrap:wrap}
+.meal-submit{background:#f28c28;color:#17191d;border:0;border-radius:9px;padding:12px 19px;font-weight:800;cursor:pointer}
+.meal-cancel{color:#eee;padding:12px 15px;text-decoration:none}
+.meal-image-preview{display:block;max-width:300px;max-height:220px;object-fit:cover;border-radius:12px;border:1px solid #454a55;margin-top:10px}
+.meal-image-help{font-size:12px;color:#aeb2bc}
+.meal-remove{display:flex;gap:8px;align-items:center;color:#ffaaaa;font-size:13px}
+@media(max-width:600px){.meal-form-grid{grid-template-columns:1fr}.meal-field.full{grid-column:auto}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="meal-form-wrap">
+    <h1>{{ 'Edit Menu Item' if item else 'Add Menu Item' }}</h1>
+    <p>Publish food items for a selected hospital meal and date. Food photographs help patients identify their meals.</p>
+
+    <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="meal-form-grid">
+            <div class="meal-field">
+                <label for="meal_type_id">Meal Type</label>
+                <select id="meal_type_id" name="meal_type_id" required>
+                    <option value="">Select meal type</option>
+                    {% for mt in meal_types %}
+                    <option value="{{ mt.meal_type_id }}"
+                        {% if item and item.meal_type_id == mt.meal_type_id %}selected{% endif %}>
+                        {{ mt.meal_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="meal-field">
+                <label for="menu_date">Menu Date</label>
+                <input id="menu_date" type="date" name="menu_date"
+                    value="{{ item.menu_date if item else today.isoformat() }}" required>
+            </div>
+
+            <div class="meal-field full">
+                <label for="item_name">Food Item Name</label>
+                <input id="item_name" name="item_name" maxlength="150"
+                    value="{{ item.item_name if item else '' }}"
+                    placeholder="e.g. Vegetable Khichdi" required>
+            </div>
+
+            <div class="meal-field full">
+                <label for="item_description">Description</label>
+                <textarea id="item_description" name="item_description"
+                    maxlength="255" rows="3"
+                    placeholder="Ingredients or serving details">{{ item.item_description if item and item.item_description else '' }}</textarea>
+            </div>
+
+            <div class="meal-field">
+                <label for="dietary_type">Dietary Category</label>
+                <select id="dietary_type" name="dietary_type" required>
+                    {% for choice in ['Regular','Vegetarian','Vegan','Diabetic Friendly','Low Salt','Other'] %}
+                    <option value="{{ choice }}"
+                        {% if item and item.dietary_type == choice %}selected{% elif not item and choice == 'Regular' %}selected{% endif %}>
+                        {{ choice }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if item %}
+            <div class="meal-field">
+                <label for="is_available">Availability</label>
+                <select id="is_available" name="is_available">
+                    <option value="1" {% if item.is_available %}selected{% endif %}>Available</option>
+                    <option value="0" {% if not item.is_available %}selected{% endif %}>Unavailable</option>
+                </select>
+            </div>
+            {% endif %}
+
+            <div class="meal-field full">
+                <label for="food_image">Food Photograph</label>
+                <input id="food_image" type="file" name="food_image"
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                <span class="meal-image-help">Accepted: JPG, JPEG, PNG, WEBP. Maximum size: 5 MB.</span>
+
+                {% if item and item.image_path %}
+                <p class="meal-image-help">Current photograph:</p>
+                <img class="meal-image-preview"
+                     id="currentImagePreview"
+                     src="{{ url_for('static', filename=item.image_path) }}"
+                     alt="Current food photograph">
+                <label class="meal-remove">
+                    <input type="checkbox" name="remove_image" value="1">
+                    Remove current photograph when saving
+                </label>
+                {% endif %}
+
+                <img id="newImagePreview" class="meal-image-preview"
+                     alt="New food image preview" hidden>
+            </div>
+        </div>
+
+        <div class="meal-form-actions">
+            <button class="meal-submit" type="submit">
+                {{ 'Save Changes' if item else 'Add to Menu' }}
+            </button>
+            <a class="meal-cancel" href="{{ url_for('admin.meals_dashboard') }}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const input = document.getElementById("food_image");
+    const preview = document.getElementById("newImagePreview");
+    if (!input || !preview) return;
+
+    let activeUrl = null;
+    input.addEventListener("change", function () {
+        if (activeUrl) URL.revokeObjectURL(activeUrl);
+        const file = input.files && input.files[0];
+        if (!file) {
+            preview.hidden = true;
+            preview.removeAttribute("src");
+            return;
+        }
+        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+            alert("Please choose a JPG, PNG or WEBP image.");
+            input.value = "";
+            preview.hidden = true;
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert("The image must be 5 MB or smaller.");
+            input.value = "";
+            preview.hidden = true;
+            return;
+        }
+        activeUrl = URL.createObjectURL(file);
+        preview.src = activeUrl;
+        preview.hidden = false;
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,338 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Emergency Management | MEDIVERA{% endblock %}
+{% block breadcrumb %}Emergency Management / Overview{% endblock %}
+
+{% block extra_css %}
+<style>
+.emergency-page {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+.emergency-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.emergency-heading h1 {
+    color: #fff;
+    font-size: 26px;
+    margin: 0 0 7px;
+}
+.emergency-heading p {
+    color: #92979e;
+    margin: 0;
+}
+.emergency-badge {
+    background: rgba(244,119,33,.13);
+    color: #f47721;
+    border: 1px solid rgba(244,119,33,.25);
+    padding: 8px 13px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 800;
+}
+.emergency-metrics {
+    display: grid;
+    grid-template-columns: repeat(4,minmax(0,1fr));
+    gap: 15px;
+}
+.emergency-card,
+.emergency-panel {
+    background: #1c1f23;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 0;
+}
+.emergency-card small {
+    color: #92979e;
+    display: block;
+    margin-bottom: 12px;
+}
+.emergency-card strong {
+    display: block;
+    color: #fff;
+    font-size: 30px;
+}
+.emergency-card p {
+    color: #92979e;
+    font-size: 12px;
+    margin: 8px 0 0;
+}
+.emergency-card.critical strong { color: #f05b62; }
+.emergency-card.available strong { color: #27c782; }
+.emergency-card.orange strong { color: #f47721; }
+.emergency-content-grid {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 18px;
+}
+.emergency-panel h2 {
+    color: #fff;
+    font-size: 17px;
+    margin: 0 0 18px;
+}
+.emergency-table-wrap {
+    overflow-x: auto;
+}
+.emergency-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 480px;
+}
+.emergency-table th {
+    color: #92979e;
+    font-size: 11px;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 12px 9px;
+    border-bottom: 1px solid rgba(255,255,255,.09);
+}
+.emergency-table td {
+    color: #e9eaec;
+    padding: 13px 9px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    font-size: 13px;
+}
+.emergency-status {
+    display: inline-block;
+    border-radius: 20px;
+    padding: 5px 9px;
+    background: rgba(244,119,33,.12);
+    color: #f47721;
+    font-size: 11px;
+    font-weight: 700;
+}
+.emergency-status.critical {
+    background: rgba(240,91,98,.12);
+    color: #f05b62;
+}
+.emergency-status.available {
+    background: rgba(39,199,130,.12);
+    color: #27c782;
+}
+.emergency-links {
+    display: grid;
+    grid-template-columns: repeat(4,minmax(0,1fr));
+    gap: 12px;
+}
+.emergency-link {
+    background: #1c1f23;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 12px;
+    padding: 17px;
+    transition: .2s;
+}
+.emergency-link:hover {
+    border-color: #f47721;
+    transform: translateY(-2px);
+}
+.emergency-link strong {
+    display: block;
+    color: #fff;
+    margin-bottom: 7px;
+}
+.emergency-link span {
+    color: #92979e;
+    font-size: 12px;
+}
+.emergency-empty {
+    color: #92979e;
+    padding: 20px 5px;
+    text-align: center;
+}
+@media(max-width:1050px) {
+    .emergency-metrics { grid-template-columns: repeat(2,1fr); }
+    .emergency-links { grid-template-columns: repeat(2,1fr); }
+}
+@media(max-width:700px) {
+    .emergency-content-grid { grid-template-columns: 1fr; }
+}
+@media(max-width:420px) {
+    .emergency-metrics,
+    .emergency-links { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="emergency-page">
+
+    <div class="emergency-heading">
+        <div>
+            <h1>Emergency Operations Center</h1>
+            <p>Emergency cases, ambulance fleet and dispatch monitoring</p>
+        </div>
+        <span class="emergency-badge">MEDIVERA EMERGENCY CONTROL</span>
+    </div>
+
+    <div class="emergency-metrics">
+
+        <div class="emergency-card orange">
+            <small>Total Emergency Cases</small>
+            <strong>{{ metrics.total_cases or 0 }}</strong>
+            <p>All registered emergency cases</p>
+        </div>
+
+        <div class="emergency-card critical">
+            <small>Critical Cases</small>
+            <strong>{{ metrics.critical_cases or 0 }}</strong>
+            <p>Critical cases not yet resolved</p>
+        </div>
+
+        <div class="emergency-card">
+            <small>Active Emergency Cases</small>
+            <strong>{{ metrics.active_cases or 0 }}</strong>
+            <p>Reported, triaged or in progress</p>
+        </div>
+
+        <div class="emergency-card">
+            <small>Total Ambulances</small>
+            <strong>{{ metrics.total_ambulances or 0 }}</strong>
+            <p>Registered ambulance fleet</p>
+        </div>
+
+        <div class="emergency-card available">
+            <small>Available Ambulances</small>
+            <strong>{{ metrics.available_ambulances or 0 }}</strong>
+            <p>Currently marked available</p>
+        </div>
+
+        <div class="emergency-card orange">
+            <small>Dispatched Ambulances</small>
+            <strong>{{ metrics.dispatched_ambulances or 0 }}</strong>
+            <p>Currently marked dispatched</p>
+        </div>
+
+        <div class="emergency-card critical">
+            <small>Unavailable Ambulances</small>
+            <strong>{{ metrics.unavailable_ambulances or 0 }}</strong>
+            <p>Maintenance or out of service</p>
+        </div>
+
+        <div class="emergency-card">
+            <small>Active Dispatches</small>
+            <strong>{{ metrics.active_dispatches or 0 }}</strong>
+            <p>Dispatches not yet closed</p>
+        </div>
+
+    </div>
+
+    <section class="emergency-panel">
+        <h2>Emergency Management Modules</h2>
+
+        <div class="emergency-links">
+            <a class="emergency-link"
+               href="{{ url_for('admin.emergency_cases') }}">
+                <strong>Emergency Cases</strong>
+                <span>Register and monitor cases</span>
+            </a>
+
+            <a class="emergency-link"
+               href="{{ url_for('admin.ambulances') }}">
+                <strong>Ambulance Fleet</strong>
+                <span>Manage vehicles and availability</span>
+            </a>
+
+            <a class="emergency-link"
+               href="{{ url_for('admin.ambulance_dispatches') }}">
+                <strong>Ambulance Dispatches</strong>
+                <span>Manage dispatch operations</span>
+            </a>
+
+            <a class="emergency-link"
+               href="{{ url_for('admin.emergency_staffing') }}">
+                <strong>Emergency Staffing</strong>
+                <span>Manage 24/7 workforce coverage</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="emergency-content-grid">
+
+        <section class="emergency-panel">
+            <h2>Recent Emergency Cases</h2>
+
+            <div class="emergency-table-wrap">
+                <table class="emergency-table">
+                    <thead>
+                        <tr>
+                            <th>Case Number</th>
+                            <th>Emergency</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for case in recent_cases %}
+                        <tr>
+                            <td>{{ case.case_number }}</td>
+                            <td>{{ case.emergency_type }}</td>
+                            <td>
+                                <span class="emergency-status
+                                {% if case.severity == 'Critical' %}
+                                    critical
+                                {% endif %}">
+                                    {{ case.severity }}
+                                </span>
+                            </td>
+                            <td>{{ case.case_status }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="emergency-empty">
+                                No emergency cases registered yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="emergency-panel">
+            <h2>Recent Ambulance Dispatches</h2>
+
+            <div class="emergency-table-wrap">
+                <table class="emergency-table">
+                    <thead>
+                        <tr>
+                            <th>Case</th>
+                            <th>Ambulance</th>
+                            <th>Registration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dispatch in recent_dispatches %}
+                        <tr>
+                            <td>{{ dispatch.case_number }}</td>
+                            <td>{{ dispatch.ambulance_code }}</td>
+                            <td>{{ dispatch.registration_number }}</td>
+                            <td>
+                                <span class="emergency-status">
+                                    {{ dispatch.dispatch_status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="emergency-empty">
+                                No ambulance dispatches recorded yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,504 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Management | MediCare+{% endblock %}
+{% block breadcrumb %}Hospital Management / Inventory{% endblock %}
+{% block page_heading %}Inventory Management{% endblock %}
+{% block page_subtitle %}
+Monitor hospital supplies, stock availability and inventory transactions.
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .inventory-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 17px;
+        margin-bottom: 24px;
+    }
+
+    .inventory-stat {
+        background: #fff;
+        border: 1px solid #e9e2d8;
+        border-radius: 13px;
+        padding: 20px;
+    }
+
+    .inventory-stat small {
+        display: block;
+        color: #817773;
+        margin-bottom: 9px;
+        font-size: 13px;
+    }
+
+    .inventory-stat strong {
+        color: #382d30;
+        font-size: 27px;
+    }
+
+    .inventory-layout {
+        display: grid;
+        grid-template-columns: minmax(280px, .85fr) minmax(0, 2fr);
+        gap: 22px;
+        align-items: start;
+    }
+
+    .inventory-panel {
+        background: #fff;
+        border: 1px solid #e9e2d8;
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 22px;
+    }
+
+    .inventory-panel h3 {
+        color: #542c37;
+        font-size: 18px;
+        margin: 0 0 20px;
+    }
+
+    .inventory-field {
+        margin-bottom: 15px;
+    }
+
+    .inventory-field label {
+        display: block;
+        color: #514747;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .inventory-field .form-control {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .inventory-search {
+        display: flex;
+        gap: 9px;
+        margin-bottom: 18px;
+    }
+
+    .inventory-search input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .inventory-table-wrap {
+        overflow-x: auto;
+    }
+
+    .inventory-table {
+        width: 100%;
+        min-width: 950px;
+        border-collapse: collapse;
+    }
+
+    .inventory-table th,
+    .inventory-table td {
+        padding: 13px 11px;
+        border-bottom: 1px solid #eee8e1;
+        text-align: left;
+        font-size: 13px;
+        vertical-align: middle;
+    }
+
+    .inventory-table th {
+        background: #f7f3ed;
+        color: #5b3a40;
+        font-weight: 700;
+    }
+
+    .inventory-table td {
+        color: #514949;
+    }
+
+    .inventory-status {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .inventory-available {
+        color: #267443;
+        background: #e5f3e9;
+    }
+
+    .inventory-low_stock {
+        color: #93661c;
+        background: #fff2d8;
+    }
+
+    .inventory-out_of_stock {
+        color: #a13e35;
+        background: #f8e8e6;
+    }
+
+    .inventory-actions {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+    }
+
+    .inventory-actions .btn {
+        padding: 7px 10px;
+        font-size: 11px;
+        text-decoration: none;
+        border: 0;
+        cursor: pointer;
+    }
+
+    .inventory-edit-btn {
+        background: #eee8dc;
+        color: #594334;
+    }
+
+    .inventory-delete-btn {
+        background: #f8e8e6;
+        color: #a13e35;
+    }
+
+    .inventory-empty {
+        padding: 35px 15px !important;
+        text-align: center !important;
+        color: #888 !important;
+    }
+
+    .inventory-submit {
+        width: 100%;
+    }
+
+    @media(max-width: 1100px) {
+        .inventory-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .inventory-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media(max-width: 600px) {
+        .inventory-stat {
+            padding: 14px;
+        }
+
+        .inventory-search {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- INVENTORY STATISTICS -->
+<div class="inventory-stats">
+
+    <div class="inventory-stat">
+        <small>Total Inventory Items</small>
+        <strong>{{ total_items }}</strong>
+    </div>
+
+    <div class="inventory-stat">
+        <small>Total Units in Stock</small>
+        <strong>{{ total_quantity }}</strong>
+    </div>
+
+    <div class="inventory-stat">
+        <small>Low Stock Items</small>
+        <strong>{{ low_stock_items }}</strong>
+    </div>
+
+    <div class="inventory-stat">
+        <small>Out of Stock Items</small>
+        <strong>{{ out_of_stock_items }}</strong>
+    </div>
+
+</div>
+
+
+<div class="inventory-layout">
+
+    <!-- ADD INVENTORY ITEM -->
+    <section class="inventory-panel">
+
+        <h3>+ Add Inventory Item</h3>
+
+        <form action="{{ url_for('add_inventory') }}" method="POST">
+
+            <div class="inventory-field">
+                <label for="item_name">Item Name *</label>
+                <input
+                    type="text"
+                    name="item_name"
+                    id="item_name"
+                    class="form-control"
+                    placeholder="e.g. Surgical Gloves"
+                    required
+                >
+            </div>
+
+            <div class="inventory-field">
+                <label for="item_category">Item Category *</label>
+                <input
+                    type="text"
+                    name="item_category"
+                    id="item_category"
+                    class="form-control"
+                    placeholder="e.g. Medical Supplies"
+                    required
+                >
+            </div>
+
+            <div class="inventory-field">
+                <label for="department_id">Department *</label>
+
+                <select
+                    name="department_id"
+                    id="department_id"
+                    class="form-control"
+                    required
+                >
+                    <option value="">Select Department</option>
+
+                    {% for department in departments %}
+                    <option value="{{ department.department_id }}">
+                        {{ department.department_name }}
+                    </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+            <div class="inventory-field">
+                <label for="quantity">Initial Quantity *</label>
+                <input
+                    type="number"
+                    name="quantity"
+                    id="quantity"
+                    class="form-control"
+                    min="0"
+                    value="0"
+                    required
+                >
+            </div>
+
+            <div class="inventory-field">
+                <label for="unit">Unit *</label>
+                <input
+                    type="text"
+                    name="unit"
+                    id="unit"
+                    class="form-control"
+                    placeholder="e.g. pieces, boxes, bottles"
+                    required
+                >
+            </div>
+
+            <div class="inventory-field">
+                <label for="reorder_level">Reorder Level *</label>
+                <input
+                    type="number"
+                    name="reorder_level"
+                    id="reorder_level"
+                    class="form-control"
+                    min="0"
+                    value="10"
+                    required
+                >
+            </div>
+
+            <div class="inventory-field">
+                <label for="unit_price">Unit Price *</label>
+                <input
+                    type="number"
+                    name="unit_price"
+                    id="unit_price"
+                    class="form-control"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                    required
+                >
+            </div>
+
+            <div class="inventory-field">
+                <label for="expiry_date">Expiry Date</label>
+                <input
+                    type="date"
+                    name="expiry_date"
+                    id="expiry_date"
+                    class="form-control"
+                >
+            </div>
+
+            <div class="inventory-field">
+                <label for="supplier_name">Supplier Name</label>
+                <input
+                    type="text"
+                    name="supplier_name"
+                    id="supplier_name"
+                    class="form-control"
+                    placeholder="Enter supplier name"
+                >
+            </div>
+
+            <button type="submit" class="btn inventory-submit">
+                Add Inventory Item
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <!-- INVENTORY RECORDS -->
+    <section class="inventory-panel">
+
+        <h3>Inventory Records</h3>
+
+        <!-- SEARCH -->
+        <form
+            action="{{ url_for('inventory') }}"
+            method="GET"
+            class="inventory-search"
+        >
+
+            <input
+                type="text"
+                name="search"
+                class="form-control"
+                placeholder="Search item, category or supplier..."
+                value="{{ search_query }}"
+            >
+
+            <button type="submit" class="btn">
+                Search
+            </button>
+
+            {% if search_query %}
+            <a
+                href="{{ url_for('inventory') }}"
+                class="btn inventory-edit-btn"
+            >
+                Clear
+            </a>
+            {% endif %}
+
+        </form>
+
+
+        <!-- INVENTORY TABLE -->
+        <div class="inventory-table-wrap">
+
+            <table class="inventory-table">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Item</th>
+                        <th>Category</th>
+                        <th>Department</th>
+                        <th>Quantity</th>
+                        <th>Reorder Level</th>
+                        <th>Unit Price</th>
+                        <th>Expiry</th>
+                        <th>Stock Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in inventory %}
+
+                    <tr>
+
+                        <td>#{{ item.inventory_id }}</td>
+
+                        <td>
+                            <strong>{{ item.item_name }}</strong>
+                            <br>
+                            <small>{{ item.supplier_name or 'No supplier' }}</small>
+                        </td>
+
+                        <td>{{ item.item_category }}</td>
+
+                        <td>{{ item.department_name or '—' }}</td>
+
+                        <td>
+                            {{ item.quantity }} {{ item.unit }}
+                        </td>
+
+                        <td>{{ item.reorder_level }}</td>
+
+                        <td>
+                            ₹{{ "%.2f"|format(item.unit_price|float) }}
+                        </td>
+
+                        <td>
+                            {{ item.expiry_date.strftime('%d %b %Y') if item.expiry_date else '—' }}
+                        </td>
+
+                        <td>
+                            <span class="inventory-status inventory-{{ item.stock_status }}">
+                                {{ item.stock_status.replace('_', ' ') }}
+                            </span>
+                        </td>
+
+                        <td>
+
+                            <div class="inventory-actions">
+
+                                <a
+                                    href="{{ url_for('edit_inventory', inventory_id=item.inventory_id) }}"
+                                    class="btn inventory-edit-btn"
+                                >
+                                    Manage
+                                </a>
+
+                                <form
+                                    action="{{ url_for('delete_inventory', inventory_id=item.inventory_id) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this inventory item? Existing transactions may prevent deletion.');"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="btn inventory-delete-btn"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="10" class="inventory-empty">
+                            No inventory records found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

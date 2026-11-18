@@ -1,0 +1,907 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Reports & Analytics | MEDIVERA{% endblock %}
+
+{% block extra_css %}
+<style>
+/* =========================================================
+   MEDIVERA — REPORTS & ANALYTICS
+   Premium dark / orange / white dashboard
+   ========================================================= */
+
+.reports-page {
+    color: #f4f5f7;
+    width: 100%;
+}
+
+.reports-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+}
+
+.reports-heading h1 {
+    font-size: 27px;
+    font-weight: 800;
+    margin: 0 0 8px;
+    letter-spacing: -0.7px;
+}
+
+.reports-heading p {
+    color: #969ba6;
+    margin: 0;
+    font-size: 13px;
+}
+
+.reports-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.report-date {
+    background: #171a20;
+    border: 1px solid #30343d;
+    color: #dfe2e8;
+    padding: 10px 13px;
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+.report-btn {
+    border: 0;
+    border-radius: 9px;
+    padding: 11px 16px;
+    background: #ff851b;
+    color: #171717;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.report-btn:hover {
+    background: #ffa044;
+    transform: translateY(-2px);
+}
+
+.report-btn.secondary {
+    background: #222630;
+    color: #e8eaf0;
+    border: 1px solid #363b46;
+}
+
+.report-btn.secondary:hover {
+    background: #303642;
+}
+
+/* KPI cards */
+
+.report-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 17px;
+    margin-bottom: 22px;
+}
+
+.report-kpi {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, #1b1e25, #14171d);
+    border: 1px solid #2c3039;
+    border-radius: 15px;
+    padding: 20px;
+    min-height: 142px;
+    transition: .25s ease;
+}
+
+.report-kpi:hover {
+    transform: translateY(-4px);
+    border-color: #ff851b;
+}
+
+.report-kpi::after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    right: -35px;
+    top: -38px;
+    background: rgba(255,133,27,.07);
+}
+
+.kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.kpi-label {
+    font-size: 12px;
+    color: #a3a8b2;
+    font-weight: 600;
+}
+
+.kpi-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: rgba(255,133,27,.13);
+    color: #ff922e;
+    font-size: 17px;
+}
+
+.kpi-value {
+    font-size: 29px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -.7px;
+}
+
+.kpi-note {
+    margin-top: 7px;
+    color: #858b97;
+    font-size: 11px;
+}
+
+/* Main layout */
+
+.report-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr);
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+.report-card {
+    background: #191c23;
+    border: 1px solid #2c3039;
+    border-radius: 15px;
+    padding: 21px;
+    min-width: 0;
+}
+
+.report-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.report-card-header h3 {
+    color: #f6f7f9;
+    font-size: 15px;
+    font-weight: 750;
+    margin: 0 0 6px;
+}
+
+.report-card-header p {
+    color: #898f9a;
+    font-size: 11px;
+    margin: 0;
+}
+
+.report-card-tag {
+    color: #ff9a3d;
+    background: rgba(255,133,27,.10);
+    border: 1px solid rgba(255,133,27,.20);
+    padding: 6px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 280px;
+}
+
+.chart-container.small {
+    height: 245px;
+}
+
+/* Status list */
+
+.status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.status-name {
+    color: #c6cad2;
+}
+
+.status-count {
+    color: #fff;
+    font-weight: 750;
+}
+
+.status-track {
+    width: 100%;
+    height: 7px;
+    border-radius: 20px;
+    background: #30343e;
+    overflow: hidden;
+}
+
+.status-fill {
+    height: 100%;
+    border-radius: 20px;
+}
+
+.status-fill.pending { background: #f4b942; }
+.status-fill.confirmed { background: #27c58a; }
+.status-fill.rejected { background: #ef5965; }
+.status-fill.completed { background: #5599ed; }
+.status-fill.other { background: #9299a7; }
+
+/* Department table */
+
+.department-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.department-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 460px;
+}
+
+.department-table th {
+    color: #858c98;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    text-align: left;
+    padding: 12px 10px;
+    border-bottom: 1px solid #343943;
+}
+
+.department-table td {
+    color: #dfe2e8;
+    font-size: 12px;
+    padding: 14px 10px;
+    border-bottom: 1px solid #292d35;
+}
+
+.department-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.department-table tbody tr:hover {
+    background: rgba(255,255,255,.025);
+}
+
+.department-name {
+    font-weight: 700;
+}
+
+.department-bar {
+    height: 6px;
+    background: #30343d;
+    border-radius: 20px;
+    min-width: 75px;
+    overflow: hidden;
+}
+
+.department-bar span {
+    display: block;
+    height: 100%;
+    background: #ff851b;
+    border-radius: 20px;
+}
+
+/* Empty state */
+
+.report-empty {
+    padding: 25px 12px;
+    text-align: center;
+    color: #858c98;
+    font-size: 12px;
+}
+
+.report-empty strong {
+    display: block;
+    color: #d9dce2;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+/* Footer */
+
+.reports-footer {
+    margin-top: 20px;
+    padding: 14px 0;
+    color: #737b87;
+    font-size: 10px;
+    text-align: center;
+}
+
+/* Responsive */
+
+@media(max-width: 1100px) {
+    .report-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media(max-width: 800px) {
+    .report-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 520px) {
+    .report-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .reports-heading h1 {
+        font-size: 22px;
+    }
+
+    .report-card {
+        padding: 15px;
+    }
+
+    .chart-container {
+        height: 240px;
+    }
+}
+
+@media print {
+    body {
+        background: #fff !important;
+        color: #111 !important;
+    }
+
+    .reports-header-actions,
+    .admin-sidebar,
+    .admin-topbar,
+    .report-btn {
+        display: none !important;
+    }
+
+    .report-card,
+    .report-kpi {
+        break-inside: avoid;
+        background: #fff !important;
+        color: #111 !important;
+        border: 1px solid #ccc !important;
+    }
+
+    .reports-page,
+    .report-card-header h3,
+    .kpi-value,
+    .department-table td {
+        color: #111 !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+Reports & Analytics
+{% endblock %}
+
+{% block content %}
+<div class="reports-page">
+
+    <!-- PAGE HEADER -->
+    <section class="reports-header">
+        <div class="reports-heading">
+            <h1>Reports & Analytics</h1>
+            <p>
+                Monitor hospital performance, appointments, revenue
+                and department activity from one place.
+            </p>
+        </div>
+
+        <div class="reports-header-actions">
+            <span class="report-date" id="reportCurrentDate">
+                Loading date...
+            </span>
+
+            <button class="report-btn secondary"
+                    type="button"
+                    onclick="window.print()">
+                Print Report
+            </button>
+
+            <button class="report-btn"
+                    type="button"
+                    onclick="downloadReportCSV()">
+                Export CSV
+            </button>
+        </div>
+    </section>
+
+    <!-- KPI CARDS -->
+    <section class="report-kpi-grid">
+
+        <div class="report-kpi">
+            <div class="kpi-top">
+                <span class="kpi-label">Total Patients</span>
+                <span class="kpi-icon">♙</span>
+            </div>
+            <div class="kpi-value">
+                {{ report_stats.total_patients|default(0) }}
+            </div>
+            <div class="kpi-note">
+                Registered patient records
+            </div>
+        </div>
+
+        <div class="report-kpi">
+            <div class="kpi-top">
+                <span class="kpi-label">Total Doctors</span>
+                <span class="kpi-icon">✚</span>
+            </div>
+            <div class="kpi-value">
+                {{ report_stats.total_doctors|default(0) }}
+            </div>
+            <div class="kpi-note">
+                Doctors in the hospital database
+            </div>
+        </div>
+
+        <div class="report-kpi">
+            <div class="kpi-top">
+                <span class="kpi-label">Total Appointments</span>
+                <span class="kpi-icon">▦</span>
+            </div>
+            <div class="kpi-value">
+                {{ report_stats.total_appointments|default(0) }}
+            </div>
+            <div class="kpi-note">
+                All recorded appointments
+            </div>
+        </div>
+
+        <div class="report-kpi">
+            <div class="kpi-top">
+                <span class="kpi-label">Total Revenue</span>
+                <span class="kpi-icon">₹</span>
+            </div>
+            <div class="kpi-value">
+                ₹{{ "{:,.2f}".format(report_stats.total_revenue|default(0)|float) }}
+            </div>
+            <div class="kpi-note">
+                Successfully paid billing records
+            </div>
+        </div>
+
+    </section>
+
+    <!-- CHART ROW ONE -->
+    <section class="report-grid">
+
+        <div class="report-card">
+            <div class="report-card-header">
+                <div>
+                    <h3>Monthly Appointment Trends</h3>
+                    <p>Appointment volume over recent months</p>
+                </div>
+                <span class="report-card-tag">Appointments</span>
+            </div>
+
+            {% if month_labels %}
+            <div class="chart-container">
+                <canvas id="appointmentTrendChart"></canvas>
+            </div>
+            {% else %}
+            <div class="report-empty">
+                <strong>No appointment trend data</strong>
+                Appointment records will appear here when available.
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="report-card">
+            <div class="report-card-header">
+                <div>
+                    <h3>Appointment Status</h3>
+                    <p>Distribution by current appointment status</p>
+                </div>
+                <span class="report-card-tag">Overview</span>
+            </div>
+
+            {% if status_labels %}
+            <div class="chart-container small">
+                <canvas id="appointmentStatusChart"></canvas>
+            </div>
+            {% else %}
+            <div class="report-empty">
+                <strong>No status data available</strong>
+                Appointment status statistics will appear here.
+            </div>
+            {% endif %}
+        </div>
+
+    </section>
+
+    <!-- CHART ROW TWO -->
+    <section class="report-grid">
+
+        <div class="report-card">
+            <div class="report-card-header">
+                <div>
+                    <h3>Monthly Revenue</h3>
+                    <p>Revenue from paid billing records</p>
+                </div>
+                <span class="report-card-tag">INR ₹</span>
+            </div>
+
+            {% if revenue_labels %}
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+            {% else %}
+            <div class="report-empty">
+                <strong>No revenue data available</strong>
+                Paid billing records will appear here.
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="report-card">
+            <div class="report-card-header">
+                <div>
+                    <h3>Appointment Summary</h3>
+                    <p>Current status breakdown</p>
+                </div>
+                <span class="report-card-tag">Live records</span>
+            </div>
+
+            {% if status_labels %}
+            <div class="status-list">
+                {% for item in appointment_status %}
+                <div>
+                    <div class="status-item">
+                        <span class="status-name">
+                            {{ item.status|replace('_', ' ')|title }}
+                        </span>
+                        <span class="status-count">
+                            {{ item.total }}
+                        </span>
+                    </div>
+
+                    <div class="status-track">
+                        <div
+                            class="status-fill
+                            {% if item.status == 'pending_approval' %}pending
+                            {% elif item.status == 'confirmed' %}confirmed
+                            {% elif item.status == 'rejected' %}rejected
+                            {% elif item.status == 'completed' %}completed
+                            {% else %}other{% endif %}"
+                            style="width: {{ item.percentage }}%">
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="report-empty">
+                <strong>No appointment records</strong>
+                Status information will appear here.
+            </div>
+            {% endif %}
+        </div>
+
+    </section>
+
+    <!-- DEPARTMENT PERFORMANCE -->
+    <section class="report-card">
+        <div class="report-card-header">
+            <div>
+                <h3>Department Performance</h3>
+                <p>Appointment activity grouped by hospital department</p>
+            </div>
+            <span class="report-card-tag">Departments</span>
+        </div>
+
+        {% if department_stats %}
+        <div class="department-table-wrap">
+            <table class="department-table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Doctors</th>
+                        <th>Appointments</th>
+                        <th>Activity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for department in department_stats %}
+                    <tr>
+                        <td class="department-name">
+                            {{ department.department_name }}
+                        </td>
+                        <td>{{ department.doctor_count }}</td>
+                        <td>{{ department.appointment_count }}</td>
+                        <td>
+                            <div class="department-bar">
+                                <span style="width: {{ department.activity_percentage }}%"></span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="report-empty">
+            <strong>No department information available</strong>
+            Department statistics will appear here when records exist.
+        </div>
+        {% endif %}
+    </section>
+
+    <div class="reports-footer">
+        MEDIVERA Smart Healthcare Management System
+        · Reports & Analytics
+    </div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* Date */
+    const dateElement = document.getElementById("reportCurrentDate");
+
+    if (dateElement) {
+        dateElement.textContent = new Date().toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            }
+        );
+    }
+
+    /* Chart data from Flask */
+    const monthLabels = {{ month_labels|default([])|tojson }};
+    const appointmentValues = {{ appointment_chart_values|default([])|tojson }};
+
+    const statusLabels = {{ status_labels|default([])|tojson }};
+    const statusValues = {{ status_values|default([])|tojson }};
+
+    const revenueLabels = {{ revenue_labels|default([])|tojson }};
+    const revenueValues = {{ revenue_chart_values|default([])|tojson }};
+
+    if (typeof Chart === "undefined") {
+        console.error("Chart.js could not be loaded.");
+        return;
+    }
+
+    Chart.defaults.color = "#a5abb6";
+    Chart.defaults.font.family = "Arial, sans-serif";
+
+    /* Appointment trend chart */
+    const appointmentCanvas =
+        document.getElementById("appointmentTrendChart");
+
+    if (appointmentCanvas) {
+        new Chart(appointmentCanvas, {
+            type: "line",
+            data: {
+                labels: monthLabels,
+                datasets: [{
+                    label: "Appointments",
+                    data: appointmentValues,
+                    borderColor: "#ff851b",
+                    backgroundColor: "rgba(255,133,27,0.12)",
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointBackgroundColor: "#ff9b42"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0 },
+                        grid: { color: "rgba(255,255,255,0.06)" }
+                    }
+                }
+            }
+        });
+    }
+
+    /* Appointment status doughnut chart */
+    const statusCanvas =
+        document.getElementById("appointmentStatusChart");
+
+    if (statusCanvas) {
+        new Chart(statusCanvas, {
+            type: "doughnut",
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusValues,
+                    backgroundColor: [
+                        "#f4b942",
+                        "#27c58a",
+                        "#ef5965",
+                        "#5599ed",
+                        "#9299a7",
+                        "#a477e8"
+                    ],
+                    borderColor: "#191c23",
+                    borderWidth: 4,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "68%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            padding: 16,
+                            usePointStyle: true,
+                            pointStyle: "circle"
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /* Monthly revenue chart */
+    const revenueCanvas =
+        document.getElementById("revenueChart");
+
+    if (revenueCanvas) {
+        new Chart(revenueCanvas, {
+            type: "bar",
+            data: {
+                labels: revenueLabels,
+                datasets: [{
+                    label: "Revenue (INR)",
+                    data: revenueValues,
+                    backgroundColor: "rgba(255,133,27,0.78)",
+                    hoverBackgroundColor: "#ffad55",
+                    borderRadius: 7,
+                    maxBarThickness: 42
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return " ₹" +
+                                    Number(context.raw || 0).toLocaleString("en-IN");
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: "rgba(255,255,255,0.06)" },
+                        ticks: {
+                            callback: function(value) {
+                                return "₹" +
+                                    Number(value).toLocaleString("en-IN");
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+});
+
+/* CSV export */
+function downloadReportCSV() {
+
+    const rows = [
+        ["MEDIVERA - Reports & Analytics"],
+        ["Report generated", new Date().toLocaleString("en-IN")],
+        [],
+        ["Appointment Status", "Total"]
+    ];
+
+    const labels = {{ status_labels|default([])|tojson }};
+    const values = {{ status_values|default([])|tojson }};
+
+    labels.forEach(function(label, index) {
+        rows.push([label, values[index] ?? 0]);
+    });
+
+    rows.push([]);
+    rows.push(["Monthly Appointments"]);
+    rows.push(["Month", "Appointments"]);
+
+    const months = {{ month_labels|default([])|tojson }};
+    const appointments = {{ appointment_chart_values|default([])|tojson }};
+
+    months.forEach(function(month, index) {
+        rows.push([month, appointments[index] ?? 0]);
+    });
+
+    rows.push([]);
+    rows.push(["Monthly Revenue"]);
+    rows.push(["Month", "Revenue (INR)"]);
+
+    const revenueMonths = {{ revenue_labels|default([])|tojson }};
+    const revenues = {{ revenue_chart_values|default([])|tojson }};
+
+    revenueMonths.forEach(function(month, index) {
+        rows.push([month, revenues[index] ?? 0]);
+    });
+
+    const csv = rows.map(function(row) {
+        return row.map(function(value) {
+            return '"' + String(value ?? "").replace(/"/g, '""') + '"';
+        }).join(",");
+    }).join("\r\n");
+
+    const blob = new Blob(
+        ["\uFEFF" + csv],
+        { type: "text/csv;charset=utf-8;" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "MEDIVERA_Reports_Analytics.csv";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

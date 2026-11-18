@@ -1,0 +1,263 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#17191d">
+
+    <title>{% block title %}MEDIVERA{% endblock %}</title>
+
+    <link rel="icon" type="image/svg+xml"
+          href="{{ url_for('static', filename='images/branding/medivera-logo.png') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/medivera.css') }}">
+
+    {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/medivera-motion.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/medivera-skeuomorphic.css') }}">
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+{% block body %}
+
+<div class="app-shell mv-app-skeuo">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <a class="brand-lockup"
+   href="{{ url_for('dashboard') }}"
+   aria-label="MEDIVERA dashboard">
+
+    <img
+        class="brand-logo-image"
+        src="{{ url_for('static', filename='images/branding/medivera-logo.png') }}"
+        alt="MEDIVERA — Care, Heal, Live Better"
+        decoding="async">
+
+</a>
+
+        <div class="sidebar-label">WORKSPACE</div>
+
+       
+<nav class="sidebar-nav patient-sidebar-nav" aria-label="Patient navigation">
+
+    {% if request.blueprint == 'patient' %}
+
+        <div class="nav-section-label">MY HEALTHCARE</div>
+
+        <a href="{{ url_for('patient.dashboard') }}"
+           class="nav-link {% if request.endpoint == 'patient.dashboard' %}active{% endif %}">
+            <span class="nav-icon" aria-hidden="true">&#8962;</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="{{ url_for('patient.appointments') }}"
+           class="nav-link {% if request.endpoint == 'patient.appointments' %}active{% endif %}">
+            <span class="nav-icon" aria-hidden="true">&#9638;</span>
+            <span>My Appointments</span>
+        </a>
+
+        <a href="{{ url_for('patient.book_appointment') }}"
+           class="nav-link {% if request.endpoint == 'patient.book_appointment' %}active{% endif %}">
+            <span class="nav-icon" aria-hidden="true">&#43;</span>
+            <span>Book Appointment</span>
+        </a>
+
+        <div class="nav-section-label">MY MEDICAL INFORMATION</div>
+
+        <a href="{{ url_for('patient.profile') }}"
+           class="nav-link {% if request.endpoint == 'patient.profile' %}active{% endif %}">
+            <span class="nav-icon" aria-hidden="true">&#9673;</span>
+            <span>My Profile</span>
+        </a>
+
+        <a href="{{ url_for('patient.medical_records') }}"
+           class="nav-link {% if request.endpoint == 'patient.medical_records' %}active{% endif %}">
+            <span class="nav-icon" aria-hidden="true">&#10010;</span>
+            <span>Medical Records</span>
+        </a>
+
+        <a href="{{ url_for('patient.documents') }}"
+           class="nav-link {% if request.endpoint == 'patient.documents' %}active{% endif %}">
+            <span class="nav-icon" aria-hidden="true">&#9636;</span>
+            <span>My Documents</span>
+        </a>
+
+        <div class="nav-section-label">PATIENT SERVICES</div>
+
+        <a href="{{ url_for('patient.notifications') }}"
+           class="nav-link {% if request.endpoint == 'patient.notifications' %}active{% endif %}">
+            <span class="nav-icon" aria-hidden="true">&#9825;</span>
+            <span>Notifications</span>
+            {% if unread_notifications|default(0)|int > 0 %}
+                <span class="nav-badge">
+                    {{ unread_notifications }}
+                </span>
+            {% endif %}
+        </a>
+
+        <div class="sidebar-patient-support">
+            <span class="support-indicator"></span>
+            <div>
+                <strong>Patient workspace</strong>
+                <small>Your personal care portal</small>
+            </div>
+        </div>
+
+    {% else %}
+
+        {# Keep your existing non-patient/admin navigation here. #}
+
+    {% endif %}
+
+</nav>
+
+
+        <div class="sidebar-bottom">
+            <div class="secure-note">
+                <span class="secure-dot"></span>
+
+                <span>
+                    <b>Secure workspace</b>
+                    <small>Access-controlled environment</small>
+                </span>
+            </div>
+        </div>
+
+    </aside>
+    <button
+    type="button"
+    class="sidebar-backdrop"
+    id="sidebarBackdrop"
+    aria-label="Close navigation menu"
+    tabindex="-1">
+</button>
+
+    <!-- MAIN APPLICATION -->
+    <main class="main-area">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <button
+                class="icon-button mobile-menu"
+                id="menuToggle"
+                type="button"
+                aria-label="Open navigation menu"
+                aria-controls="sidebar"
+                aria-expanded="false">
+                &#9776;
+            </button>
+
+            <div class="breadcrumb">
+                <span>MEDIVERA</span>
+                <i>/</i>
+                {% block breadcrumb %}Workspace{% endblock %}
+            </div>
+
+            <a class="topbar-home-link"
+               href="{{ url_for('dashboard') }}"
+               title="Return to your dashboard">
+                <span aria-hidden="true">&#8962;</span>
+                <span>Home</span>
+            </a>
+
+            <div class="topbar-right">
+
+                <span class="system-status">
+                    <span class="secure-dot"></span>
+                    System workspace
+                </span>
+
+                {% if current_user %}
+
+                <a class="user-chip"
+                   href="{{ url_for('patient.profile') if request.endpoint and request.endpoint.startswith('patient.') else url_for('auth.profile') }}"
+                   title="View your profile"
+                   aria-label="View profile for {{ current_user.username }}">
+                    <span class="avatar">
+                        {{ (current_user.username or 'U')[:1]|upper }}
+                    </span>
+
+                    <span class="user-chip-name">
+                        {{ current_user.username }}
+                    </span>
+                </a>
+
+                <form method="post"
+                      action="{{ url_for('auth.logout') }}"
+                      class="logout-form">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <button class="button button-quiet button-small"
+                            type="submit">
+                        Sign out
+                    </button>
+
+                </form>
+
+                {% endif %}
+
+            </div>
+
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <section class="page-content">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    <div class="flash-stack" aria-live="polite">
+
+                        {% for category, message in messages %}
+
+                            <div class="flash flash-{{ category }}">
+                                {{ message }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <span>&copy; 2026 MEDIVERA</span>
+            <span>Connected Care. Better Tomorrow.</span>
+        </footer>
+
+    </main>
+
+</div>
+
+{% endblock %}
+
+<script src="{{ url_for('static', filename='js/medivera.js') }}" defer></script>
+
+{% block extra_js %}{% endblock %}
+
+    <script src="{{ url_for('static', filename='js/medivera-motion.js') }}" defer></script>
+</body>
+</html>

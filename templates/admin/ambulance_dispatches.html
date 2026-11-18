@@ -1,0 +1,750 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Ambulance Dispatches | MEDIVERA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dispatch-page {
+        color: #f3f4f6;
+    }
+
+    .dispatch-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 25px;
+    }
+
+    .dispatch-heading h1 {
+        font-size: 27px;
+        font-weight: 800;
+        margin: 0 0 7px;
+    }
+
+    .dispatch-heading p {
+        color: #969ba4;
+        margin: 0;
+        font-size: 13px;
+    }
+
+    .dispatch-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(244, 119, 33, .12);
+        border: 1px solid rgba(244, 119, 33, .3);
+        color: #ff994f;
+        padding: 10px 15px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .dispatch-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .dispatch-stat {
+        background: #1c1f23;
+        border: 1px solid #30343a;
+        border-radius: 15px;
+        padding: 19px;
+        min-width: 0;
+    }
+
+    .dispatch-stat-label {
+        color: #999fa8;
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+
+    .dispatch-stat-value {
+        font-size: 27px;
+        font-weight: 800;
+        color: #fff;
+    }
+
+    .dispatch-stat-icon {
+        font-size: 19px;
+        margin-bottom: 12px;
+        color: #f47721;
+    }
+
+    .dispatch-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        background: #1c1f23;
+        border: 1px solid #30343a;
+        padding: 17px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+    }
+
+    .dispatch-toolbar form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        flex: 1;
+    }
+
+    .dispatch-input,
+    .dispatch-select,
+    .dispatch-textarea {
+        background: #111315;
+        color: #f3f4f6;
+        border: 1px solid #373c43;
+        border-radius: 9px;
+        padding: 11px 12px;
+        font-size: 13px;
+        outline: none;
+        width: 100%;
+    }
+
+    .dispatch-input:focus,
+    .dispatch-select:focus,
+    .dispatch-textarea:focus {
+        border-color: #f47721;
+    }
+
+    .dispatch-search {
+        max-width: 280px;
+    }
+
+    .dispatch-filter {
+        max-width: 190px;
+    }
+
+    .dispatch-btn {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 7px;
+        padding: 11px 16px;
+        border: 0;
+        border-radius: 9px;
+        background: #f47721;
+        color: white;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .dispatch-btn:hover {
+        background: #ff8c38;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .dispatch-btn.secondary {
+        background: #30343a;
+        color: #e5e7eb;
+    }
+
+    .dispatch-btn.secondary:hover {
+        background: #414750;
+    }
+
+    .dispatch-list-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin: 25px 0 15px;
+    }
+
+    .dispatch-list-heading h2 {
+        font-size: 18px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .dispatch-list-heading span {
+        color: #9298a1;
+        font-size: 12px;
+    }
+
+    .dispatch-card {
+        background: #1c1f23;
+        border: 1px solid #30343a;
+        border-radius: 16px;
+        margin-bottom: 17px;
+        overflow: hidden;
+    }
+
+    .dispatch-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 17px 20px;
+        border-bottom: 1px solid #30343a;
+        background: #202328;
+    }
+
+    .dispatch-reference {
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .dispatch-reference small {
+        display: block;
+        margin-top: 5px;
+        font-size: 11px;
+        color: #9298a1;
+        font-weight: 500;
+    }
+
+    .dispatch-status {
+        display: inline-block;
+        border-radius: 30px;
+        padding: 7px 12px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        background: #30343a;
+        color: #ddd;
+    }
+
+    .status-dispatched {
+        background: rgba(244,119,33,.15);
+        color: #ff994f;
+    }
+
+    .status-arrived {
+        background: rgba(52,152,219,.15);
+        color: #62b9f5;
+    }
+
+    .status-transporting {
+        background: rgba(39,199,130,.15);
+        color: #4de0a0;
+    }
+
+    .status-completed {
+        background: rgba(39,199,130,.15);
+        color: #4de0a0;
+    }
+
+    .status-cancelled {
+        background: rgba(240,91,98,.15);
+        color: #ff777e;
+    }
+
+    .status-requested {
+        background: rgba(255,193,7,.13);
+        color: #ffd166;
+    }
+
+    .dispatch-card-body {
+        padding: 20px;
+    }
+
+    .dispatch-details-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .dispatch-detail {
+        min-width: 0;
+    }
+
+    .dispatch-detail-label {
+        color: #9298a1;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        margin-bottom: 7px;
+    }
+
+    .dispatch-detail-value {
+        color: #f3f4f6;
+        font-size: 13px;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+    }
+
+    .dispatch-route {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 20px;
+        padding: 16px;
+        border-radius: 12px;
+        background: #141619;
+        border: 1px solid #30343a;
+    }
+
+    .dispatch-route-point {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        min-width: 0;
+    }
+
+    .dispatch-route-icon {
+        width: 33px;
+        height: 33px;
+        min-width: 33px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        background: rgba(244,119,33,.13);
+        color: #ff994f;
+    }
+
+    .dispatch-route-point small {
+        display: block;
+        color: #9298a1;
+        font-size: 10px;
+        margin-bottom: 5px;
+    }
+
+    .dispatch-route-point strong {
+        display: block;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+    }
+
+    .dispatch-notes {
+        margin-top: 17px;
+        padding: 13px;
+        background: #141619;
+        border-radius: 10px;
+        color: #b5bac2;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .dispatch-update {
+        border-top: 1px solid #30343a;
+        padding: 17px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .dispatch-update-title {
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 5px;
+    }
+
+    .dispatch-update-subtitle {
+        font-size: 10px;
+        color: #9298a1;
+    }
+
+    .dispatch-update-form {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .dispatch-update-form .dispatch-select {
+        width: 175px;
+    }
+
+    .dispatch-empty {
+        padding: 55px 20px;
+        text-align: center;
+        background: #1c1f23;
+        border: 1px dashed #414750;
+        border-radius: 15px;
+    }
+
+    .dispatch-empty-icon {
+        font-size: 35px;
+        color: #f47721;
+        margin-bottom: 14px;
+    }
+
+    .dispatch-empty h3 {
+        font-size: 17px;
+        margin-bottom: 8px;
+    }
+
+    .dispatch-empty p {
+        color: #9298a1;
+        font-size: 12px;
+    }
+
+    @media(max-width: 1050px) {
+        .dispatch-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .dispatch-details-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media(max-width: 650px) {
+        .dispatch-stats {
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+        }
+
+        .dispatch-stat {
+            padding: 13px;
+        }
+
+        .dispatch-stat-value {
+            font-size: 22px;
+        }
+
+        .dispatch-details-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .dispatch-route {
+            grid-template-columns: 1fr;
+        }
+
+        .dispatch-search,
+        .dispatch-filter {
+            max-width: none;
+        }
+
+        .dispatch-toolbar form {
+            width: 100%;
+        }
+
+        .dispatch-update-form {
+            width: 100%;
+        }
+
+        .dispatch-update-form .dispatch-select {
+            width: 100%;
+        }
+
+        .dispatch-update-form .dispatch-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<span>Emergency Management</span>
+<span style="margin: 0 8px; color:#777;">/</span>
+<span>Ambulance Dispatches</span>
+{% endblock %}
+
+{% block content %}
+<div class="dispatch-page">
+
+    <!-- PAGE HEADER -->
+    <div class="dispatch-heading">
+        <div>
+            <h1>Ambulance Dispatches</h1>
+            <p>Monitor emergency ambulance movements and update dispatch progress.</p>
+        </div>
+
+        <div class="dispatch-label">
+            <span>●</span>
+            Emergency Operations
+        </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="dispatch-stats">
+
+        <div class="dispatch-stat">
+            <div class="dispatch-stat-icon">🚑</div>
+            <div class="dispatch-stat-label">Total Dispatches</div>
+            <div class="dispatch-stat-value">{{ dispatches|length }}</div>
+        </div>
+
+        <div class="dispatch-stat">
+            <div class="dispatch-stat-icon">🟠</div>
+            <div class="dispatch-stat-label">Dispatched</div>
+            <div class="dispatch-stat-value">
+                {{ dispatches|selectattr('dispatch_status', 'equalto', 'Dispatched')|list|length }}
+            </div>
+        </div>
+
+        <div class="dispatch-stat">
+            <div class="dispatch-stat-icon">🟢</div>
+            <div class="dispatch-stat-label">Transporting</div>
+            <div class="dispatch-stat-value">
+                {{ dispatches|selectattr('dispatch_status', 'equalto', 'Transporting')|list|length }}
+            </div>
+        </div>
+
+        <div class="dispatch-stat">
+            <div class="dispatch-stat-icon">✓</div>
+            <div class="dispatch-stat-label">Completed</div>
+            <div class="dispatch-stat-value">
+                {{ dispatches|selectattr('dispatch_status', 'equalto', 'Completed')|list|length }}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SEARCH AND FILTER -->
+    <div class="dispatch-toolbar">
+
+        <form method="GET" action="{{ url_for('admin.ambulance_dispatches') }}">
+
+            <input
+                type="text"
+                name="search"
+                class="dispatch-input dispatch-search"
+                placeholder="Search dispatch, case or ambulance..."
+                value="{{ search or '' }}"
+            >
+
+            <select name="status" class="dispatch-select dispatch-filter">
+                <option value="">All Dispatch Statuses</option>
+                {% for status in ['Requested', 'Dispatched', 'Arrived', 'Transporting', 'Completed', 'Cancelled'] %}
+                    <option value="{{ status }}"
+                        {% if status_filter == status %}selected{% endif %}>
+                        {{ status }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="dispatch-btn">
+                Search / Filter
+            </button>
+
+            <a href="{{ url_for('admin.ambulance_dispatches') }}"
+               class="dispatch-btn secondary">
+                Reset
+            </a>
+
+        </form>
+
+    </div>
+
+    <!-- DISPATCH LIST -->
+    <div class="dispatch-list-heading">
+        <h2>Dispatch Records</h2>
+        <span>{{ dispatches|length }} record(s) displayed</span>
+    </div>
+
+    {% if dispatches %}
+
+        {% for dispatch in dispatches %}
+
+            <div class="dispatch-card">
+
+                <!-- CARD HEADER -->
+                <div class="dispatch-card-header">
+
+                    <div class="dispatch-reference">
+                        Dispatch #{{ dispatch.get('dispatch_id', 'N/A') }}
+                        <small>
+                            Emergency Case:
+                            {{ dispatch.get('case_number', 'Not linked') }}
+                        </small>
+                    </div>
+
+                    {% set current_status = dispatch.get('dispatch_status', '') %}
+                    <span class="dispatch-status status-{{ current_status|lower|replace(' ', '-') }}">
+                        {{ current_status or 'Unknown' }}
+                    </span>
+
+                </div>
+
+                <!-- CARD BODY -->
+                <div class="dispatch-card-body">
+
+                    <div class="dispatch-details-grid">
+
+                        <div class="dispatch-detail">
+                            <div class="dispatch-detail-label">Ambulance</div>
+                            <div class="dispatch-detail-value">
+                                {{ dispatch.get('ambulance_code', 'N/A') }}
+                            </div>
+                        </div>
+
+                        <div class="dispatch-detail">
+                            <div class="dispatch-detail-label">Registration Number</div>
+                            <div class="dispatch-detail-value">
+                                {{ dispatch.get('registration_number', 'N/A') }}
+                            </div>
+                        </div>
+
+                        <div class="dispatch-detail">
+                            <div class="dispatch-detail-label">Ambulance Type</div>
+                            <div class="dispatch-detail-value">
+                                {{ dispatch.get('ambulance_type', 'N/A') }}
+                            </div>
+                        </div>
+
+                        <div class="dispatch-detail">
+                            <div class="dispatch-detail-label">Driver</div>
+                            <div class="dispatch-detail-value">
+                                {{ dispatch.get('driver_name', 'Not assigned') }}
+                            </div>
+                        </div>
+
+                        <div class="dispatch-detail">
+                            <div class="dispatch-detail-label">Emergency Type</div>
+                            <div class="dispatch-detail-value">
+                                {{ dispatch.get('emergency_type', 'N/A') }}
+                            </div>
+                        </div>
+
+                        <div class="dispatch-detail">
+                            <div class="dispatch-detail-label">Severity</div>
+                            <div class="dispatch-detail-value">
+                                {{ dispatch.get('severity', 'N/A') }}
+                            </div>
+                        </div>
+
+                        <div class="dispatch-detail">
+                            <div class="dispatch-detail-label">Dispatch Time</div>
+                            <div class="dispatch-detail-value">
+                                {{ dispatch.get('dispatch_time') or 'Not recorded' }}
+                            </div>
+                        </div>
+
+                        <div class="dispatch-detail">
+                            <div class="dispatch-detail-label">Arrival Time</div>
+                            <div class="dispatch-detail-value">
+                                {{ dispatch.get('arrival_time') or 'Not recorded' }}
+                            </div>
+                        </div>
+
+                        <div class="dispatch-detail">
+                            <div class="dispatch-detail-label">Hospital Arrival</div>
+                            <div class="dispatch-detail-value">
+                                {{ dispatch.get('hospital_arrival_time') or 'Not recorded' }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- PICKUP AND DESTINATION -->
+                    <div class="dispatch-route">
+
+                        <div class="dispatch-route-point">
+                            <div class="dispatch-route-icon">📍</div>
+                            <div>
+                                <small>Pickup Location</small>
+                                <strong>
+                                    {{ dispatch.get('pickup_location') or 'Not provided' }}
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="dispatch-route-point">
+                            <div class="dispatch-route-icon">🏥</div>
+                            <div>
+                                <small>Destination</small>
+                                <strong>
+                                    {{ dispatch.get('destination') or 'Not provided' }}
+                                </strong>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {% if dispatch.get('dispatch_notes') %}
+                        <div class="dispatch-notes">
+                            <strong>Dispatch Notes:</strong>
+                            {{ dispatch.get('dispatch_notes') }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                <!-- STATUS UPDATE -->
+                {% if current_status not in ['Completed', 'Cancelled'] %}
+
+                    <div class="dispatch-update">
+
+                        <div>
+                            <div class="dispatch-update-title">
+                                Update Dispatch Progress
+                            </div>
+                            <div class="dispatch-update-subtitle">
+                                Select the latest operational status.
+                            </div>
+                        </div>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin.update_dispatch_status', dispatch_id=dispatch.get('dispatch_id')) }}"
+                            class="dispatch-update-form"
+                            onsubmit="return confirm('Update this ambulance dispatch status?');"
+                        >
+
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                            <select name="dispatch_status"
+                                    class="dispatch-select"
+                                    required>
+
+                                {% for status in ['Dispatched', 'Arrived', 'Transporting', 'Completed', 'Cancelled'] %}
+                                    <option value="{{ status }}"
+                                        {% if current_status == status %}selected{% endif %}>
+                                        {{ status }}
+                                    </option>
+                                {% endfor %}
+
+                            </select>
+
+                            <button type="submit" class="dispatch-btn">
+                                Update Status
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="dispatch-update">
+                        <div class="dispatch-update-title">
+                            {% if current_status == 'Completed' %}
+                                ✓ This dispatch has been completed.
+                            {% else %}
+                                This dispatch has been cancelled.
+                            {% endif %}
+                        </div>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="dispatch-empty">
+            <div class="dispatch-empty-icon">🚑</div>
+            <h3>No Ambulance Dispatches Found</h3>
+            <p>
+                There are currently no dispatch records matching your search.
+                Approved ambulance requests can be assigned from Ambulance Requests.
+            </p>
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

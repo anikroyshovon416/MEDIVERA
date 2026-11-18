@@ -1,0 +1,1825 @@
+
+{% extends "base.html" %}
+
+{% block title %}Doctors Management | MediCare+{% endblock %}
+
+{% block breadcrumb %}
+<span>Dashboard</span>
+<span>/</span>
+<span>Doctors Management</span>
+{% endblock %}
+
+{% block page_heading %}Doctors Management{% endblock %}
+
+{% block page_subtitle %}
+Manage your medical professionals, specializations and availability.
+{% endblock %}
+
+{% block extra_css %}
+<style>
+
+/* =====================================================
+   MEDICARE+ DOCTORS MANAGEMENT
+   Professional Beige | Burgundy | Forest Green Theme
+===================================================== */
+
+:root {
+    --doctor-burgundy: #542638;
+    --doctor-burgundy-light: #78394d;
+    --doctor-green: #245B43;
+    --doctor-beige: #F2EBDD;
+    --doctor-border: #E9E2D8;
+    --doctor-text: #392A2D;
+    --doctor-muted: #89817A;
+}
+
+/* =====================================================
+   MAIN LAYOUT
+===================================================== */
+
+.doctors-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+.doctors-welcome {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 30px;
+    color: white;
+    background: linear-gradient(
+        120deg,
+        #542638,
+        #78394D
+    );
+    border-radius: 15px;
+    box-shadow: 0 8px 22px rgba(84, 38, 56, 0.12);
+}
+
+.doctors-welcome::after {
+    content: "";
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    right: 40px;
+    top: -100px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 25px rgba(255,255,255,.035),
+        0 0 0 50px rgba(255,255,255,.025);
+    pointer-events: none;
+}
+
+.welcome-content {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-content h2 {
+    font-size: 25px;
+    margin: 0 0 9px;
+    font-weight: 750;
+}
+
+.welcome-content p {
+    margin: 0;
+    color: #F0DFE4;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.welcome-icon {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 65px;
+    height: 65px;
+    flex-shrink: 0;
+    background: rgba(255,255,255,.13);
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 18px;
+    font-size: 29px;
+    animation: doctorPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes doctorPulse {
+    0%, 100% {
+        transform: translateY(0);
+        box-shadow: 0 0 0 0 rgba(255,255,255,.15);
+    }
+    50% {
+        transform: translateY(-4px);
+        box-shadow: 0 0 0 9px rgba(255,255,255,.035);
+    }
+}
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+.doctors-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 17px;
+}
+
+.doctor-stat-card {
+    position: relative;
+    overflow: hidden;
+    padding: 22px;
+    background: #FFFFFF;
+    border: 1px solid var(--doctor-border);
+    border-radius: 13px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.025);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.doctor-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,.06);
+}
+
+.doctor-stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.doctor-stat-card span {
+    color: #77716B;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.doctor-stat-card h3 {
+    color: var(--doctor-burgundy);
+    font-size: 29px;
+    margin: 13px 0 0;
+    font-weight: 750;
+}
+
+.doctor-stat-icon {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    font-size: 18px;
+}
+
+.doctor-stat-icon.burgundy {
+    background: #F5E8EC;
+    color: var(--doctor-burgundy);
+}
+
+.doctor-stat-icon.green {
+    background: #E7F2E9;
+    color: var(--doctor-green);
+}
+
+.doctor-stat-icon.beige {
+    background: #F5EFE3;
+    color: #957443;
+}
+
+.stat-caption {
+    display: block;
+    color: var(--doctor-muted);
+    font-size: 10px;
+    margin-top: 7px;
+}
+
+/* =====================================================
+   GENERAL SECTION
+===================================================== */
+
+.doctor-section {
+    background: white;
+    border: 1px solid var(--doctor-border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0,0,0,.025);
+}
+
+.doctor-section-header {
+    padding: 21px 23px;
+    border-bottom: 1px solid #EEE8DF;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.doctor-section-header h3 {
+    margin: 0;
+    color: var(--doctor-text);
+    font-size: 17px;
+    font-weight: 750;
+}
+
+.doctor-section-header p {
+    margin: 6px 0 0;
+    color: var(--doctor-muted);
+    font-size: 11px;
+}
+
+.doctor-count {
+    background: var(--doctor-beige);
+    color: var(--doctor-burgundy);
+    padding: 8px 13px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.doctor-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 11px 17px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .25s ease;
+}
+
+.doctor-btn-primary {
+    background: var(--doctor-burgundy);
+    color: white;
+    box-shadow: 0 4px 10px rgba(84,38,56,.13);
+}
+
+.doctor-btn-primary:hover {
+    background: #703348;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 15px rgba(84,38,56,.2);
+}
+
+.doctor-btn-secondary {
+    background: #F2EBE2;
+    color: var(--doctor-text);
+}
+
+.doctor-btn-secondary:hover {
+    background: #E8DFD3;
+}
+
+.doctor-btn-success {
+    background: var(--doctor-green);
+    color: white;
+}
+
+.doctor-btn-success:hover {
+    background: #194A35;
+}
+
+/* =====================================================
+   REGISTRATION FORM
+===================================================== */
+
+.doctor-form-section {
+    display: none;
+    animation: doctorFormAppear .3s ease;
+}
+
+.doctor-form-section.show {
+    display: block;
+}
+
+@keyframes doctorFormAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.doctor-form-heading {
+    padding: 21px 23px;
+    background: #FCFAF6;
+    border-bottom: 1px solid var(--doctor-border);
+}
+
+.doctor-form-heading h3 {
+    color: var(--doctor-burgundy);
+    font-size: 17px;
+    margin: 0 0 6px;
+}
+
+.doctor-form-heading p {
+    color: var(--doctor-muted);
+    font-size: 11px;
+    margin: 0;
+}
+
+.doctor-form {
+    padding: 24px;
+}
+
+.doctor-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 19px;
+}
+
+.doctor-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.doctor-form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.doctor-form-group label {
+    color: #51454A;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.required-mark {
+    color: #B13D4F;
+}
+
+.doctor-form-group input,
+.doctor-form-group select {
+    width: 100%;
+    height: 43px;
+    padding: 0 12px;
+    border: 1px solid #E5DDD3;
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: #392A2D;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+    transition: border .2s ease, box-shadow .2s ease;
+}
+
+.doctor-form-group input:focus,
+.doctor-form-group select:focus {
+    border-color: var(--doctor-burgundy);
+    box-shadow: 0 0 0 3px rgba(84,38,56,.08);
+}
+
+.doctor-form-group input::placeholder {
+    color: #AAA19A;
+}
+
+.doctor-form-hint {
+    color: #938A82;
+    font-size: 10px;
+}
+
+.doctor-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #EEE8DF;
+}
+
+/* =====================================================
+   SEARCH AND FILTER
+===================================================== */
+
+.doctor-tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 18px 22px;
+    border-bottom: 1px solid #EEE8DF;
+}
+
+.doctor-search {
+    position: relative;
+    flex: 1;
+    min-width: 210px;
+    max-width: 390px;
+}
+
+.doctor-search i {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #91877F;
+    font-size: 13px;
+}
+
+.doctor-search input {
+    width: 100%;
+    height: 39px;
+    padding: 0 12px 0 36px;
+    border: 1px solid #E8E0D7;
+    border-radius: 8px;
+    background: #FCFAF7;
+    font-size: 11px;
+    outline: none;
+}
+
+.doctor-search input:focus {
+    border-color: var(--doctor-burgundy);
+}
+
+.doctor-filter {
+    height: 39px;
+    min-width: 155px;
+    padding: 0 12px;
+    border: 1px solid #E8E0D7;
+    border-radius: 8px;
+    background: white;
+    color: #51454A;
+    font-size: 11px;
+    outline: none;
+}
+
+/* =====================================================
+   DOCTOR TABLE
+===================================================== */
+
+.doctor-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.doctor-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+}
+
+.doctor-table th {
+    padding: 15px 17px;
+    background: #F8F5EF;
+    color: #645C55;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    white-space: nowrap;
+}
+
+.doctor-table td {
+    padding: 17px;
+    border-bottom: 1px solid #F0ECE6;
+    color: #4D4540;
+    font-size: 11px;
+    vertical-align: middle;
+}
+
+.doctor-table tbody tr {
+    transition: background .2s ease;
+}
+
+.doctor-table tbody tr:hover {
+    background: #FCFAF6;
+}
+
+.doctor-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.doctor-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.doctor-avatar {
+    width: 37px;
+    height: 37px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    background: #F3E9EC;
+    color: var(--doctor-burgundy);
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.doctor-name {
+    display: block;
+    color: var(--doctor-burgundy);
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.doctor-id {
+    display: block;
+    margin-top: 4px;
+    color: #999087;
+    font-size: 9px;
+}
+
+.doctor-specialization {
+    display: inline-block;
+    background: #F2EBDD;
+    color: #684B36;
+    padding: 6px 9px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.doctor-contact {
+    color: #5B514B;
+    white-space: nowrap;
+}
+
+.doctor-email {
+    color: #766C64;
+}
+
+.doctor-fee {
+    color: var(--doctor-green);
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.doctor-experience {
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.doctor-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.doctor-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.status-available {
+    background: #E6F3E9;
+    color: #28723B;
+}
+
+.status-unavailable {
+    background: #F8E7E7;
+    color: #A33C3C;
+}
+
+.status-other {
+    background: #F2EBDD;
+    color: #795C34;
+}
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.doctor-empty {
+    text-align: center;
+    padding: 55px 20px;
+}
+
+.doctor-empty-icon {
+    width: 68px;
+    height: 68px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 17px;
+    background: #F5EBED;
+    color: var(--doctor-burgundy);
+    border-radius: 20px;
+    font-size: 28px;
+    animation: doctorPulse 2.5s ease-in-out infinite;
+}
+
+.doctor-empty h3 {
+    color: var(--doctor-burgundy);
+    margin: 0 0 8px;
+    font-size: 17px;
+}
+
+.doctor-empty p {
+    color: var(--doctor-muted);
+    font-size: 11px;
+    margin: 0 0 18px;
+    line-height: 1.7;
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.doctor-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px 22px;
+    background: #FCFAF6;
+    border-top: 1px solid #EEE8DF;
+    color: #81786F;
+    font-size: 10px;
+}
+
+.doctor-footer i {
+    color: var(--doctor-green);
+}
+
+/* =====================================================
+   FLASH MESSAGES
+===================================================== */
+
+.doctor-message {
+    padding: 13px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.doctor-message.success {
+    background: #E8F4EA;
+    border: 1px solid #CDE5D2;
+    color: #245B43;
+}
+
+.doctor-message.error {
+    background: #F9E9E9;
+    border: 1px solid #EED0D0;
+    color: #A33C3C;
+}
+
+/* =====================================================
+   RESPONSIVE DESIGN
+===================================================== */
+
+@media (max-width: 900px) {
+    .doctors-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 650px) {
+    .doctors-welcome {
+        padding: 22px;
+    }
+
+    .welcome-content h2 {
+        font-size: 20px;
+    }
+
+    .welcome-icon {
+        width: 52px;
+        height: 52px;
+        font-size: 23px;
+    }
+
+    .doctors-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .doctor-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .doctor-form-group.full-width {
+        grid-column: auto;
+    }
+
+    .doctor-tools {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .doctor-search {
+        max-width: none;
+    }
+
+    .doctor-filter {
+        width: 100%;
+    }
+
+    .doctor-form-actions {
+        justify-content: stretch;
+    }
+
+    .doctor-form-actions .doctor-btn {
+        flex: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .welcome-icon,
+    .doctor-empty-icon {
+        animation: none;
+    }
+
+    .doctor-stat-card,
+    .doctor-btn {
+        transition: none;
+    }
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="doctors-container">
+
+    <!-- =================================================
+         01. WELCOME BANNER
+    ================================================== -->
+
+    <section class="doctors-welcome">
+
+        <div class="welcome-content">
+
+            <h2>Medical Professionals Directory</h2>
+
+            <p>
+                A centralized workspace to register, organize
+                and monitor your hospital's medical professionals.
+            </p>
+
+        </div>
+
+        <div class="welcome-icon" aria-label="Medical icon">
+            <i class="bi bi-heart-pulse"></i>
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         02. FLASH NOTIFICATIONS
+    ================================================== -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% for category, message in messages %}
+
+            <div class="doctor-message
+                {% if category == 'success' %}
+                    success
+                {% else %}
+                    error
+                {% endif %}">
+
+                <i class="bi
+                    {% if category == 'success' %}
+                        bi-check-circle
+                    {% else %}
+                        bi-exclamation-circle
+                    {% endif %}">
+                </i>
+
+                {{ message }}
+
+            </div>
+
+        {% endfor %}
+
+    {% endwith %}
+
+
+    <!-- =================================================
+         03. STATISTICS
+    ================================================== -->
+
+    {% set available_count = namespace(value=0) %}
+
+    {% for doctor in doctors %}
+
+        {% if doctor.availability_status|string|lower == 'available' %}
+
+            {% set available_count.value = available_count.value + 1 %}
+
+        {% endif %}
+
+    {% endfor %}
+
+
+    <section class="doctors-stats">
+
+        <article class="doctor-stat-card">
+
+            <div class="doctor-stat-top">
+
+                <span>Total Registered Doctors</span>
+
+                <div class="doctor-stat-icon burgundy">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+
+            </div>
+
+            <h3>{{ doctors|length }}</h3>
+
+            <span class="stat-caption">
+                Medical professionals in the database
+            </span>
+
+        </article>
+
+
+        <article class="doctor-stat-card">
+
+            <div class="doctor-stat-top">
+
+                <span>Available Doctors</span>
+
+                <div class="doctor-stat-icon green">
+                    <i class="bi bi-person-check"></i>
+                </div>
+
+            </div>
+
+            <h3>{{ available_count.value }}</h3>
+
+            <span class="stat-caption">
+                Currently marked as available
+            </span>
+
+        </article>
+
+
+        <article class="doctor-stat-card">
+
+            <div class="doctor-stat-top">
+
+                <span>Unavailable Doctors</span>
+
+                <div class="doctor-stat-icon beige">
+                    <i class="bi bi-person-x"></i>
+                </div>
+
+            </div>
+
+            <h3>{{ doctors|length - available_count.value }}</h3>
+
+            <span class="stat-caption">
+                Other availability statuses
+            </span>
+
+        </article>
+
+    </section>
+
+
+    <!-- =================================================
+         04. REGISTRATION SECTION
+    ================================================== -->
+
+    <section class="doctor-section">
+
+        <div class="doctor-section-header">
+
+            <div>
+
+                <h3>
+                    <i class="bi bi-person-plus"
+                       style="color:#542638;margin-right:7px;">
+                    </i>
+
+                    Doctor Registration
+                </h3>
+
+                <p>
+                    Add a new medical professional to your hospital.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                class="doctor-btn doctor-btn-primary"
+                id="toggleDoctorForm"
+                aria-expanded="false"
+                aria-controls="doctorRegistrationForm">
+
+                <i class="bi bi-plus-circle"></i>
+
+                Add New Doctor
+
+            </button>
+
+        </div>
+
+
+        <!-- REGISTRATION FORM -->
+
+        <div class="doctor-form-section"
+             id="doctorRegistrationForm">
+
+            <div class="doctor-form-heading">
+
+                <h3>
+                    <i class="bi bi-clipboard2-plus"></i>
+                    New Doctor Information
+                </h3>
+
+                <p>
+                    Fields marked with * are mandatory.
+                </p>
+
+            </div>
+
+
+            <form
+                class="doctor-form"
+                action="{{ url_for('add_doctor') }}"
+                method="POST">
+
+                <div class="doctor-form-grid">
+
+
+                    <!-- DOCTOR NAME -->
+
+                    <div class="doctor-form-group">
+
+                        <label for="doctor_name">
+                            Doctor Full Name
+                            <span class="required-mark">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="doctor_name"
+                            name="doctor_name"
+                            placeholder="Enter doctor's full name"
+                            maxlength="100"
+                            required>
+
+                    </div>
+
+
+                    <!-- DEPARTMENT -->
+
+                    <div class="doctor-form-group">
+
+                        <label for="department_id">
+                            Medical Department
+                            <span class="required-mark">*</span>
+                        </label>
+
+                        <select
+                            id="department_id"
+                            name="department_id"
+                            required>
+
+                            <option value="">
+                                Select Department
+                            </option>
+
+                            {% for department in departments %}
+
+                                <option value="{{ department.department_id }}">
+                                    {{ department.department_name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                        <span class="doctor-form-hint">
+                            Select an existing hospital department.
+                        </span>
+
+                    </div>
+
+
+                    <!-- SPECIALIZATION -->
+
+                    <div class="doctor-form-group">
+
+                        <label for="specialization">
+                            Specialization
+                        </label>
+
+                        <input
+                            type="text"
+                            id="specialization"
+                            name="specialization"
+                            maxlength="100"
+                            placeholder="e.g. Cardiologist">
+
+                    </div>
+
+
+                    <!-- PHONE -->
+
+                    <div class="doctor-form-group">
+
+                        <label for="phone">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            maxlength="15"
+                            placeholder="Enter contact number">
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="doctor-form-group">
+
+                        <label for="email">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            maxlength="100"
+                            placeholder="doctor@hospital.com">
+
+                    </div>
+
+
+                    <!-- CONSULTATION FEE -->
+
+                    <div class="doctor-form-group">
+
+                        <label for="consultation_fee">
+                            Consultation Fee (₹)
+                            <span class="required-mark">*</span>
+                        </label>
+
+                        <input
+                            type="number"
+                            id="consultation_fee"
+                            name="consultation_fee"
+                            min="0"
+                            max="99999999.99"
+                            step="0.01"
+                            placeholder="Enter consultation fee"
+                            required>
+
+                    </div>
+
+
+                    <!-- EXPERIENCE -->
+
+                    <div class="doctor-form-group">
+
+                        <label for="experience_years">
+                            Experience (Years)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="experience_years"
+                            name="experience_years"
+                            min="0"
+                            max="100"
+                            step="1"
+                            value="0"
+                            placeholder="Enter experience">
+
+                    </div>
+
+
+                    <!-- AVAILABILITY -->
+
+                    <div class="doctor-form-group">
+
+                        <label for="availability_status">
+                            Availability Status
+                        </label>
+
+                        <select
+                            id="availability_status"
+                            name="availability_status">
+
+                            <option value="available">
+                                Available
+                            </option>
+
+                            <option value="unavailable">
+                                Unavailable
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- FORM BUTTONS -->
+
+                <div class="doctor-form-actions">
+
+                    <button
+                        type="button"
+                        class="doctor-btn doctor-btn-secondary"
+                        id="cancelDoctorForm">
+
+                        <i class="bi bi-x-circle"></i>
+                        Cancel
+
+                    </button>
+
+
+                    <button
+                        type="reset"
+                        class="doctor-btn doctor-btn-secondary">
+
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Reset
+
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="doctor-btn doctor-btn-success">
+
+                        <i class="bi bi-check-circle"></i>
+                        Register Doctor
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         05. REGISTERED DOCTORS DIRECTORY
+    ================================================== -->
+
+    <section class="doctor-section">
+
+        <div class="doctor-section-header">
+
+            <div>
+
+                <h3>
+                    <i class="bi bi-hospital"
+                       style="color:#542638;margin-right:7px;">
+                    </i>
+
+                    Registered Doctors
+                </h3>
+
+                <p>
+                    Doctor information retrieved from your MySQL database.
+                </p>
+
+            </div>
+
+            <span class="doctor-count">
+                {{ doctors|length }} Doctors
+            </span>
+
+        </div>
+
+
+        <!-- SEARCH AND FILTER -->
+
+        <div class="doctor-tools">
+
+            <div class="doctor-search">
+
+                <i class="bi bi-search"></i>
+
+                <input
+                    type="search"
+                    id="doctorSearch"
+                    placeholder="Search by doctor name, ID or specialization..."
+                    aria-label="Search doctors">
+
+            </div>
+
+
+            <select
+                class="doctor-filter"
+                id="doctorStatusFilter"
+                aria-label="Filter doctors by availability">
+
+                <option value="all">
+                    All Availability
+                </option>
+
+                <option value="available">
+                    Available
+                </option>
+
+                <option value="unavailable">
+                    Unavailable
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- TABLE -->
+
+        <div class="doctor-table-wrapper">
+
+            {% if doctors %}
+
+            <table class="doctor-table" id="doctorTable">
+
+                <thead>
+
+                    <tr>
+                        <th>Doctor ID</th>
+                        <th>Doctor Name</th>
+                        <th>Specialization</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Consultation Fee</th>
+                        <th>Experience</th>
+                        <th>Availability</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for doctor in doctors %}
+
+                    {% set status =
+                        doctor.availability_status|string|lower
+                    %}
+
+
+                    <tr
+                        data-status="{{ status }}"
+                        data-search="{{ (
+                            doctor.doctor_id|string ~ ' ' ~
+                            doctor.doctor_name ~ ' ' ~
+                            (doctor.specialization or '') ~ ' ' ~
+                            (doctor.phone or '') ~ ' ' ~
+                            (doctor.email or '')
+                        )|lower }}">
+
+                        <!-- ID -->
+
+                        <td>
+
+                            <span class="doctor-id">
+                                DOC-{{ doctor.doctor_id }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- NAME -->
+
+                        <td>
+
+                            <div class="doctor-profile">
+
+                                <div class="doctor-avatar">
+
+                                    {{ doctor.doctor_name[0]|upper }}
+
+                                </div>
+
+                                <div>
+
+                                    <span class="doctor-name">
+                                        {{ doctor.doctor_name }}
+                                    </span>
+
+                                    <span class="doctor-id">
+                                        Medical Professional
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- SPECIALIZATION -->
+
+                        <td>
+
+                            <span class="doctor-specialization">
+
+                                {{ doctor.specialization or 'Not specified' }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- PHONE -->
+
+                        <td>
+
+                            <span class="doctor-contact">
+                                {{ doctor.phone or 'Not provided' }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- EMAIL -->
+
+                        <td>
+
+                            <span class="doctor-email">
+                                {{ doctor.email or 'Not provided' }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- FEE -->
+
+                        <td>
+
+                            <span class="doctor-fee">
+
+                                ₹{{ "%.2f"|format(doctor.consultation_fee or 0) }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- EXPERIENCE -->
+
+                        <td>
+
+                            <span class="doctor-experience">
+
+                                {{ doctor.experience_years or 0 }} Years
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- AVAILABILITY -->
+
+                        <td>
+
+                            {% if status == 'available' %}
+
+                                <span class="doctor-status status-available">
+                                    Available
+                                </span>
+
+                            {% elif status == 'unavailable' %}
+
+                                <span class="doctor-status status-unavailable">
+                                    Unavailable
+                                </span>
+
+                            {% else %}
+
+                                <span class="doctor-status status-other">
+                                    {{ doctor.availability_status or 'Not specified' }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                    <!-- NO SEARCH RESULTS -->
+
+                    <tr id="noDoctorSearchResult" style="display:none;">
+
+                        <td colspan="8">
+
+                            <div class="doctor-empty">
+
+                                <i class="bi bi-search doctor-empty-icon"></i>
+
+                                <h3>No Matching Doctors</h3>
+
+                                <p>
+                                    Try another name, ID or availability filter.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+
+            {% else %}
+
+
+            <div class="doctor-empty">
+
+                <div class="doctor-empty-icon">
+                    <i class="bi bi-heart-pulse"></i>
+                </div>
+
+                <h3>No Doctors Registered Yet</h3>
+
+                <p>
+                    Your doctors database is currently empty.
+                    Register your first medical professional to get started.
+                </p>
+
+                <button
+                    type="button"
+                    class="doctor-btn doctor-btn-primary"
+                    id="emptyAddDoctor">
+
+                    <i class="bi bi-plus-circle"></i>
+                    Register First Doctor
+
+                </button>
+
+            </div>
+
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="doctor-footer">
+
+            <span>
+                <i class="bi bi-shield-check"></i>
+                MediCare+ | Doctor Directory
+            </span>
+
+            <span>
+                Live MySQL Database Records
+            </span>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+/* =====================================================
+   MEDICARE+ DOCTORS MODULE JAVASCRIPT
+===================================================== */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const toggleButton =
+        document.getElementById("toggleDoctorForm");
+
+    const cancelButton =
+        document.getElementById("cancelDoctorForm");
+
+    const emptyAddButton =
+        document.getElementById("emptyAddDoctor");
+
+    const registrationForm =
+        document.getElementById("doctorRegistrationForm");
+
+
+    /* =================================================
+       OPEN AND CLOSE REGISTRATION FORM
+    ================================================= */
+
+    function openDoctorForm() {
+
+        if (!registrationForm) return;
+
+        registrationForm.classList.add("show");
+
+        if (toggleButton) {
+
+            toggleButton.setAttribute(
+                "aria-expanded",
+                "true"
+            );
+
+            toggleButton.innerHTML =
+                '<i class="bi bi-dash-circle"></i> Close Form';
+
+        }
+
+        registrationForm.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+
+    function closeDoctorForm() {
+
+        if (!registrationForm) return;
+
+        registrationForm.classList.remove("show");
+
+        if (toggleButton) {
+
+            toggleButton.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+            toggleButton.innerHTML =
+                '<i class="bi bi-plus-circle"></i> Add New Doctor';
+
+        }
+
+    }
+
+
+    if (toggleButton) {
+
+        toggleButton.addEventListener("click", function () {
+
+            if (registrationForm.classList.contains("show")) {
+
+                closeDoctorForm();
+
+            } else {
+
+                openDoctorForm();
+
+            }
+
+        });
+
+    }
+
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            closeDoctorForm
+        );
+
+    }
+
+
+    if (emptyAddButton) {
+
+        emptyAddButton.addEventListener(
+            "click",
+            openDoctorForm
+        );
+
+    }
+
+
+    /* =================================================
+       DOCTOR SEARCH AND FILTER
+    ================================================= */
+
+    const searchInput =
+        document.getElementById("doctorSearch");
+
+    const statusFilter =
+        document.getElementById("doctorStatusFilter");
+
+    const doctorTable =
+        document.getElementById("doctorTable");
+
+    const noResults =
+        document.getElementById("noDoctorSearchResult");
+
+
+    function filterDoctors() {
+
+        if (!doctorTable) return;
+
+        const searchTerm = searchInput
+            ? searchInput.value.toLowerCase().trim()
+            : "";
+
+        const selectedStatus = statusFilter
+            ? statusFilter.value
+            : "all";
+
+        const doctorRows = doctorTable.querySelectorAll(
+            "tbody tr[data-search]"
+        );
+
+        let visibleCount = 0;
+
+
+        doctorRows.forEach(function (row) {
+
+            const searchableText =
+                row.getAttribute("data-search") || "";
+
+            const doctorStatus =
+                row.getAttribute("data-status") || "";
+
+            const matchesSearch =
+                searchableText.includes(searchTerm);
+
+            const matchesStatus =
+                selectedStatus === "all" ||
+                doctorStatus === selectedStatus;
+
+            const shouldDisplay =
+                matchesSearch && matchesStatus;
+
+            row.style.display =
+                shouldDisplay ? "" : "none";
+
+            if (shouldDisplay) {
+
+                visibleCount++;
+
+            }
+
+        });
+
+
+        if (noResults) {
+
+            noResults.style.display =
+                visibleCount === 0 ? "" : "none";
+
+        }
+
+    }
+
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            filterDoctors
+        );
+
+    }
+
+
+    if (statusFilter) {
+
+        statusFilter.addEventListener(
+            "change",
+            filterDoctors
+        );
+
+    }
+
+
+    /* =================================================
+       REGISTRATION FORM VALIDATION
+    ================================================= */
+
+    const doctorForm =
+        document.querySelector(".doctor-form");
+
+    if (doctorForm) {
+
+        doctorForm.addEventListener("submit", function (event) {
+
+            const name =
+                document.getElementById("doctor_name");
+
+            const department =
+                document.getElementById("department_id");
+
+            const fee =
+                document.getElementById("consultation_fee");
+
+            const experience =
+                document.getElementById("experience_years");
+
+
+            if (!name.value.trim()) {
+
+                event.preventDefault();
+
+                alert("Please enter the doctor's full name.");
+
+                name.focus();
+
+                return;
+
+            }
+
+
+            if (!department.value) {
+
+                event.preventDefault();
+
+                alert("Please select a medical department.");
+
+                department.focus();
+
+                return;
+
+            }
+
+
+            if (fee.value === "" || Number(fee.value) < 0) {
+
+                event.preventDefault();
+
+                alert("Please enter a valid consultation fee.");
+
+                fee.focus();
+
+                return;
+
+            }
+
+
+            if (
+                experience.value !== "" &&
+                Number(experience.value) < 0
+            ) {
+
+                event.preventDefault();
+
+                alert("Experience cannot be negative.");
+
+                experience.focus();
+
+                return;
+
+            }
+
+        });
+
+    }
+
+
+    /* =================================================
+       AUTOMATIC SEARCH INITIALIZATION
+    ================================================= */
+
+    filterDoctors();
+
+});
+
+</script>
+
+{% endblock %}

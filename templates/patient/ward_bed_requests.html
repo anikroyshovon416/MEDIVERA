@@ -1,0 +1,310 @@
+
+{% extends "base.html" %}
+
+{% block title %}Ward & Bed Requests | MEDIVERA{% endblock %}
+{% block breadcrumb %}Ward & Bed Requests{% endblock %}
+{% block body_class %}patient-portal-body{% endblock %}
+
+{% block content %}
+<style>
+.ward-page {
+    color: #f4f5f7;
+    padding: 8px 0 35px;
+}
+.ward-hero {
+    background: linear-gradient(125deg, #252a31, #17191d);
+    border: 1px solid #3a414b;
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 24px;
+}
+.ward-eyebrow {
+    color: #ff9a52;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.ward-hero h1 {
+    font-size: clamp(24px, 4vw, 34px);
+    margin: 10px 0;
+}
+.ward-hero p,
+.ward-muted {
+    color: #aeb5bf;
+    line-height: 1.7;
+}
+.ward-panel {
+    background: #202329;
+    border: 1px solid #363c45;
+    border-radius: 17px;
+    padding: 22px;
+    margin-bottom: 22px;
+}
+.ward-panel h2 {
+    font-size: 19px;
+    margin: 0 0 8px;
+}
+.ward-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+.ward-bed {
+    background: #292e36;
+    border: 1px solid #414852;
+    border-radius: 14px;
+    padding: 17px;
+}
+.ward-bed h3 {
+    margin: 0 0 10px;
+    font-size: 17px;
+}
+.ward-bed p {
+    color: #b6bdc7;
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 5px 0;
+}
+.ward-price {
+    color: #ff9a52;
+    font-weight: 800;
+    margin-top: 12px;
+}
+.ward-form {
+    margin-top: 14px;
+}
+.ward-form label {
+    display: block;
+    font-size: 12px;
+    color: #dce0e5;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+.ward-form select,
+.ward-form textarea {
+    width: 100%;
+    color: #f4f5f7;
+    background: #191c21;
+    border: 1px solid #454d58;
+    border-radius: 9px;
+    padding: 11px;
+    margin-bottom: 12px;
+    font: inherit;
+}
+.ward-form textarea {
+    min-height: 78px;
+    resize: vertical;
+}
+.ward-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #f47721;
+    color: #fff;
+    border: 0;
+    border-radius: 9px;
+    padding: 11px 16px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+}
+.ward-button:hover {
+    background: #d95f12;
+}
+.ward-table-wrap {
+    overflow-x: auto;
+}
+.ward-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 620px;
+}
+.ward-table th,
+.ward-table td {
+    text-align: left;
+    padding: 13px 10px;
+    border-bottom: 1px solid #383f49;
+    font-size: 13px;
+}
+.ward-table th {
+    color: #ffad76;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+}
+.ward-status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: #414852;
+    font-size: 11px;
+    font-weight: 800;
+}
+.ward-status.pending,
+.ward-status.under-review {
+    color: #ffd18b;
+    background: #59452d;
+}
+.ward-status.approved {
+    color: #9be4b5;
+    background: #214a36;
+}
+.ward-status.rejected,
+.ward-status.cancelled {
+    color: #ffaaaa;
+    background: #572d31;
+}
+.ward-empty {
+    text-align: center;
+    padding: 25px 12px;
+    color: #aeb5bf;
+}
+@media (max-width: 600px) {
+    .ward-hero,
+    .ward-panel {
+        padding: 18px;
+    }
+}
+</style>
+
+<div class="ward-page">
+
+    <section class="ward-hero">
+        <div class="ward-eyebrow">Patient accommodation</div>
+        <h1>Ward & Bed Requests</h1>
+        <p>
+            Explore available hospital accommodation and submit a request
+            for administrative review. Your bed is not allocated until
+            the hospital team approves your request.
+        </p>
+    </section>
+
+    <section class="ward-panel">
+        <h2>Available rooms and beds</h2>
+        <p class="ward-muted">
+            Availability is based on the current room, bed and admission records.
+            Charges shown are the listed room daily charges.
+        </p>
+
+        {% if available_beds %}
+        <div class="ward-grid">
+            {% for bed in available_beds %}
+            <article class="ward-bed">
+                <h3>Room {{ bed.room_number }}</h3>
+
+                <p><strong>Room type:</strong> {{ bed.room_type }}</p>
+                <p><strong>Bed number:</strong> {{ bed.bed_number }}</p>
+                <p><strong>Floor:</strong> {{ bed.floor_number }}</p>
+
+                {% if bed.bed_description %}
+                <p>{{ bed.bed_description }}</p>
+                {% endif %}
+
+                <div class="ward-price">
+                    ₹{{ "%.2f"|format(bed.daily_charge|float) }} / day
+                </div>
+
+                <form class="ward-form" method="POST"
+                      action="{{ url_for('patient.ward_bed_requests') }}">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ csrf_token() }}">
+                    <input type="hidden" name="bed_id"
+                           value="{{ bed.bed_id }}">
+
+                    <label for="reason-{{ bed.bed_id }}">
+                        Reason for requesting this bed
+                    </label>
+                    <textarea
+                        id="reason-{{ bed.bed_id }}"
+                        name="reason"
+                        maxlength="255"
+                        required
+                        placeholder="Briefly explain why you need accommodation..."
+                    ></textarea>
+
+                    <button class="ward-button" type="submit">
+                        Request this bed
+                    </button>
+                </form>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="ward-empty">
+            <h3>No available beds at the moment</h3>
+            <p>Please check again later or contact the hospital reception.</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="ward-panel">
+        <h2>My bed requests</h2>
+        <p class="ward-muted">
+            Track the review status and administrative feedback for your requests.
+        </p>
+
+        {% if my_requests %}
+        <div class="ward-table-wrap">
+            <table class="ward-table">
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Request</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Admin feedback</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in my_requests %}
+                    <tr>
+                        <td>#{{ item.request_id }}</td>
+                        <td>
+                            {{ item.request_title }}
+                            {% if item.request_description %}
+                            <div class="ward-muted">
+                                {{ item.request_description }}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.submitted_at %}
+                                {{ item.submitted_at.strftime("%d %b %Y, %I:%M %p") }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="ward-status {{ item.status|lower|replace(' ', '-') }}">
+                                {{ item.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if item.admin_remarks %}
+                                {{ item.admin_remarks }}
+                            {% elif item.admin_suggestion %}
+                                {{ item.admin_suggestion }}
+                            {% else %}
+                                <span class="ward-muted">No feedback yet</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="ward-empty">
+            You have not submitted any bed requests yet.
+        </div>
+        {% endif %}
+    </section>
+
+    <a class="ward-button" href="{{ url_for('patient.dashboard') }}">
+        ← Back to patient dashboard
+    </a>
+
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+
+{% extends "base.html" %}
+
+{% block title %}Pending Tests | MEDIVERA{% endblock %}
+{% block breadcrumb %}Laboratory / Pending Tests{% endblock %}
+{% block body_class %}laboratory-body{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/laboratory.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="lab-page">
+
+    <a href="{{ url_for('laboratory.technician_dashboard') }}"
+       class="lab-back">← Laboratory Dashboard</a>
+
+    <header class="lab-heading">
+        <div>
+            <div class="lab-eyebrow">LABORATORY WORKSPACE</div>
+            <h1>Pending Test Orders</h1>
+            <p>Find patient orders and open their laboratory details.</p>
+        </div>
+    </header>
+
+    <section class="lab-card">
+
+        <div class="lab-card-header">
+            <div>
+                <h2 class="lab-card-title">Test Queue</h2>
+                <p class="lab-card-subtitle">
+                    {{ tests|length }} matching pending order(s)
+                </p>
+            </div>
+        </div>
+
+        <form method="GET"
+              action="{{ url_for('laboratory.technician_tests') }}"
+              class="lab-search">
+
+            <input type="search"
+                   name="search"
+                   class="lab-input"
+                   value="{{ search }}"
+                   placeholder="Search by test, patient or test ID...">
+
+            <button type="submit"
+                    class="lab-btn lab-btn-primary">
+                Search
+            </button>
+
+            <a href="{{ url_for('laboratory.technician_tests') }}"
+               class="lab-btn lab-btn-secondary">
+                Reset
+            </a>
+        </form>
+
+        <hr class="lab-divider">
+
+        {% if tests %}
+        <div class="lab-table-wrap">
+            <table class="lab-table">
+                <thead>
+                    <tr>
+                        <th>Laboratory ID</th>
+                        <th>Test</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Scheduled</th>
+                        <th>Charge</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for test in tests %}
+                    <tr>
+                        <td>LAB-{{ "%05d"|format(test.test_id) }}</td>
+
+                        <td>
+                            <span class="lab-test-name">
+                                {{ test.test_name }}
+                            </span>
+                            <span class="lab-muted">
+                                {{ test.normal_range or "Reference range not specified" }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="lab-person">
+                                {{ test.patient_name }}
+                            </span>
+                        </td>
+
+                        <td>{{ test.doctor_name }}</td>
+
+                        <td>
+                            {{ test.test_date.strftime('%d %b %Y, %I:%M %p')
+                               if test.test_date else '—' }}
+                        </td>
+
+                        <td class="lab-price">
+                            ₹{{ "%.2f"|format(test.test_charge or 0) }}
+                        </td>
+
+                        <td>
+                            <a href="{{ url_for(
+                                'laboratory.technician_test_details',
+                                test_id=test.test_id
+                            ) }}" class="lab-btn lab-btn-primary">
+                                Process
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+        <div class="lab-empty">
+            <div class="lab-empty-icon">⌕</div>
+            <strong>No pending tests found</strong>
+            Try another search or check the queue later.
+        </div>
+        {% endif %}
+
+    </section>
+</div>
+{% endblock %}

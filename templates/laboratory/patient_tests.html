@@ -1,0 +1,864 @@
+﻿
+{% extends "base.html" %}
+
+{% block title %}My Laboratory Tests | MEDIVERA{% endblock %}
+{% block breadcrumb %}Patient Portal / Laboratory{% endblock %}
+{% block body_class %}laboratory-patient-body{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/laboratory.css') }}">
+
+<style>
+/* ==========================================================
+   MEDIVERA PATIENT LABORATORY PORTAL
+   Premium healthcare interface
+   Charcoal | Orange | White | Green | Red | Blue
+========================================================== */
+
+.lab-patient-page {
+    --lp-bg: #17191e;
+    --lp-panel: #22252c;
+    --lp-panel-light: #292d35;
+    --lp-border: rgba(255,255,255,.09);
+    --lp-orange: #ff9638;
+    --lp-orange-light: #ffb46b;
+    --lp-white: #f7f7f8;
+    --lp-muted: #a3a7b1;
+    --lp-green: #45ce91;
+    --lp-red: #ff7272;
+    --lp-blue: #63aaff;
+
+    max-width: 1450px;
+    margin: 0 auto;
+    padding: 28px;
+    color: var(--lp-white);
+}
+
+/* HEADER */
+
+.lp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+    padding: 28px;
+    border: 1px solid var(--lp-border);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 90% 10%, rgba(255,150,56,.15), transparent 32%),
+        linear-gradient(135deg,#252932,#1c1f26);
+    box-shadow: 0 15px 40px rgba(0,0,0,.20);
+}
+
+.lp-eyebrow {
+    color: var(--lp-orange);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0 0 12px;
+}
+
+.lp-header h1 {
+    margin: 0;
+    font-size: clamp(26px,3vw,38px);
+    font-weight: 850;
+    letter-spacing: -.8px;
+}
+
+.lp-header p {
+    color: var(--lp-muted);
+    margin: 10px 0 0;
+    line-height: 1.7;
+    max-width: 650px;
+}
+
+.lp-header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.lp-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 17px;
+    border-radius: 11px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: .2s ease;
+}
+
+.lp-btn-primary {
+    background: var(--lp-orange);
+    color: #171717;
+}
+
+.lp-btn-primary:hover {
+    background: var(--lp-orange-light);
+    transform: translateY(-2px);
+    color: #171717;
+}
+
+.lp-btn-secondary {
+    background: rgba(255,255,255,.05);
+    color: white;
+    border-color: var(--lp-border);
+}
+
+.lp-btn-secondary:hover {
+    background: rgba(255,255,255,.11);
+    color: white;
+}
+
+/* STATISTICS */
+
+.lp-stats {
+    display: grid;
+    grid-template-columns: repeat(4,minmax(0,1fr));
+    gap: 17px;
+    margin: 25px 0;
+}
+
+.lp-stat-card {
+    position: relative;
+    overflow: hidden;
+    padding: 21px;
+    border: 1px solid var(--lp-border);
+    border-radius: 18px;
+    background: linear-gradient(145deg,#272b33,#20232a);
+    box-shadow: 0 10px 25px rgba(0,0,0,.13);
+    transition: transform .2s ease;
+}
+
+.lp-stat-card:hover {
+    transform: translateY(-4px);
+}
+
+.lp-stat-card::after {
+    content: "";
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    right: -30px;
+    bottom: -35px;
+    background: var(--stat-color);
+    opacity: .08;
+}
+
+.lp-stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lp-stat-label {
+    color: var(--lp-muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+}
+
+.lp-stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 39px;
+    height: 39px;
+    border-radius: 12px;
+    background: color-mix(in srgb,var(--stat-color) 15%,transparent);
+    color: var(--stat-color);
+    font-size: 20px;
+}
+
+.lp-stat-number {
+    display: block;
+    font-size: 32px;
+    font-weight: 850;
+    margin-top: 15px;
+    color: white;
+}
+
+.lp-stat-caption {
+    font-size: 11px;
+    color: var(--lp-muted);
+    margin-top: 5px;
+}
+
+/* SECTION */
+
+.lp-section {
+    margin-top: 28px;
+}
+
+.lp-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.lp-section-heading h2 {
+    font-size: 21px;
+    margin: 0;
+    font-weight: 800;
+}
+
+.lp-section-heading p {
+    color: var(--lp-muted);
+    font-size: 12px;
+    margin: 6px 0 0;
+}
+
+/* INFORMATION NOTICE */
+
+.lp-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 16px 19px;
+    background: rgba(99,170,255,.08);
+    border: 1px solid rgba(99,170,255,.20);
+    border-radius: 14px;
+    margin-top: 22px;
+}
+
+.lp-notice-icon {
+    color: var(--lp-blue);
+    font-size: 20px;
+}
+
+.lp-notice strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.lp-notice p {
+    margin: 0;
+    color: var(--lp-muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+/* TABLE PANEL */
+
+.lp-table-panel {
+    background: var(--lp-panel);
+    border: 1px solid var(--lp-border);
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.lp-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 13px;
+    padding: 18px;
+    border-bottom: 1px solid var(--lp-border);
+}
+
+.lp-search {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+    max-width: 390px;
+}
+
+.lp-search input {
+    width: 100%;
+    background: #171a20;
+    color: white;
+    border: 1px solid var(--lp-border);
+    border-radius: 10px;
+    padding: 12px 14px 12px 39px;
+    outline: none;
+}
+
+.lp-search input:focus,
+.lp-filter:focus {
+    border-color: var(--lp-orange);
+}
+
+.lp-search span {
+    position: absolute;
+    left: 13px;
+    top: 10px;
+    color: var(--lp-muted);
+}
+
+.lp-filter {
+    background: #171a20;
+    border: 1px solid var(--lp-border);
+    border-radius: 10px;
+    color: white;
+    padding: 12px 14px;
+    outline: none;
+    min-width: 155px;
+}
+
+.lp-table-scroll {
+    overflow-x: auto;
+}
+
+.lp-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+}
+
+.lp-table th {
+    padding: 15px 17px;
+    text-align: left;
+    background: #282c34;
+    color: #bfc3cc;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.lp-table td {
+    padding: 17px;
+    border-bottom: 1px solid var(--lp-border);
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.lp-table tbody tr {
+    transition: background .2s;
+}
+
+.lp-table tbody tr:hover {
+    background: rgba(255,255,255,.025);
+}
+
+.lp-test-name {
+    font-weight: 800;
+    color: white;
+}
+
+.lp-test-id {
+    display: block;
+    margin-top: 5px;
+    font-size: 10px;
+    color: var(--lp-muted);
+}
+
+.lp-doctor {
+    color: #d5d7dc;
+}
+
+.lp-date {
+    white-space: nowrap;
+    color: #d5d7dc;
+}
+
+.lp-charge {
+    font-weight: 800;
+    color: var(--lp-orange-light);
+    white-space: nowrap;
+}
+
+/* STATUS */
+
+.lp-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 30px;
+    padding: 7px 11px;
+    font-size: 10px;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    white-space: nowrap;
+}
+
+.lp-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.lp-status-pending {
+    color: #ffc26e;
+    background: rgba(255,194,110,.12);
+}
+
+.lp-status-completed {
+    color: var(--lp-green);
+    background: rgba(69,206,145,.12);
+}
+
+.lp-status-cancelled {
+    color: var(--lp-red);
+    background: rgba(255,114,114,.12);
+}
+
+/* ACTION */
+
+.lp-view-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: var(--lp-orange);
+    font-size: 12px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.lp-view-link:hover {
+    color: var(--lp-orange-light);
+    text-decoration: underline;
+}
+
+/* EMPTY STATE */
+
+.lp-empty {
+    text-align: center;
+    padding: 55px 20px;
+}
+
+.lp-empty-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 75px;
+    height: 75px;
+    background: rgba(255,150,56,.10);
+    color: var(--lp-orange);
+    border-radius: 22px;
+    font-size: 33px;
+    margin-bottom: 15px;
+}
+
+.lp-empty h3 {
+    margin: 0 0 9px;
+    font-size: 19px;
+}
+
+.lp-empty p {
+    max-width: 460px;
+    margin: auto;
+    color: var(--lp-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* FOOTER */
+
+.lp-footer {
+    text-align: center;
+    padding: 25px 10px;
+    color: var(--lp-muted);
+    font-size: 11px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px) {
+    .lp-stats {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+}
+
+@media(max-width:600px) {
+    .lab-patient-page {
+        padding: 12px;
+    }
+
+    .lp-header {
+        padding: 20px;
+    }
+
+    .lp-stats {
+        gap: 10px;
+    }
+
+    .lp-stat-card {
+        padding: 15px;
+    }
+
+    .lp-stat-number {
+        font-size: 25px;
+    }
+
+    .lp-toolbar {
+        align-items: stretch;
+    }
+
+    .lp-search {
+        max-width: none;
+    }
+
+    .lp-filter {
+        width: 100%;
+    }
+}
+
+@media print {
+    .no-print,
+    .lp-header-actions,
+    .lp-toolbar,
+    .lp-footer {
+        display: none !important;
+    }
+
+    .lab-patient-page {
+        color: black;
+        background: white;
+    }
+
+    .lp-table-panel,
+    .lp-stat-card {
+        background: white;
+        color: black;
+    }
+
+    .lp-table td,
+    .lp-test-name {
+        color: black;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lab-patient-page">
+
+    <!-- HEADER -->
+    <header class="lp-header">
+        <div>
+            <div class="lp-eyebrow">MEDIVERA · Connected Healthcare</div>
+
+            <h1>My Laboratory Tests</h1>
+
+            <p>
+                Keep your diagnostic information organized.
+                Monitor your laboratory test progress and securely
+                access your available medical reports.
+            </p>
+        </div>
+
+        <div class="lp-header-actions no-print">
+            <a href="{{ url_for('patient.dashboard') }}"
+               class="lp-btn lp-btn-secondary">
+                ← Patient Dashboard
+            </a>
+
+            <a href="{{ url_for('laboratory.patient_book_lab_tests') }}"
+               class="lp-btn lp-btn-primary"
+               style="text-decoration:none;">
+                + Book Laboratory Tests
+            </a>
+
+            <button type="button"
+                    onclick="window.print()"
+                    class="lp-btn lp-btn-primary">
+                Print Records
+            </button>
+        </div>
+    </header>
+
+    <!-- STATISTICS -->
+    <section class="lp-stats">
+
+        <div class="lp-stat-card"
+             style="--stat-color:#ff9638">
+            <div class="lp-stat-top">
+                <span class="lp-stat-label">Total Tests</span>
+                <span class="lp-stat-icon">⚕</span>
+            </div>
+
+            <strong class="lp-stat-number">
+                {{ statistics.total_tests|default(0) }}
+            </strong>
+
+            <div class="lp-stat-caption">All recorded tests</div>
+        </div>
+
+        <div class="lp-stat-card"
+             style="--stat-color:#ffbd65">
+            <div class="lp-stat-top">
+                <span class="lp-stat-label">Pending</span>
+                <span class="lp-stat-icon">◷</span>
+            </div>
+
+            <strong class="lp-stat-number">
+                {{ statistics.pending_tests|default(0) }}
+            </strong>
+
+            <div class="lp-stat-caption">Awaiting completion</div>
+        </div>
+
+        <div class="lp-stat-card"
+             style="--stat-color:#45ce91">
+            <div class="lp-stat-top">
+                <span class="lp-stat-label">Completed</span>
+                <span class="lp-stat-icon">✓</span>
+            </div>
+
+            <strong class="lp-stat-number">
+                {{ statistics.completed_tests|default(0) }}
+            </strong>
+
+            <div class="lp-stat-caption">Completed laboratory tests</div>
+        </div>
+
+        <div class="lp-stat-card"
+             style="--stat-color:#ff7272">
+            <div class="lp-stat-top">
+                <span class="lp-stat-label">Cancelled</span>
+                <span class="lp-stat-icon">×</span>
+            </div>
+
+            <strong class="lp-stat-number">
+                {{ statistics.cancelled_tests|default(0) }}
+            </strong>
+
+            <div class="lp-stat-caption">Cancelled test records</div>
+        </div>
+
+    </section>
+
+    <!-- NOTICE -->
+    <div class="lp-notice">
+        <span class="lp-notice-icon">ⓘ</span>
+
+        <div>
+            <strong>Your laboratory records are private</strong>
+
+            <p>
+                This page displays laboratory records associated with
+                your patient account. Completed results can be opened
+                individually. Please consult your doctor for medical
+                interpretation.
+            </p>
+        </div>
+    </div>
+
+    <!-- TEST HISTORY -->
+    <section class="lp-section">
+
+        <div class="lp-section-heading">
+            <div>
+                <h2>Laboratory History</h2>
+                <p>Review your diagnostic test records and results.</p>
+            </div>
+        </div>
+
+        <div class="lp-table-panel">
+
+            {% if tests %}
+
+            <div class="lp-toolbar no-print">
+
+                <div class="lp-search">
+                    <span>⌕</span>
+
+                    <input type="search"
+                           id="lpSearch"
+                           placeholder="Search test or doctor...">
+                </div>
+
+                <select id="lpStatusFilter" class="lp-filter">
+                    <option value="">All statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+
+                <span class="lp-stat-caption">
+                    {{ tests|length }} record(s)
+                </span>
+
+            </div>
+
+            <div class="lp-table-scroll">
+
+                <table class="lp-table" id="lpTestsTable">
+
+                    <thead>
+                        <tr>
+                            <th>Test Information</th>
+                            <th>Consulting Doctor</th>
+                            <th>Test Date</th>
+                            <th>Charge</th>
+                            <th>Status</th>
+                            <th class="no-print">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for test in tests %}
+
+                        <tr class="lp-test-row"
+                            data-status="{{ test.test_status|lower }}">
+
+                            <td>
+                                <span class="lp-test-name">
+                                    {{ test.test_name }}
+                                </span>
+
+                                <span class="lp-test-id">
+                                    TEST #{{ test.test_id }}
+                                </span>
+                            </td>
+
+                            <td class="lp-doctor">
+                                {{ test.doctor_name|default('Not specified') }}
+                            </td>
+
+                            <td class="lp-date">
+                                {% if test.test_date %}
+                                    {% if test.test_date.strftime is defined %}
+                                        {{ test.test_date.strftime('%d %b %Y, %I:%M %p') }}
+                                    {% else %}
+                                        {{ test.test_date }}
+                                    {% endif %}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td class="lp-charge">
+                                ₹{{ '%.2f'|format(test.test_charge|default(0)|float) }}
+                            </td>
+
+                            <td>
+                                <span class="lp-status lp-status-{{ test.test_status|lower }}">
+                                    {{ test.test_status }}
+                                </span>
+                            </td>
+
+                            <td class="no-print">
+                                <a class="lp-view-link"
+                                   href="{{ url_for(
+                                       'laboratory.patient_lab_test_details',
+                                       test_id=test.test_id
+                                   ) }}">
+                                    View Details →
+                                </a>
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div id="lpNoResults"
+                 class="lp-empty"
+                 style="display:none">
+
+                <h3>No matching tests found</h3>
+
+                <p>
+                    Try another search term or select a different status.
+                </p>
+
+            </div>
+
+            {% else %}
+
+            <div class="lp-empty">
+
+                <div class="lp-empty-icon">⚕</div>
+
+                <h3>No laboratory tests yet</h3>
+
+                <p>
+                    Your laboratory test records will appear here
+                    when tests are ordered and registered by the
+                    hospital laboratory.
+                </p>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+    <footer class="lp-footer">
+        MEDIVERA · Intelligent Healthcare. Connected Care. Better Tomorrow.
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const searchInput = document.getElementById("lpSearch");
+    const statusFilter = document.getElementById("lpStatusFilter");
+    const rows = document.querySelectorAll(".lp-test-row");
+    const noResults = document.getElementById("lpNoResults");
+
+    function filterTests() {
+
+        if (!searchInput || !statusFilter) return;
+
+        const searchValue = searchInput.value.toLowerCase().trim();
+        const statusValue = statusFilter.value.toLowerCase();
+
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+
+            const rowText = row.innerText.toLowerCase();
+            const rowStatus = row.dataset.status;
+
+            const matchesSearch = rowText.includes(searchValue);
+
+            const matchesStatus =
+                !statusValue || rowStatus === statusValue;
+
+            const visible = matchesSearch && matchesStatus;
+
+            row.style.display = visible ? "" : "none";
+
+            if (visible) visibleCount++;
+
+        });
+
+        if (noResults) {
+            noResults.style.display =
+                visibleCount === 0 ? "block" : "none";
+        }
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", filterTests);
+    }
+
+    if (statusFilter) {
+        statusFilter.addEventListener("change", filterTests);
+    }
+
+});
+</script>
+{% endblock %}
+

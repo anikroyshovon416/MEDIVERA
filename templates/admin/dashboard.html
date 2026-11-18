@@ -1,0 +1,102 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ title }} | MEDIVERA{% endblock %}
+{% block breadcrumb %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<section class="admin-welcome">
+    <div>
+        <span class="admin-eyebrow">ADMINISTRATOR WORKSPACE</span>
+        <h1>{{ title }}</h1>
+        <p>
+            Welcome, {{ user.username }}.
+            Your workspace is controlled by your assigned responsibilities
+            and permissions.
+        </p>
+    </div>
+
+    <div class="admin-role-badge">ADMINISTRATOR</div>
+</section>
+
+<section class="admin-panel">
+    <div class="admin-panel-heading">
+        <div>
+            <span class="admin-eyebrow">YOUR ACCESS</span>
+            <h2>Assigned Responsibilities</h2>
+        </div>
+    </div>
+
+    {% if assignments %}
+        <div class="admin-assignment-list">
+            {% for assignment in assignments %}
+                <div class="admin-assignment-item">
+                    <span class="assignment-check">✓</span>
+                    <div>
+                        <strong>{{ assignment.responsibility }}</strong>
+                        <small>
+                            {% if assignment.department_id %}
+                                Department ID: {{ assignment.department_id }}
+                            {% else %}
+                                Hospital-wide responsibility
+                            {% endif %}
+                        </small>
+                    </div>
+                    <span class="assignment-active">ACTIVE</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="admin-empty-state">
+            <span class="empty-state-icon">◈</span>
+            <h3>No active responsibilities assigned</h3>
+            <p>
+                Your administrator role exists, but Super Admin must assign
+                your responsibilities before operational modules become
+                available.
+            </p>
+
+            {% if suggested_responsibilities %}
+                <div class="suggested-responsibilities">
+                    <strong>Expected responsibility for your role:</strong>
+                    {% for responsibility in suggested_responsibilities %}
+                        <span>{{ responsibility }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+
+<section class="admin-panel">
+    <div class="admin-panel-heading">
+        <div>
+            <span class="admin-eyebrow">AUTHORIZED MODULES</span>
+            <h2>Your Workspace Modules</h2>
+        </div>
+        <span class="admin-panel-tag">{{ modules|length }} AVAILABLE</span>
+    </div>
+
+    {% if modules %}
+        <div class="admin-module-grid">
+            {% for module in modules %}
+                <article class="admin-module-card">
+                    <span class="module-icon">{{ module.icon }}</span>
+                    <h3>{{ module.label }}</h3>
+                    <p>{{ module.responsibility }}</p>
+                    <small>Permission: {{ module.permission }}</small>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="admin-empty-state compact-empty">
+            <h3>No operational modules available yet</h3>
+            <p>
+                Modules will appear after Super Admin assigns responsibilities
+                and the appropriate permissions.
+            </p>
+        </div>
+    {% endif %}
+</section>
+
+{% endblock %}

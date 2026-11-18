@@ -1,0 +1,480 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Approvals | MEDIVERA{% endblock %}
+{% block breadcrumb %}MEDIVERA / Approvals{% endblock %}
+
+{% block content %}
+<section class="admin-page-heading">
+    <div>
+        <span class="approval-eyebrow">SYSTEM WORKFLOW</span>
+        <h1>Approval Management</h1>
+        <p>Review appointments and monitor requests across MEDIVERA.</p>
+    </div>
+    <span class="approval-readonly">SUPER ADMIN VIEW</span>
+</section>
+
+<section class="approval-summary">
+    <button class="summary-card active" type="button" data-filter="all">
+        <span>Total Requests</span>
+        <strong>{{ summary.total }}</strong>
+        <small>View all requests</small>
+    </button>
+    <button class="summary-card" type="button" data-filter="pending">
+        <span>Pending</span>
+        <strong>{{ summary.pending }}</strong>
+        <small>Awaiting decision</small>
+    </button>
+    <button class="summary-card" type="button" data-filter="approved">
+        <span>Approved</span>
+        <strong>{{ summary.approved }}</strong>
+        <small>Successfully approved</small>
+    </button>
+    <button class="summary-card" type="button" data-filter="rejected">
+        <span>Rejected</span>
+        <strong>{{ summary.rejected }}</strong>
+        <small>Rejected requests</small>
+    </button>
+</section>
+
+<section class="approval-panel">
+    <div class="approval-panel-heading">
+        <div>
+            <h2>Approval Requests</h2>
+            <p>Review appointment details and take action on pending bookings.</p>
+        </div>
+        <span id="visible-count">{{ requests|length }} requests</span>
+    </div>
+
+    <div class="approval-table-wrap">
+        <table class="approval-table">
+            <thead>
+                <tr>
+                    <th>Request</th>
+                    <th>Type</th>
+                    <th>Responsibility</th>
+                    <th>Requester ID</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Decision / Actions</th>
+                </tr>
+            </thead>
+            <tbody id="approval-table-body">
+                {% for item in requests %}
+                {% set status_value = (item.display_status or item.status or 'unknown')|lower|replace('_', '-') %}
+                <tr class="approval-row" data-status="{{ status_value }}">
+                    <td>
+                        <strong>{{ item.request_title or 'Untitled request' }}</strong>
+                        <small>#{{ item.request_id }}</small>
+                        {% if item.request_description %}
+                        <p class="request-description">{{ item.request_description }}</p>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.request_type or '-' }}</td>
+                    <td>{{ item.responsibility or '-' }}</td>
+                    <td>{{ item.requester_user_id or '-' }}</td>
+                    <td>
+                        {{ item.submitted_at.strftime('%d %b %Y, %I:%M %p') if item.submitted_at else '-' }}
+                    </td>
+                    <td>
+                        <span class="approval-status status-{{ status_value }}">
+                            {{ item.display_status or item.status or 'Unknown' }}
+                        </span>
+                    </td>
+                    <td class="action-cell">
+
+    {% if item.source == 'appointment' and item.can_decide %}
+
+        <form method="POST"
+              action="{{ url_for('admin.approve_appointment', appointment_id=item.appointment_id) }}"
+              onsubmit="return confirm('Approve this appointment?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="decision-button approve-button" type="submit">
+                Approve
+            </button>
+        </form>
+
+        <button class="decision-button reject-button"
+                type="button"
+                onclick="openRejectDialog('{{ item.appointment_id }}')">
+            Reject
+        </button>
+
+    {% elif item.source == 'appointment' %}
+
+        {% if item.decision_reason %}
+            <button type="button"
+                    class="reason-view-button"
+                    onclick="showDecisionReason(this)"
+                    data-reason="{{ item.decision_reason|e }}">
+                View reason
+            </button>
+        {% else %}
+            <span class="no-action">Decision recorded</span>
+        {% endif %}
+
+    {% elif item.source == 'room_bed' %}
+
+        {% if item.can_decide %}
+
+            <form method="POST"
+                  action="{{ url_for('admin.decide_room_bed_request', request_id=item.request_id) }}"
+                  onsubmit="return confirm('Approve this bed request and create the patient admission?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="decision" value="Approved">
+                <button class="decision-button approve-button" type="submit">
+                    Approve & Admit
+                </button>
+            </form>
+
+            <form method="POST"
+                  action="{{ url_for('admin.decide_room_bed_request', request_id=item.request_id) }}"
+                  style="margin-top:8px;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="decision" value="Rejected">
+                <textarea name="admin_remarks"
+                          placeholder="Reason for rejection"
+                          maxlength="2000"
+                          required></textarea>
+                <button class="decision-button reject-button" type="submit">
+                    Reject Request
+                </button>
+            </form>
+
+        {% else %}
+            <span class="no-action">Decision recorded</span>
+        {% endif %}
+
+    {% elif item.source == 'ambulance' %}
+
+        {% if item.status in ['Pending', 'Under Review', 'Changes Requested'] %}
+
+            <form method="POST"
+                  action="{{ url_for('admin.decide_ambulance_request', request_id=item.request_id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <select name="decision" required>
+                    <option value="">Select decision</option>
+                    <option value="Under Review">Under Review</option>
+                    <option value="Approved">Approve</option>
+                    <option value="Rejected">Reject</option>
+                    <option value="Changes Requested">Request Changes</option>
+                </select>
+
+                <textarea name="admin_remarks"
+                          placeholder="Enter remarks"
+                          required></textarea>
+
+                <button class="decision-button approve-button" type="submit">
+                    Submit Decision
+                </button>
+            </form>
+
+        {% elif item.status == 'Approved' %}
+
+            <form method="POST"
+                  action="{{ url_for('admin.assign_approved_ambulance', request_id=item.request_id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <select name="ambulance_id" required>
+                    <option value="">Select ambulance</option>
+                    {% for ambulance in available_ambulances %}
+                        <option value="{{ ambulance.ambulance_id }}">
+                            {{ ambulance.ambulance_code }} — {{ ambulance.ambulance_type }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <select name="driver_staff_id">
+                    <option value="">Select driver (optional)</option>
+                    {% for driver in available_drivers %}
+                        <option value="{{ driver.staff_id }}">
+                            {{ driver.staff_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <input type="text" name="pickup_location"
+                       placeholder="Pickup location" required>
+
+                <input type="text" name="destination"
+                       placeholder="Destination" required>
+
+                <textarea name="dispatch_notes"
+                          placeholder="Dispatch notes"></textarea>
+
+                <button class="decision-button approve-button" type="submit">
+                    Assign Ambulance
+                </button>
+            </form>
+
+        {% else %}
+            <span class="no-action">Decision recorded</span>
+        {% endif %}
+
+    {% else %}
+        <span class="no-action">Departmental workflow</span>
+    {% endif %}
+
+</td>
+                </tr>
+                {% else %}
+                <tr id="empty-row">
+                    <td colspan="7" class="approval-empty">
+                        No approval requests have been submitted yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Rejection dialog -->
+<div class="reject-overlay" id="reject-overlay" aria-hidden="true">
+    <div class="reject-dialog" role="dialog" aria-modal="true"
+         aria-labelledby="reject-title">
+        <button type="button" class="dialog-close"
+                onclick="closeRejectDialog()" aria-label="Close">&times;</button>
+
+        <span class="approval-eyebrow">APPOINTMENT DECISION</span>
+        <h2 id="reject-title">Reject Appointment</h2>
+        <p>Please provide a clear reason. The patient will receive this reason
+           in their notification.</p>
+
+        <form method="POST" id="reject-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <label for="decision_reason">Reason for rejection</label>
+            <textarea id="decision_reason"
+                      name="decision_reason"
+                      maxlength="255"
+                      required
+                      placeholder="Explain why this appointment cannot be approved..."></textarea>
+
+            <small class="character-count" id="reason-count">0 / 255</small>
+
+            <div class="dialog-actions">
+                <button type="button" class="cancel-button"
+                        onclick="closeRejectDialog()">Cancel</button>
+                <button type="submit" class="confirm-reject-button">
+                    Confirm Rejection
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Decision reason viewer -->
+<div class="reject-overlay" id="reason-overlay" aria-hidden="true">
+    <div class="reject-dialog">
+        <button type="button" class="dialog-close"
+                onclick="closeReasonDialog()" aria-label="Close">&times;</button>
+        <span class="approval-eyebrow">DECISION HISTORY</span>
+        <h2>Rejection Reason</h2>
+        <p id="decision-reason-text" class="decision-reason-text"></p>
+        <div class="dialog-actions">
+            <button type="button" class="cancel-button"
+                    onclick="closeReasonDialog()">Close</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-page-heading {
+    display:flex; justify-content:space-between; align-items:center;
+    gap:16px; margin-bottom:25px;
+}
+.approval-eyebrow {
+    color:#f5a044; font-size:11px; font-weight:800; letter-spacing:2px;
+}
+.admin-page-heading h1 { color:#fff; font-size:28px; margin:7px 0; }
+.admin-page-heading p { color:#a5a7ad; margin:0; }
+.approval-readonly {
+    color:#f4a34d; background:#352719; border:1px solid #65401f;
+    padding:9px 12px; border-radius:8px; font-size:10px; font-weight:800;
+}
+.approval-summary {
+    display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px; margin-bottom:23px;
+}
+.summary-card {
+    text-align:left; cursor:pointer; width:100%;
+    background:#191b1f; border:1px solid #303238;
+    border-radius:13px; padding:19px; color:#fff;
+    transition:border-color .2s, transform .2s, background .2s;
+}
+.summary-card:hover { border-color:#e99439; transform:translateY(-2px); }
+.summary-card.active { border-color:#f5a044; background:#292117; }
+.summary-card span { display:block; color:#a5a7ad; font-size:12px; }
+.summary-card strong { display:block; color:#fff; font-size:27px; margin-top:9px; }
+.summary-card small { display:block; color:#999da5; margin-top:6px; }
+.approval-panel {
+    background:#191b1f; border:1px solid #303238;
+    border-radius:13px; padding:19px;
+}
+.approval-panel-heading {
+    display:flex; justify-content:space-between; gap:12px;
+    align-items:center; margin-bottom:17px;
+}
+.approval-panel-heading h2 { color:#fff; font-size:19px; margin:0 0 5px; }
+.approval-panel-heading p { color:#999da5; font-size:12px; margin:0; }
+#visible-count { color:#f5a044; font-size:12px; white-space:nowrap; }
+.approval-table-wrap { overflow-x:auto; }
+.approval-table { width:100%; border-collapse:collapse; min-width:1050px; }
+.approval-table th {
+    color:#f1a34c; background:#22242a; text-align:left;
+    font-size:11px; padding:13px 12px; white-space:nowrap;
+}
+.approval-table td {
+    color:#d6d7dc; font-size:12px; padding:14px 12px;
+    border-bottom:1px solid #303238; vertical-align:top;
+}
+.approval-table td strong { display:block; color:#fff; }
+.approval-table td small { display:block; color:#858a93; margin-top:4px; }
+.request-description {
+    color:#a5a7ad; max-width:300px; line-height:1.6;
+    overflow-wrap:anywhere; margin:7px 0 0;
+}
+.approval-status {
+    display:inline-block; padding:6px 9px; border-radius:20px;
+    background:#30333a; color:#ddd; font-size:10px; white-space:nowrap;
+}
+.status-pending,.status-pending-approval,.status-under-review {
+    background:#40301b; color:#ffc36e;
+}
+.status-approved { background:#163a2a; color:#65d99b; }
+.status-rejected { background:#401f24; color:#ff8585; }
+.action-cell { min-width:155px; }
+.action-cell form { display:inline-block; }
+.decision-button,.reason-view-button {
+    border:0; border-radius:7px; padding:8px 10px;
+    font-size:11px; font-weight:700; cursor:pointer; margin:2px;
+}
+.approve-button { background:#174b32; color:#8bf0b6; }
+.reject-button { background:#512329; color:#ff9c9c; }
+.reason-view-button { background:#30333a; color:#f5b15d; }
+.no-action { color:#888; font-size:11px; }
+.approval-empty { text-align:center; color:#999 !important; padding:30px !important; }
+.reject-overlay {
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,.78); align-items:center;
+    justify-content:center; padding:18px;
+}
+.reject-overlay.open { display:flex; }
+.reject-dialog {
+    width:100%; max-width:480px; position:relative;
+    background:#1b1d22; border:1px solid #494039;
+    border-radius:15px; padding:27px; box-shadow:0 20px 70px #0009;
+}
+.reject-dialog h2 { color:#fff; margin:9px 0; font-size:22px; }
+.reject-dialog p { color:#aeb0b7; font-size:13px; line-height:1.6; }
+.dialog-close {
+    position:absolute; right:15px; top:10px; background:none;
+    border:0; color:#bbb; font-size:26px; cursor:pointer;
+}
+.reject-dialog label { display:block; color:#eee; font-size:12px; margin:18px 0 8px; }
+.reject-dialog textarea {
+    width:100%; min-height:120px; resize:vertical; box-sizing:border-box;
+    background:#111317; color:#fff; border:1px solid #444750;
+    border-radius:8px; padding:12px; font:inherit; font-size:13px;
+}
+.reject-dialog textarea:focus { outline:1px solid #f5a044; border-color:#f5a044; }
+.character-count { display:block; text-align:right; color:#888; margin-top:5px; }
+.dialog-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+.cancel-button,.confirm-reject-button {
+    padding:10px 14px; border:0; border-radius:8px;
+    cursor:pointer; font-weight:700; font-size:12px;
+}
+.cancel-button { background:#34363d; color:#eee; }
+.confirm-reject-button { background:#b93b36; color:#fff; }
+.decision-reason-text {
+    padding:13px; background:#111317; border-radius:8px;
+    white-space:pre-wrap; overflow-wrap:anywhere;
+}
+@media(max-width:750px) {
+    .approval-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .admin-page-heading { align-items:flex-start; flex-direction:column; }
+}
+</style>
+
+<script>
+(function () {
+    const cards = document.querySelectorAll(".summary-card");
+    const rows = document.querySelectorAll(".approval-row");
+    const count = document.getElementById("visible-count");
+
+    function filterRows(filter) {
+        let visible = 0;
+
+        rows.forEach(function (row) {
+            const status = row.dataset.status || "";
+            let match = filter === "all";
+
+            if (filter === "pending") {
+                match = status === "pending" || status === "pending-approval"
+                     || status === "under-review";
+            } else if (filter === "approved") {
+                match = status === "approved";
+            } else if (filter === "rejected") {
+                match = status === "rejected";
+            }
+
+            row.hidden = !match;
+            if (match) visible++;
+        });
+
+        if (count) count.textContent = visible + " requests";
+    }
+
+    cards.forEach(function (card) {
+        card.addEventListener("click", function () {
+            cards.forEach(function (item) { item.classList.remove("active"); });
+            card.classList.add("active");
+            filterRows(card.dataset.filter);
+        });
+    });
+
+    const reason = document.getElementById("decision_reason");
+    const reasonCount = document.getElementById("reason-count");
+
+    if (reason && reasonCount) {
+        reason.addEventListener("input", function () {
+            reasonCount.textContent = reason.value.length + " / 255";
+        });
+    }
+})();
+
+function openRejectDialog(appointmentId) {
+    const overlay = document.getElementById("reject-overlay");
+    const form = document.getElementById("reject-form");
+    const textarea = document.getElementById("decision_reason");
+
+    form.action = "/admin/approvals/appointments/" +
+                  encodeURIComponent(appointmentId) + "/reject";
+
+    textarea.value = "";
+    document.getElementById("reason-count").textContent = "0 / 255";
+    overlay.classList.add("open");
+    overlay.setAttribute("aria-hidden", "false");
+    textarea.focus();
+}
+
+function closeRejectDialog() {
+    const overlay = document.getElementById("reject-overlay");
+    overlay.classList.remove("open");
+    overlay.setAttribute("aria-hidden", "true");
+}
+
+function showDecisionReason(button) {
+    document.getElementById("decision-reason-text").textContent =
+        button.dataset.reason || "No reason was recorded.";
+
+    document.getElementById("reason-overlay").classList.add("open");
+}
+
+function closeReasonDialog() {
+    document.getElementById("reason-overlay").classList.remove("open");
+}
+</script>
+{% endblock %}
+

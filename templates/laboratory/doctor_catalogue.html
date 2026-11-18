@@ -1,0 +1,77 @@
+
+{% extends "base.html" %}
+
+{% block title %}Laboratory Catalogue | MEDIVERA{% endblock %}
+{% block breadcrumb %}Doctor / Laboratory Catalogue{% endblock %}
+{% block body_class %}laboratory-body{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/laboratory.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="lab-page">
+
+    <header class="lab-heading">
+        <div>
+            <div class="lab-eyebrow">DOCTOR WORKSPACE</div>
+            <h1>Laboratory Test Catalogue</h1>
+            <p>Browse available diagnostic tests and their preparation requirements.</p>
+        </div>
+
+        <a href="{{ url_for('laboratory.doctor_lab_orders') }}"
+           class="lab-btn lab-btn-primary">
+            + Order a Test
+        </a>
+    </header>
+
+    <section class="lab-card">
+        <div class="lab-card-header">
+            <div>
+                <h2 class="lab-card-title">Available Diagnostic Tests</h2>
+                <p class="lab-card-subtitle">
+                    Only active catalogue tests can be ordered.
+                </p>
+            </div>
+        </div>
+
+        {% if catalogue %}
+        <div class="lab-table-wrap">
+            <table class="lab-table">
+                <thead>
+                    <tr>
+                        <th>Test Name</th>
+                        <th>Description</th>
+                        <th>Reference Range</th>
+                        <th>Preparation</th>
+                        <th>Charge</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in catalogue %}
+                    <tr>
+                        <td>
+                            <span class="lab-test-name">{{ item.test_name }}</span>
+                            <span class="lab-test-id">CAT-{{ item.catalogue_id }}</span>
+                        </td>
+                        <td>{{ item.description or "—" }}</td>
+                        <td>{{ item.normal_range or "Not specified" }}</td>
+                        <td>{{ item.preparation_instructions or "No special instructions" }}</td>
+                        <td class="lab-price">
+                            ₹{{ "%.2f"|format(item.default_charge or 0) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="lab-empty">
+            <div class="lab-empty-icon">⚗</div>
+            <strong>No active tests in the catalogue</strong>
+            Contact the laboratory administrator.
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

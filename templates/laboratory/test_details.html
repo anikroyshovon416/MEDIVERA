@@ -1,0 +1,203 @@
+
+{% extends "base.html" %}
+
+{% block title %}Test Details | MEDIVERA{% endblock %}
+{% block breadcrumb %}Laboratory / Test Details{% endblock %}
+{% block body_class %}laboratory-body{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/laboratory.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="lab-page">
+
+    <a href="{{ url_for('laboratory.technician_tests') }}"
+       class="lab-back">← Back to Test Queue</a>
+
+    <header class="lab-heading">
+        <div>
+            <div class="lab-eyebrow">LABORATORY TEST RECORD</div>
+            <h1>{{ test.test_name }}</h1>
+            <p>
+                LAB-{{ "%05d"|format(test.test_id) }}
+                · Patient: {{ test.patient_name }}
+            </p>
+        </div>
+
+        <span class="lab-status
+            {% if test.test_status == 'completed' %}
+                lab-status-completed
+            {% elif test.test_status == 'cancelled' %}
+                lab-status-cancelled
+            {% else %}
+                lab-status-pending
+            {% endif %}">
+            {{ test.test_status }}
+        </span>
+    </header>
+
+    <section class="lab-card">
+        <div class="lab-card-header">
+            <div>
+                <h2 class="lab-card-title">Patient & Test Information</h2>
+                <p class="lab-card-subtitle">
+                    Verify patient and order information before processing.
+                </p>
+            </div>
+        </div>
+
+        <div class="lab-detail-grid">
+
+            <div class="lab-detail">
+                <span class="lab-detail-label">Patient Name</span>
+                <div class="lab-detail-value">{{ test.patient_name }}</div>
+            </div>
+
+            <div class="lab-detail">
+                <span class="lab-detail-label">Patient ID</span>
+                <div class="lab-detail-value">{{ test.patient_id }}</div>
+            </div>
+
+            <div class="lab-detail">
+                <span class="lab-detail-label">Age / Date of Birth</span>
+                <div class="lab-detail-value">
+                    {{ test.date_of_birth or "Not available" }}
+                </div>
+            </div>
+
+            <div class="lab-detail">
+                <span class="lab-detail-label">Gender</span>
+                <div class="lab-detail-value">{{ test.gender }}</div>
+            </div>
+
+            <div class="lab-detail">
+                <span class="lab-detail-label">Contact</span>
+                <div class="lab-detail-value">{{ test.phone }}</div>
+            </div>
+
+            <div class="lab-detail">
+                <span class="lab-detail-label">Ordering Doctor</span>
+                <div class="lab-detail-value">{{ test.doctor_name }}</div>
+                <div class="lab-muted">{{ test.specialization or "" }}</div>
+            </div>
+
+            <div class="lab-detail">
+                <span class="lab-detail-label">Test Date</span>
+                <div class="lab-detail-value">
+                    {{ test.test_date.strftime('%d %b %Y, %I:%M %p')
+                       if test.test_date else '—' }}
+                </div>
+            </div>
+
+            <div class="lab-detail">
+                <span class="lab-detail-label">Test Charge</span>
+                <div class="lab-detail-value lab-price">
+                    ₹{{ "%.2f"|format(test.test_charge or 0) }}
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="lab-card">
+        <div class="lab-card-header">
+            <div>
+                <h2 class="lab-card-title">Laboratory Result</h2>
+                <p class="lab-card-subtitle">
+                    Enter the verified observations from the testing process.
+                </p>
+            </div>
+        </div>
+
+        {% if test.test_status == 'pending' %}
+
+            <form method="POST"
+                  action="{{ url_for(
+                    'laboratory.technician_enter_result',
+                    test_id=test.test_id
+                  ) }}">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <div class="lab-form-grid">
+
+                    <div class="lab-form-group full">
+                        <label for="test_result">
+                            Test Result <span class="lab-required">*</span>
+                        </label>
+
+                        <textarea id="test_result"
+                                  name="test_result"
+                                  class="lab-textarea"
+                                  required
+                                  maxlength="10000"
+                                  placeholder="Enter the laboratory result, observations and units...">{{ test.test_result or '' }}</textarea>
+
+                        <div class="lab-help">
+                            Include measurement units where applicable.
+                            Do not enter an interpretation unless authorised.
+                        </div>
+                    </div>
+
+                    <div class="lab-form-group full">
+                        <label for="normal_range">Reference / Normal Range</label>
+
+                        <input type="text"
+                               id="normal_range"
+                               name="normal_range"
+                               class="lab-input"
+                               maxlength="100"
+                               value="{{ test.normal_range or '' }}"
+                               placeholder="Example: 70–100 mg/dL">
+                    </div>
+
+                </div>
+
+                <div class="lab-warning-box" style="margin-top:18px;">
+                    Saving this result does not publish it. The ordering doctor
+                    must verify it before the patient can see it.
+                </div>
+
+                <div class="lab-actions" style="margin-top:20px;">
+                    <button type="submit"
+                            class="lab-btn lab-btn-primary">
+                        Save Laboratory Result
+                    </button>
+
+                    <a href="{{ url_for('laboratory.technician_tests') }}"
+                       class="lab-btn lab-btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+
+        {% elif test.test_status == 'completed' %}
+
+            <div class="lab-result-box">
+                {{ test.test_result or "No result recorded." }}
+            </div>
+
+            <div class="lab-muted" style="margin-top:12px;">
+                Reference range: {{ test.normal_range or "Not specified" }}
+            </div>
+
+            <div class="lab-info-box" style="margin-top:15px;">
+                This test has been marked completed. Technician editing is disabled.
+            </div>
+
+        {% else %}
+
+            <div class="lab-warning-box">
+                This test has been cancelled. Result entry is unavailable.
+            </div>
+
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}

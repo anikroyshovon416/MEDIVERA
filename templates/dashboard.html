@@ -1,0 +1,328 @@
+
+{% extends "base.html" %}
+
+{% block title %}Dashboard | MEDIVERA{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+
+<section class="welcome-panel">
+    <div class="welcome-copy">
+        <span class="eyebrow">
+            <span class="secure-dot"></span>
+            HOSPITAL WORKSPACE
+        </span>
+
+        <h1>Welcome to MEDIVERA<span>.</span></h1>
+
+        <p>
+            Your connected workspace for coordinated
+            hospital operations.
+        </p>
+    </div>
+
+    <div class="welcome-date">
+        <span class="date-icon">▦</span>
+        <span>
+            <small>TODAY</small>
+            <strong>{{ dashboard_date }}</strong>
+        </span>
+    </div>
+
+    <div class="welcome-decoration"></div>
+</section>
+
+
+<section class="section-heading">
+    <div>
+        <span class="eyebrow eyebrow-orange">
+            LIVE DATABASE OVERVIEW
+        </span>
+
+        <h2>Your hospital at a glance</h2>
+
+        <p>
+            Statistics calculated directly from your
+            existing MEDIVERA database.
+        </p>
+    </div>
+
+    <span class="status-pill">
+        <span class="secure-dot"></span>
+        Live database
+    </span>
+</section>
+
+
+<section class="metrics-grid">
+
+    <article class="metric-card metric-orange">
+        <div class="metric-top">
+            <span class="metric-label">TOTAL PATIENTS</span>
+            <span class="metric-icon">P</span>
+        </div>
+
+        <strong class="metric-value">
+            {{ metrics.total_patients }}
+        </strong>
+
+        <span class="metric-description">
+            Registered patient records
+        </span>
+    </article>
+
+
+    <article class="metric-card metric-blue">
+        <div class="metric-top">
+            <span class="metric-label">TOTAL DOCTORS</span>
+            <span class="metric-icon">D</span>
+        </div>
+
+        <strong class="metric-value">
+            {{ metrics.total_doctors }}
+        </strong>
+
+        <span class="metric-description">
+            Registered doctor profiles
+        </span>
+    </article>
+
+
+    <article class="metric-card metric-green">
+        <div class="metric-top">
+            <span class="metric-label">APPOINTMENTS</span>
+            <span class="metric-icon">A</span>
+        </div>
+
+        <strong class="metric-value">
+            {{ metrics.total_appointments }}
+        </strong>
+
+        <span class="metric-description">
+            Total appointment records
+        </span>
+    </article>
+
+
+    <article class="metric-card metric-purple">
+        <div class="metric-top">
+            <span class="metric-label">UPCOMING APPOINTMENTS</span>
+            <span class="metric-icon">U</span>
+        </div>
+
+        <strong class="metric-value">
+            {{ metrics.upcoming_appointments }}
+        </strong>
+
+        <span class="metric-description">
+            Scheduled for today or later
+        </span>
+    </article>
+
+
+    <article class="metric-card metric-green">
+        <div class="metric-top">
+            <span class="metric-label">ACTIVE ADMISSIONS</span>
+            <span class="metric-icon">I</span>
+        </div>
+
+        <strong class="metric-value">
+            {{ metrics.active_admissions }}
+        </strong>
+
+        <span class="metric-description">
+            Currently admitted patients
+        </span>
+    </article>
+
+
+    <article class="metric-card metric-blue">
+        <div class="metric-top">
+            <span class="metric-label">AVAILABLE BEDS</span>
+            <span class="metric-icon">B</span>
+        </div>
+
+        <strong class="metric-value">
+            {{ metrics.available_beds }}
+        </strong>
+
+        <span class="metric-description">
+            Beds marked as available
+        </span>
+    </article>
+
+
+    <article class="metric-card metric-orange">
+        <div class="metric-top">
+            <span class="metric-label">PENDING BILLS</span>
+            <span class="metric-icon">₹</span>
+        </div>
+
+        <strong class="metric-value">
+            {{ metrics.pending_bills }}
+        </strong>
+
+        <span class="metric-description">
+            Bills awaiting payment
+        </span>
+    </article>
+
+
+    <article class="metric-card metric-green">
+        <div class="metric-top">
+            <span class="metric-label">COLLECTED REVENUE</span>
+            <span class="metric-icon">₹</span>
+        </div>
+
+        <strong class="metric-value metric-money">
+            ₹{{ "{:,.2f}".format(metrics.collected_revenue or 0) }}
+        </strong>
+
+        <span class="metric-description">
+            Successful recorded payments
+        </span>
+    </article>
+
+</section>
+
+
+<section class="section-heading activity-heading">
+    <div>
+        <span class="eyebrow eyebrow-orange">
+            RECENT ACTIVITY
+        </span>
+
+        <h2>Recent appointments</h2>
+
+        <p>
+            Latest five appointment records from your database.
+        </p>
+    </div>
+
+    <span class="activity-count">
+        {{ metrics.pending_appointments }}
+        pending approval
+    </span>
+</section>
+
+
+<section class="table-panel">
+
+    {% if recent_appointments %}
+
+    <div class="table-scroll">
+        <table class="dashboard-table">
+
+            <thead>
+                <tr>
+                    <th>APPOINTMENT</th>
+                    <th>PATIENT</th>
+                    <th>DOCTOR</th>
+                    <th>DATE</th>
+                    <th>TIME</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for appointment in recent_appointments %}
+                <tr>
+                    <td>
+                        <strong>
+                            #{{ appointment.appointment_id }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ appointment.patient_name }}
+                    </td>
+
+                    <td>
+                        {{ appointment.doctor_name }}
+                    </td>
+
+                    <td>
+                        {{ appointment.appointment_date.strftime('%d %b %Y') }}
+                    </td>
+
+                    <td>
+                        {{ appointment.appointment_time_display }}
+                    </td>
+
+                    <td>
+                        <span class="appointment-status status-{{ appointment.status }}">
+                            {{ appointment.status|replace('_', ' ')|title }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+    {% else %}
+
+    <div class="table-empty">
+        <span>No appointment records found</span>
+        <p>
+            New appointment activity will appear here
+            when records are available.
+        </p>
+    </div>
+
+    {% endif %}
+
+</section>
+
+
+<section class="section-heading activity-heading">
+    <div>
+        <span class="eyebrow eyebrow-orange">
+            INVENTORY MONITORING
+        </span>
+
+        <h2>Stock attention</h2>
+
+        <p>
+            Items marked low-stock or out-of-stock,
+            including quantities at or below their reorder level.
+        </p>
+    </div>
+</section>
+
+
+<section class="inventory-alert-panel">
+    <div class="inventory-alert-icon">!</div>
+
+    <div>
+        <strong>
+            {{ metrics.inventory_alerts }}
+            inventory item(s) need attention
+        </strong>
+
+        <p>
+            Review stock levels before replenishment is required.
+        </p>
+    </div>
+</section>
+
+
+<section class="foundation-note">
+    <div class="note-icon">✓</div>
+
+    <div>
+        <h3>Connected to your existing database</h3>
+
+        <p>
+            MEDIVERA reads the existing patients, doctors,
+            appointments, admissions, beds, billing, payments
+            and inventory tables. Dashboard statistics are
+            calculated from existing records. No business
+            tables or records are created, altered or deleted
+            by these dashboard queries.
+        </p>
+    </div>
+</section>
+
+{% endblock %}

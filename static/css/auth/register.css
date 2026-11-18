@@ -1,0 +1,533 @@
+
+/* =========================================================
+   MEDIVERA — PATIENT REGISTRATION
+   Theme: Obsidian Black | Orange | White
+   ========================================================= */
+
+:root {
+    --obsidian: #101113;
+    --surface: #17191c;
+    --surface-light: #202327;
+    --orange: #f47721;
+    --orange-hover: #ff8a3d;
+    --white: #ffffff;
+    --text-primary: #f5f5f5;
+    --text-secondary: #a5a7aa;
+    --text-muted: #777b80;
+    --border: rgba(255, 255, 255, 0.10);
+    --green: #32c982;
+    --red: #ff6262;
+    --blue: #54a8ff;
+    --radius: 16px;
+    --transition: 0.25s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(244, 119, 33, 0.10), transparent 30%),
+        radial-gradient(circle at 90% 80%, rgba(84, 168, 255, 0.06), transparent 28%),
+        var(--obsidian);
+    color: var(--text-primary);
+    font-family: "DM Sans", sans-serif;
+    line-height: 1.6;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* PAGE LAYOUT */
+
+.page-wrapper {
+    min-height: 100vh;
+    padding: 0 6%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* TOP NAVIGATION */
+
+.topbar {
+    min-height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: "Manrope", sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.brand img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.login-link {
+    color: var(--text-secondary);
+    font-size: 14px;
+    transition: color var(--transition);
+}
+
+.login-link:hover {
+    color: var(--orange);
+}
+
+.login-link strong {
+    color: var(--orange);
+    margin-left: 5px;
+}
+
+/* MAIN CONTAINER */
+
+.registration-container {
+    width: 100%;
+    max-width: 920px;
+    margin: 55px auto 65px;
+}
+
+/* INTRODUCTION */
+
+.intro {
+    margin-bottom: 30px;
+}
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--orange);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 13px;
+}
+
+.eyebrow::before {
+    content: "";
+    width: 22px;
+    height: 2px;
+    background: var(--orange);
+}
+
+.intro h1 {
+    font-family: "Manrope", sans-serif;
+    font-size: clamp(32px, 5vw, 46px);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1.15;
+    margin-bottom: 14px;
+}
+
+.intro p {
+    max-width: 650px;
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+/* Optional introduction highlight */
+
+.intro-highlight {
+    margin-top: 20px;
+    padding: 15px 18px;
+    border: 1px solid rgba(244, 119, 33, 0.25);
+    border-left: 3px solid var(--orange);
+    border-radius: 10px;
+    background: rgba(244, 119, 33, 0.06);
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* FLASH MESSAGES */
+
+.flash-container {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.flash-message {
+    padding: 13px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.flash-message.success {
+    color: var(--green);
+    border-color: rgba(50, 201, 130, 0.30);
+    background: rgba(50, 201, 130, 0.08);
+}
+
+.flash-message.danger,
+.flash-message.error {
+    color: var(--red);
+    border-color: rgba(255, 98, 98, 0.30);
+    background: rgba(255, 98, 98, 0.08);
+}
+
+.flash-message.warning {
+    color: #ffc266;
+    border-color: rgba(255, 194, 102, 0.30);
+}
+
+.flash-message.info {
+    color: var(--blue);
+    border-color: rgba(84, 168, 255, 0.30);
+}
+
+/* REGISTRATION FORM */
+
+.registration-form {
+    padding: 30px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: linear-gradient(145deg, #1b1d20, #141619);
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+/* FORM SECTIONS */
+
+.form-section {
+    padding-bottom: 30px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--border);
+}
+
+.form-section:last-of-type {
+    margin-bottom: 20px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 23px;
+}
+
+.section-number {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: rgba(244, 119, 33, 0.12);
+    border: 1px solid rgba(244, 119, 33, 0.25);
+    color: var(--orange);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.section-heading h2 {
+    font-family: "Manrope", sans-serif;
+    color: var(--white);
+    font-size: 17px;
+    font-weight: 750;
+}
+
+/* FORM GRID */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 21px 20px;
+}
+
+.form-group {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group.full-width,
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    color: #dedfe1;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.form-group label span {
+    color: var(--orange);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    outline: none;
+    background: #111316;
+    color: var(--white);
+    font-family: inherit;
+    font-size: 13px;
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        background var(--transition);
+}
+
+.form-group textarea {
+    min-height: 105px;
+    resize: vertical;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #686d73;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--orange);
+    background: #151719;
+    box-shadow: 0 0 0 3px rgba(244, 119, 33, 0.12);
+}
+
+.form-group select {
+    cursor: pointer;
+    color-scheme: dark;
+}
+
+.form-group select option {
+    background: #17191c;
+    color: var(--white);
+}
+
+.form-group small {
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* FILE UPLOADS */
+
+.form-group input[type="file"] {
+    min-height: auto;
+    padding: 11px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-style: dashed;
+    border-color: rgba(244, 119, 33, 0.35);
+    background: rgba(244, 119, 33, 0.035);
+}
+
+.form-group input[type="file"]:hover {
+    border-color: var(--orange);
+    background: rgba(244, 119, 33, 0.07);
+}
+
+.form-group input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 7px;
+    background: var(--orange);
+    color: #111;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.form-group input[type="file"]::file-selector-button:hover {
+    background: var(--orange-hover);
+}
+
+/* PRIVACY NOTE */
+
+.privacy-note {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+    padding: 15px 17px;
+    margin: 10px 0 25px;
+    border: 1px solid rgba(84, 168, 255, 0.18);
+    border-radius: 11px;
+    background: rgba(84, 168, 255, 0.055);
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.privacy-note strong {
+    color: var(--blue);
+}
+
+/* SUBMIT BUTTON */
+
+.submit-area {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 5px;
+}
+
+.submit-button {
+    min-height: 51px;
+    min-width: 220px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 13px 22px;
+    border: 0;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--orange), #ff8b3d);
+    color: #171717;
+    font-family: "Manrope", sans-serif;
+    font-size: 13px;
+    font-weight: 850;
+    cursor: pointer;
+    box-shadow: 0 9px 25px rgba(244, 119, 33, 0.20);
+    transition:
+        transform var(--transition),
+        box-shadow var(--transition),
+        filter var(--transition);
+}
+
+.submit-button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.07);
+    box-shadow: 0 13px 30px rgba(244, 119, 33, 0.30);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+}
+
+.submit-button span {
+    font-size: 19px;
+    line-height: 1;
+}
+
+/* FOOTER */
+
+.page-footer {
+    margin-top: auto;
+    padding: 22px 0;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    text-align: center;
+    font-size: 11px;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 700px) {
+    .page-wrapper {
+        padding: 0 18px;
+    }
+
+    .topbar {
+        min-height: 70px;
+    }
+
+    .brand {
+        font-size: 18px;
+    }
+
+    .brand img {
+        width: 35px;
+        height: 35px;
+    }
+
+    .registration-container {
+        margin: 35px auto 45px;
+    }
+
+    .intro h1 {
+        font-size: 34px;
+    }
+
+    .registration-form {
+        padding: 21px 17px;
+        border-radius: 15px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 17px;
+    }
+
+    .form-group.full-width,
+    .full-width {
+        grid-column: auto;
+    }
+
+    .submit-area {
+        justify-content: stretch;
+    }
+
+    .submit-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 380px) {
+    .page-wrapper {
+        padding: 0 13px;
+    }
+
+    .brand {
+        font-size: 16px;
+    }
+
+    .login-link {
+        font-size: 12px;
+    }
+
+    .intro h1 {
+        font-size: 29px;
+    }
+}
+
+/* ACCESSIBILITY */
+
+:focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}

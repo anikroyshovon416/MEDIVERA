@@ -1,0 +1,1198 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Activity Logs | MEDIVERA{% endblock %}
+
+{% block extra_css %}
+<style>
+/* =========================================================
+   MEDIVERA — SUPER ADMIN ACTIVITY LOGS
+   Premium Dark / Orange / White Design
+   ========================================================= */
+
+.activity-page {
+    width: 100%;
+    color: #f3f4f6;
+}
+
+/* Header */
+
+.activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.activity-heading h1 {
+    font-size: 27px;
+    font-weight: 800;
+    margin: 0 0 8px;
+    letter-spacing: -.7px;
+}
+
+.activity-heading p {
+    color: #959ba7;
+    font-size: 13px;
+    margin: 0;
+}
+
+.activity-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.activity-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    border: 0;
+    padding: 11px 15px;
+    border-radius: 9px;
+    background: #ff851b;
+    color: #171717;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    transition: .2s ease;
+}
+
+.activity-btn:hover {
+    background: #ffa34d;
+    color: #171717;
+    transform: translateY(-2px);
+}
+
+.activity-btn.secondary {
+    background: #242832;
+    color: #e8eaf0;
+    border: 1px solid #383e49;
+}
+
+.activity-btn.secondary:hover {
+    background: #303641;
+    color: #fff;
+}
+
+/* Statistics */
+
+.activity-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 17px;
+    margin-bottom: 22px;
+}
+
+.activity-stat-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, #1d2028, #15181e);
+    border: 1px solid #30343d;
+    border-radius: 15px;
+    padding: 20px;
+    transition: .25s ease;
+}
+
+.activity-stat-card:hover {
+    transform: translateY(-4px);
+    border-color: #ff851b;
+}
+
+.activity-stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.activity-stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #a1a7b2;
+}
+
+.activity-stat-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: rgba(255,133,27,.12);
+    color: #ff963c;
+    font-size: 17px;
+}
+
+.activity-stat-value {
+    font-size: 29px;
+    font-weight: 800;
+    letter-spacing: -.7px;
+    color: #fff;
+}
+
+.activity-stat-description {
+    color: #858c98;
+    font-size: 11px;
+    margin-top: 7px;
+}
+
+/* Filters */
+
+.activity-filter-card {
+    background: #191c23;
+    border: 1px solid #30343d;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.activity-filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 17px;
+}
+
+.activity-filter-header h3 {
+    font-size: 15px;
+    font-weight: 750;
+    margin: 0;
+    color: #f5f6f8;
+}
+
+.activity-filter-header span {
+    font-size: 11px;
+    color: #8f96a2;
+}
+
+.activity-filter-form {
+    display: grid;
+    grid-template-columns: minmax(180px, 1.6fr) minmax(170px, 1fr) auto auto;
+    align-items: end;
+    gap: 12px;
+}
+
+.activity-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.activity-field label {
+    color: #a7adba;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.activity-input,
+.activity-select {
+    width: 100%;
+    height: 43px;
+    background: #11141a;
+    color: #e8eaf0;
+    border: 1px solid #363b46;
+    border-radius: 9px;
+    padding: 0 12px;
+    outline: none;
+    font-size: 12px;
+}
+
+.activity-input:focus,
+.activity-select:focus {
+    border-color: #ff851b;
+    box-shadow: 0 0 0 3px rgba(255,133,27,.10);
+}
+
+.activity-input::placeholder {
+    color: #707784;
+}
+
+.activity-filter-submit {
+    height: 43px;
+    white-space: nowrap;
+}
+
+.activity-clear-link {
+    height: 43px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    border: 1px solid #393e48;
+    background: #252a33;
+    color: #d8dbe2;
+    text-decoration: none;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.activity-clear-link:hover {
+    background: #343a46;
+    color: #fff;
+}
+
+/* Table */
+
+.activity-table-card {
+    background: #191c23;
+    border: 1px solid #30343d;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.activity-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 20px;
+    border-bottom: 1px solid #30343d;
+}
+
+.activity-table-title h3 {
+    font-size: 15px;
+    font-weight: 750;
+    margin: 0 0 6px;
+}
+
+.activity-table-title p {
+    font-size: 11px;
+    color: #858c98;
+    margin: 0;
+}
+
+.activity-record-count {
+    padding: 7px 11px;
+    border-radius: 20px;
+    background: rgba(255,133,27,.11);
+    color: #ffa04b;
+    border: 1px solid rgba(255,133,27,.22);
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.activity-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 920px;
+}
+
+.activity-table thead {
+    background: #20242c;
+}
+
+.activity-table th {
+    padding: 14px 15px;
+    text-align: left;
+    color: #939aa7;
+    font-size: 10px;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+    white-space: nowrap;
+}
+
+.activity-table td {
+    padding: 15px;
+    border-top: 1px solid #2b3039;
+    color: #dce0e7;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+.activity-table tbody tr {
+    transition: background .2s ease;
+}
+
+.activity-table tbody tr:hover {
+    background: rgba(255,255,255,.025);
+}
+
+.activity-id {
+    color: #858d9b;
+    font-weight: 700;
+}
+
+.activity-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 140px;
+}
+
+.activity-avatar {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: rgba(255,133,27,.13);
+    color: #ff9b43;
+    font-weight: 800;
+    font-size: 12px;
+}
+
+.activity-username {
+    color: #f0f1f4;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.activity-user-id {
+    color: #7e8693;
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+.activity-action {
+    color: #f2f3f5;
+    font-weight: 700;
+}
+
+.activity-description {
+    color: #9299a5;
+    font-size: 11px;
+    line-height: 1.5;
+    max-width: 260px;
+    overflow-wrap: anywhere;
+}
+
+.activity-module {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 9px;
+    border-radius: 7px;
+    background: #292e38;
+    color: #d4d8e0;
+    border: 1px solid #3b414d;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.activity-ip {
+    color: #aab1bd;
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.activity-time {
+    color: #d4d8e0;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+/* Empty state */
+
+.activity-empty {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.activity-empty-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 15px;
+    display: grid;
+    place-items: center;
+    border-radius: 17px;
+    background: rgba(255,133,27,.10);
+    color: #ff963c;
+    font-size: 25px;
+}
+
+.activity-empty h3 {
+    color: #e9ebef;
+    font-size: 15px;
+    margin: 0 0 8px;
+}
+
+.activity-empty p {
+    color: #858c98;
+    font-size: 12px;
+    margin: 0 0 18px;
+}
+
+/* Pagination */
+
+.activity-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 17px 20px;
+    border-top: 1px solid #30343d;
+}
+
+.activity-pagination-info {
+    color: #858c98;
+    font-size: 11px;
+}
+
+.activity-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.activity-page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid #383e49;
+    background: #242832;
+    color: #dfe2e8;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.activity-page-link:hover {
+    background: #343a46;
+    color: #fff;
+}
+
+.activity-page-link.active {
+    background: #ff851b;
+    border-color: #ff851b;
+    color: #171717;
+}
+
+.activity-page-link.disabled {
+    opacity: .35;
+    pointer-events: none;
+}
+
+.activity-page-ellipsis {
+    color: #858c98;
+    padding: 0 3px;
+    font-size: 12px;
+}
+
+/* Footer */
+
+.activity-footer {
+    text-align: center;
+    color: #747c88;
+    font-size: 10px;
+    margin-top: 20px;
+    padding-bottom: 12px;
+}
+
+/* Responsive */
+
+@media(max-width: 1050px) {
+    .activity-filter-form {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media(max-width: 700px) {
+    .activity-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .activity-heading h1 {
+        font-size: 23px;
+    }
+
+    .activity-filter-form {
+        grid-template-columns: 1fr;
+    }
+
+    .activity-filter-submit,
+    .activity-clear-link {
+        width: 100%;
+    }
+
+    .activity-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media print {
+    .admin-sidebar,
+    .admin-topbar,
+    .activity-header-actions,
+    .activity-filter-card,
+    .activity-pagination {
+        display: none !important;
+    }
+
+    .activity-page,
+    .activity-table-card,
+    .activity-stat-card {
+        background: #fff !important;
+        color: #111 !important;
+    }
+
+    .activity-table td,
+    .activity-stat-value,
+    .activity-heading h1 {
+        color: #111 !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+Activity Logs
+{% endblock %}
+
+{% block content %}
+<div class="activity-page">
+
+    <!-- ================================================
+         PAGE HEADER
+         ================================================ -->
+
+    <section class="activity-header">
+
+        <div class="activity-heading">
+            <h1>Activity Logs</h1>
+
+            <p>
+                Monitor system activity, user actions,
+                administrative operations and security events.
+            </p>
+        </div>
+
+        <div class="activity-header-actions">
+
+            <button type="button"
+                    class="activity-btn secondary"
+                    onclick="window.print()">
+                Print Logs
+            </button>
+
+            <button type="button"
+                    class="activity-btn"
+                    onclick="exportActivityCSV()">
+                Export CSV
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================
+         ACTIVITY SUMMARY CARDS
+         ================================================ -->
+
+    <section class="activity-stats">
+
+        <div class="activity-stat-card">
+
+            <div class="activity-stat-top">
+                <span class="activity-stat-label">
+                    Total Activity Records
+                </span>
+
+                <span class="activity-stat-icon">▤</span>
+            </div>
+
+            <div class="activity-stat-value">
+                {{ summary.total_logs|default(0) }}
+            </div>
+
+            <div class="activity-stat-description">
+                Total recorded system activities
+            </div>
+
+        </div>
+
+
+        <div class="activity-stat-card">
+
+            <div class="activity-stat-top">
+                <span class="activity-stat-label">
+                    Active Users
+                </span>
+
+                <span class="activity-stat-icon">♙</span>
+            </div>
+
+            <div class="activity-stat-value">
+                {{ summary.active_users|default(0) }}
+            </div>
+
+            <div class="activity-stat-description">
+                Distinct users appearing in activity records
+            </div>
+
+        </div>
+
+
+        <div class="activity-stat-card">
+
+            <div class="activity-stat-top">
+                <span class="activity-stat-label">
+                    Tracked Modules
+                </span>
+
+                <span class="activity-stat-icon">▦</span>
+            </div>
+
+            <div class="activity-stat-value">
+                {{ summary.tracked_modules|default(0) }}
+            </div>
+
+            <div class="activity-stat-description">
+                Modules with recorded activity
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================
+         SEARCH AND FILTER SECTION
+         ================================================ -->
+
+    <section class="activity-filter-card">
+
+        <div class="activity-filter-header">
+
+            <h3>Search & Filter Activity</h3>
+
+            <span>
+                Find specific user actions and system records
+            </span>
+
+        </div>
+
+        <form method="GET"
+              action="{{ url_for('admin.activity_logs') }}"
+              class="activity-filter-form">
+
+            <div class="activity-field">
+
+                <label for="activitySearch">
+                    Search Activity
+                </label>
+
+                <input
+                    type="search"
+                    id="activitySearch"
+                    name="search"
+                    class="activity-input"
+                    placeholder="Username, action, description or IP..."
+                    value="{{ search }}"
+                >
+
+            </div>
+
+
+            <div class="activity-field">
+
+                <label for="activityModule">
+                    Filter by Module
+                </label>
+
+                <select
+                    id="activityModule"
+                    name="module"
+                    class="activity-select"
+                >
+
+                    <option value="">
+                        All Modules
+                    </option>
+
+                    {% for item in modules %}
+
+                        {% if item.module %}
+
+                        <option
+                            value="{{ item.module }}"
+                            {% if selected_module == item.module %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ item.module }}
+                        </option>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <button type="submit"
+                    class="activity-btn activity-filter-submit">
+                Apply Filters
+            </button>
+
+
+            <a href="{{ url_for('admin.activity_logs') }}"
+               class="activity-clear-link">
+                Clear Filters
+            </a>
+
+        </form>
+
+    </section>
+
+
+    <!-- ================================================
+         ACTIVITY RECORDS TABLE
+         ================================================ -->
+
+    <section class="activity-table-card">
+
+        <div class="activity-table-header">
+
+            <div class="activity-table-title">
+
+                <h3>System Activity History</h3>
+
+                <p>
+                    Latest recorded actions across MEDIVERA
+                </p>
+
+            </div>
+
+            <span class="activity-record-count">
+                {{ total_records }} Records
+            </span>
+
+        </div>
+
+
+        {% if logs %}
+
+        <div class="activity-table-wrap">
+
+            <table class="activity-table" id="activityTable">
+
+                <thead>
+                    <tr>
+                        <th>Log ID</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Module</th>
+                        <th>Description</th>
+                        <th>IP Address</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    {% for log in logs %}
+
+                    <tr>
+
+                        <!-- Log ID -->
+
+                        <td>
+                            <span class="activity-id">
+                                #{{ log.log_id }}
+                            </span>
+                        </td>
+
+
+                        <!-- User -->
+
+                        <td>
+
+                            <div class="activity-user">
+
+                                <div class="activity-avatar">
+
+                                    {{ (log.username or 'S')[:1]|upper }}
+
+                                </div>
+
+                                <div>
+
+                                    <div class="activity-username">
+                                        {{ log.username or 'System' }}
+                                    </div>
+
+                                    <div class="activity-user-id">
+
+                                        {% if log.user_id %}
+                                            User ID: {{ log.user_id }}
+                                        {% else %}
+                                            System Generated
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Action -->
+
+                        <td>
+                            <span class="activity-action">
+                                {{ log.action or 'Unspecified' }}
+                            </span>
+                        </td>
+
+
+                        <!-- Module -->
+
+                        <td>
+
+                            <span class="activity-module">
+                                {{ log.module or 'General' }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Description -->
+
+                        <td>
+
+                            <div class="activity-description">
+                                {{ log.description or 'No description provided' }}
+                            </div>
+
+                        </td>
+
+
+                        <!-- IP Address -->
+
+                        <td>
+
+                            <span class="activity-ip">
+                                {{ log.ip_address or 'Not recorded' }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Date and time -->
+
+                        <td>
+
+                            <span class="activity-time">
+                                {% if log.created_at %}
+                                    {{ log.created_at.strftime('%d %b %Y, %I:%M %p') if log.created_at.strftime is defined else log.created_at }}
+                                {% else %}
+                                    Not available
+                                {% endif %}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- ============================================
+             PAGINATION
+             ============================================ -->
+
+        <div class="activity-pagination">
+
+            <div class="activity-pagination-info">
+
+                Showing page
+                <strong>{{ page }}</strong>
+                of
+                <strong>{{ total_pages }}</strong>
+
+                ·
+                Total records:
+                <strong>{{ total_records }}</strong>
+
+            </div>
+
+
+            <div class="activity-pagination-controls">
+
+                <!-- Previous -->
+
+                <a
+                    class="activity-page-link {% if page <= 1 %}disabled{% endif %}"
+                    href="{{ url_for(
+                        'admin.activity_logs',
+                        search=search,
+                        module=selected_module,
+                        page=page-1
+                    ) }}"
+                >
+                    Previous
+                </a>
+
+
+                <!-- First page -->
+
+                {% if page > 2 %}
+
+                    <a class="activity-page-link"
+                       href="{{ url_for(
+                           'admin.activity_logs',
+                           search=search,
+                           module=selected_module,
+                           page=1
+                       ) }}">
+                        1
+                    </a>
+
+                    {% if page > 3 %}
+                        <span class="activity-page-ellipsis">...</span>
+                    {% endif %}
+
+                {% endif %}
+
+
+                <!-- Previous numbered page -->
+
+                {% if page > 1 %}
+
+                    <a class="activity-page-link"
+                       href="{{ url_for(
+                           'admin.activity_logs',
+                           search=search,
+                           module=selected_module,
+                           page=page-1
+                       ) }}">
+                        {{ page-1 }}
+                    </a>
+
+                {% endif %}
+
+
+                <!-- Current page -->
+
+                <span class="activity-page-link active">
+                    {{ page }}
+                </span>
+
+
+                <!-- Next numbered page -->
+
+                {% if page < total_pages %}
+
+                    <a class="activity-page-link"
+                       href="{{ url_for(
+                           'admin.activity_logs',
+                           search=search,
+                           module=selected_module,
+                           page=page+1
+                       ) }}">
+                        {{ page+1 }}
+                    </a>
+
+                {% endif %}
+
+
+                <!-- Last page -->
+
+                {% if page < total_pages - 1 %}
+
+                    {% if page < total_pages - 2 %}
+                        <span class="activity-page-ellipsis">...</span>
+                    {% endif %}
+
+                    <a class="activity-page-link"
+                       href="{{ url_for(
+                           'admin.activity_logs',
+                           search=search,
+                           module=selected_module,
+                           page=total_pages
+                       ) }}">
+                        {{ total_pages }}
+                    </a>
+
+                {% endif %}
+
+
+                <!-- Next -->
+
+                <a
+                    class="activity-page-link {% if page >= total_pages %}disabled{% endif %}"
+                    href="{{ url_for(
+                        'admin.activity_logs',
+                        search=search,
+                        module=selected_module,
+                        page=page+1
+                    ) }}"
+                >
+                    Next
+                </a>
+
+            </div>
+
+        </div>
+
+
+        {% else %}
+
+        <!-- ============================================
+             EMPTY STATE
+             ============================================ -->
+
+        <div class="activity-empty">
+
+            <div class="activity-empty-icon">
+                ◷
+            </div>
+
+            <h3>No Activity Records Found</h3>
+
+            <p>
+                {% if search or selected_module %}
+                    No records match your current search or filter.
+                    Try changing your search criteria.
+                {% else %}
+                    There are currently no activity records
+                    available in the system.
+                {% endif %}
+            </p>
+
+            {% if search or selected_module %}
+
+                <a href="{{ url_for('admin.activity_logs') }}"
+                   class="activity-btn">
+                    View All Activity
+                </a>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- FOOTER -->
+
+    <div class="activity-footer">
+        MEDIVERA Smart Healthcare Management System
+        · Super Administrator · Activity Logs
+    </div>
+
+</div>
+
+
+<!-- ================================================
+     CSV EXPORT
+     Exports records currently displayed on this page
+     ================================================ -->
+
+<script>
+
+function exportActivityCSV() {
+
+    const table = document.getElementById("activityTable");
+
+    if (!table) {
+        alert("There are no activity records available to export.");
+        return;
+    }
+
+    const rows = [];
+
+    const headers = Array.from(
+        table.querySelectorAll("thead th")
+    ).map(function(th) {
+        return th.innerText.trim();
+    });
+
+    rows.push(headers);
+
+    const bodyRows = table.querySelectorAll("tbody tr");
+
+    bodyRows.forEach(function(row) {
+
+        const columns = Array.from(
+            row.querySelectorAll("td")
+        ).map(function(cell) {
+            return cell.innerText
+                .trim()
+                .replace(/\s+/g, " ");
+        });
+
+        rows.push(columns);
+
+    });
+
+    const csvContent = rows.map(function(row) {
+
+        return row.map(function(value) {
+
+            return '"' +
+                String(value ?? "").replace(/"/g, '""') +
+                '"';
+
+        }).join(",");
+
+    }).join("\r\n");
+
+    const blob = new Blob(
+        ["\uFEFF" + csvContent],
+        {
+            type: "text/csv;charset=utf-8;"
+        }
+    );
+
+    const downloadUrl = URL.createObjectURL(blob);
+
+    const downloadLink = document.createElement("a");
+
+    downloadLink.href = downloadUrl;
+
+    downloadLink.download =
+        "MEDIVERA_Activity_Logs_Page_{{ page }}.csv";
+
+    document.body.appendChild(downloadLink);
+
+    downloadLink.click();
+
+    document.body.removeChild(downloadLink);
+
+    URL.revokeObjectURL(downloadUrl);
+
+}
+
+</script>
+
+{% endblock %}

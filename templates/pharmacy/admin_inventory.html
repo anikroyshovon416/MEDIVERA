@@ -1,0 +1,159 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Inventory Management | MEDIVERA{% endblock %}
+{% block breadcrumb %}Pharmacy / Inventory Management{% endblock %}
+
+{% block extra_css %}
+<style>
+.inventory-page{color:#f5f5f5}
+.inv-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.inv-heading h1{font-size:25px;font-weight:800;margin:0}
+.inv-heading p{color:#9ca3af;margin:6px 0 0}
+.inv-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.inv-stat{background:linear-gradient(145deg,#25272c,#191a1e);border:1px solid #383a40;border-radius:15px;padding:18px}
+.inv-stat small{color:#a5a7ad;display:block;margin-bottom:9px}
+.inv-stat strong{font-size:25px;font-weight:800}
+.inv-stat.orange strong{color:#ff922e}
+.inv-stat.red strong{color:#ff6262}
+.inv-stat.green strong{color:#45cf91}
+.inv-stat.blue strong{color:#6eb8ff}
+.inv-panel{background:#202126;border:1px solid #373940;border-radius:16px;padding:18px}
+.inv-filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.inv-filters input,.inv-filters select{background:#17181c;color:#fff;border:1px solid #41434a;border-radius:9px;padding:10px 12px;min-height:42px}
+.inv-filters input{flex:1;min-width:200px}
+.inv-btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:9px;padding:9px 13px;font-weight:700;text-decoration:none;cursor:pointer}
+.inv-btn-primary{background:#ff922e;color:#171717}
+.inv-btn-muted{background:#34363d;color:#fff}
+.inv-table-wrap{overflow-x:auto}
+.inv-table{width:100%;border-collapse:collapse;min-width:850px}
+.inv-table th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#999da7;text-align:left;padding:13px 10px;border-bottom:1px solid #41434a}
+.inv-table td{padding:14px 10px;border-bottom:1px solid #34363c;vertical-align:middle;font-size:13px}
+.inv-medicine{display:flex;align-items:center;gap:11px;min-width:190px}
+.inv-medicine img,.inv-placeholder{width:43px;height:43px;border-radius:10px;object-fit:cover;background:#303239;display:grid;place-items:center;color:#ff922e}
+.inv-medicine b{display:block;color:#fff}
+.inv-medicine small{color:#999da7}
+.inv-status{display:inline-block;padding:5px 9px;border-radius:30px;font-size:11px;font-weight:800}
+.inv-status.available{background:#153c2b;color:#67e3a5}
+.inv-status.low_stock{background:#493516;color:#ffc46b}
+.inv-status.out_of_stock{background:#4a2023;color:#ff8888}
+.inv-inactive{color:#ff8888;font-size:11px}
+.inv-pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px;color:#a5a7ad}
+.inv-pagination a{color:#ffad5d;text-decoration:none;margin-left:12px}
+@media(max-width:900px){.inv-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.inv-stats{grid-template-columns:1fr 1fr}.inv-stat{padding:13px}.inv-stat strong{font-size:20px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="inventory-page">
+    <div class="inv-heading">
+        <div>
+            <h1>Inventory Management</h1>
+            <p>Monitor medicine quantities, stock value and replenishment needs.</p>
+        </div>
+        <a class="inv-btn inv-btn-primary" href="{{ url_for('pharmacy.admin_medicines') }}">
+            Manage Medicine Catalogue
+        </a>
+    </div>
+
+    <div class="inv-stats">
+        <div class="inv-stat orange">
+            <small>Medicine Records</small>
+            <strong>{{ summary.medicine_count or 0 }}</strong>
+        </div>
+        <div class="inv-stat blue">
+            <small>Total Units in Stock</small>
+            <strong>{{ summary.total_units or 0 }}</strong>
+        </div>
+        <div class="inv-stat green">
+            <small>Inventory Value</small>
+            <strong>₹{{ "%.2f"|format(summary.stock_value or 0) }}</strong>
+        </div>
+        <div class="inv-stat red">
+            <small>Low / Out of Stock</small>
+            <strong>{{ (summary.low_stock or 0) + (summary.out_of_stock or 0) }}</strong>
+        </div>
+    </div>
+
+    <section class="inv-panel">
+        <form method="GET" action="{{ url_for('pharmacy.admin_inventory') }}" class="inv-filters">
+            <input type="search" name="q" value="{{ search }}" placeholder="Search medicine, generic name, brand or manufacturer">
+            <select name="status">
+                <option value="all" {% if status == 'all' %}selected{% endif %}>All stock statuses</option>
+                <option value="available" {% if status == 'available' %}selected{% endif %}>Available</option>
+                <option value="low_stock" {% if status == 'low_stock' %}selected{% endif %}>Low stock</option>
+                <option value="out_of_stock" {% if status == 'out_of_stock' %}selected{% endif %}>Out of stock</option>
+            </select>
+            <button class="inv-btn inv-btn-primary" type="submit">Filter</button>
+            <a class="inv-btn inv-btn-muted" href="{{ url_for('pharmacy.admin_inventory') }}">Reset</a>
+        </form>
+
+        <div class="inv-table-wrap">
+            <table class="inv-table">
+                <thead>
+                    <tr>
+                        <th>Medicine</th>
+                        <th>Stock</th>
+                        <th>Reorder Level</th>
+                        <th>Purchase Price</th>
+                        <th>Retail Price</th>
+                        <th>Expiry</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in medicines %}
+                    <tr>
+                        <td>
+                            <div class="inv-medicine">
+                                {% if item.medicine_image %}
+                                    <img src="{{ url_for('static', filename=item.medicine_image) }}" alt="{{ item.item_name }}">
+                                {% else %}
+                                    <div class="inv-placeholder">Rx</div>
+                                {% endif %}
+                                <div>
+                                    <b>{{ item.item_name }}</b>
+                                    <small>{{ item.strength or '' }} {{ item.dosage_form or '' }}</small>
+                                    {% if not item.is_active %}<div class="inv-inactive">Inactive catalogue item</div>{% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td><b>{{ item.quantity or 0 }}</b> {{ item.unit or 'unit' }}</td>
+                        <td>{{ item.reorder_level or 0 }}</td>
+                        <td>₹{{ "%.2f"|format(item.purchase_price or 0) }}</td>
+                        <td>₹{{ "%.2f"|format(item.unit_price or 0) }}</td>
+                        <td>{{ item.expiry_date.strftime('%d %b %Y') if item.expiry_date else 'Not set' }}</td>
+                        <td>
+                            <span class="inv-status {{ item.stock_status }}">
+                                {{ (item.stock_status or 'unknown')|replace('_',' ')|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <a class="inv-btn inv-btn-primary" href="{{ url_for('pharmacy.manage_medicine_stock', inventory_id=item.inventory_id) }}">
+                                Update Stock
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="8" style="text-align:center;color:#a5a7ad;padding:30px">No medicines match your filters.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="inv-pagination">
+            <span>Showing page {{ page }} of {{ total_pages }} · {{ total }} records</span>
+            <div>
+                {% if page > 1 %}
+                    <a href="{{ url_for('pharmacy.admin_inventory', q=search, status=status, page=page-1) }}">← Previous</a>
+                {% endif %}
+                {% if page < total_pages %}
+                    <a href="{{ url_for('pharmacy.admin_inventory', q=search, status=status, page=page+1) }}">Next →</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

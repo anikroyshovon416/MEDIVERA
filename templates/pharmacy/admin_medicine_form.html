@@ -1,0 +1,209 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ page_title }} | MEDIVERA{% endblock %}
+{% block breadcrumb %}Pharmacy / Medicine Catalogue / {{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.medicine-form-page { color:#f4f4f5; max-width:1050px; }
+.medicine-form-heading { margin-bottom:22px; }
+.medicine-form-heading h1 { font-size:26px; margin:0; font-weight:800; }
+.medicine-form-heading p { color:#999da7; font-size:13px; margin-top:7px; }
+.medicine-form-panel {
+    background:#191b20; border:1px solid rgba(255,255,255,.08);
+    border-radius:16px; padding:23px; margin-bottom:18px;
+}
+.medicine-form-panel h3 { margin:0 0 18px; font-size:15px; }
+.medicine-form-grid {
+    display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:17px;
+}
+.mf-field label {
+    display:block; font-size:12px; color:#c1c3ca;
+    font-weight:700; margin-bottom:7px;
+}
+.mf-field input,.mf-field select,.mf-field textarea {
+    width:100%; box-sizing:border-box; padding:12px;
+    border-radius:9px; border:1px solid rgba(255,255,255,.1);
+    background:#111317; color:#f5f5f5; outline:none;
+}
+.mf-field input:focus,.mf-field select:focus,.mf-field textarea:focus {
+    border-color:#ff8a24;
+}
+.mf-field textarea { min-height:95px; resize:vertical; }
+.mf-help { color:#888d98; font-size:11px; margin-top:6px; }
+.mf-full { grid-column:1/-1; }
+.mf-checkbox {
+    display:flex; align-items:center; gap:10px;
+    color:#e7e7e9; font-size:13px;
+}
+.mf-checkbox input { accent-color:#ff8a24; width:17px; height:17px; }
+.mf-current-image {
+    max-width:130px; max-height:110px; display:block;
+    object-fit:cover; border-radius:10px; margin-top:10px;
+}
+.mf-actions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+.mf-btn {
+    border:0; border-radius:9px; padding:12px 18px;
+    text-decoration:none; font-weight:800; cursor:pointer; font-size:13px;
+}
+.mf-save { background:#ff8a24; color:#171717; }
+.mf-cancel { background:#292c33; color:#eee; }
+.mf-note {
+    padding:13px 15px; border-radius:10px;
+    background:rgba(255,138,36,.09); border:1px solid rgba(255,138,36,.2);
+    color:#ffc18b; font-size:12px; margin-bottom:18px;
+}
+@media(max-width:650px) {
+    .medicine-form-grid { grid-template-columns:1fr; }
+    .mf-full { grid-column:auto; }
+    .medicine-form-panel { padding:16px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="medicine-form-page">
+
+    <div class="medicine-form-heading">
+        <h1>{{ page_title }}</h1>
+        <p>
+            {% if medicine %}
+                Update medicine catalogue information.
+            {% else %}
+                Register a medicine in the MEDIVERA catalogue.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="mf-note">
+        Catalogue changes do not modify existing stock quantities.
+        Use Inventory Management for stock receipts and adjustments.
+    </div>
+
+    <form method="post" enctype="multipart/form-data"
+          action="{% if medicine %}{{ url_for('pharmacy.edit_medicine', inventory_id=medicine.inventory_id) }}{% else %}{{ url_for('pharmacy.add_medicine') }}{% endif %}">
+
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <section class="medicine-form-panel">
+            <h3>Medicine identity</h3>
+            <div class="medicine-form-grid">
+
+                <div class="mf-field">
+                    <label for="item_name">Medicine name *</label>
+                    <input id="item_name" name="item_name" required maxlength="150"
+                           value="{{ medicine.item_name if medicine else '' }}"
+                           placeholder="e.g. Paracetamol 500mg">
+                </div>
+
+                <div class="mf-field">
+                    <label for="generic_name">Generic name</label>
+                    <input id="generic_name" name="generic_name"
+                           value="{{ medicine.generic_name or '' if medicine else '' }}"
+                           placeholder="e.g. Paracetamol">
+                </div>
+
+                <div class="mf-field">
+                    <label for="brand_name">Brand name</label>
+                    <input id="brand_name" name="brand_name"
+                           value="{{ medicine.brand_name or '' if medicine else '' }}">
+                </div>
+
+                <div class="mf-field">
+                    <label for="strength">Strength</label>
+                    <input id="strength" name="strength"
+                           value="{{ medicine.strength or '' if medicine else '' }}"
+                           placeholder="e.g. 500mg">
+                </div>
+
+                <div class="mf-field">
+                    <label for="dosage_form">Dosage form</label>
+                    <select id="dosage_form" name="dosage_form">
+                        {% set selected_form = medicine.dosage_form if medicine else '' %}
+                        <option value="">Select dosage form</option>
+                        {% for option in ['Tablet','Capsule','Syrup','Suspension','Injection','Cream','Ointment','Drops','Inhaler','Sachet','Solution','Other'] %}
+                            <option value="{{ option }}"
+                                {% if selected_form == option %}selected{% endif %}>
+                                {{ option }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mf-field">
+                    <label for="manufacturer">Manufacturer</label>
+                    <input id="manufacturer" name="manufacturer"
+                           value="{{ medicine.manufacturer or '' if medicine else '' }}">
+                </div>
+
+                <div class="mf-field mf-full">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description"
+                              placeholder="Medicine details and usage information">{{ medicine.description or '' if medicine else '' }}</textarea>
+                </div>
+
+                <div class="mf-field mf-full">
+                    <label for="storage_instructions">Storage instructions</label>
+                    <textarea id="storage_instructions" name="storage_instructions"
+                              placeholder="e.g. Store below 25°C, protect from moisture">{{ medicine.storage_instructions or '' if medicine else '' }}</textarea>
+                </div>
+            </div>
+        </section>
+
+        <section class="medicine-form-panel">
+            <h3>Pricing and product information</h3>
+            <div class="medicine-form-grid">
+
+                <div class="mf-field">
+                    <label for="unit_price">Selling price per unit (₹) *</label>
+                    <input id="unit_price" type="number" name="unit_price"
+                           min="0" step="0.01" required
+                           value="{{ medicine.unit_price if medicine else '0.00' }}">
+                </div>
+
+                <div class="mf-field">
+                    <label for="purchase_price">Purchase price per unit (₹)</label>
+                    <input id="purchase_price" type="number" name="purchase_price"
+                           min="0" step="0.01"
+                           value="{{ medicine.purchase_price if medicine else '0.00' }}">
+                </div>
+
+                <div class="mf-field">
+                    <label for="expiry_date">Expiry date</label>
+                    <input id="expiry_date" type="date" name="expiry_date"
+                           value="{{ medicine.expiry_date.isoformat() if medicine and medicine.expiry_date else '' }}">
+                </div>
+
+                <div class="mf-field">
+                    <label for="medicine_image">Medicine image</label>
+                    <input id="medicine_image" type="file" name="medicine_image"
+                           accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
+                    <div class="mf-help">PNG, JPG, JPEG or WEBP. Maximum 5 MB.</div>
+                    {% if medicine and medicine.medicine_image %}
+                        <img class="mf-current-image"
+                             src="{{ url_for('static', filename=medicine.medicine_image) }}"
+                             alt="Current medicine image">
+                    {% endif %}
+                </div>
+
+                <div class="mf-field mf-full">
+                    <label class="mf-checkbox">
+                        <input type="checkbox" name="requires_prescription" value="1"
+                               {% if medicine and medicine.requires_prescription %}checked{% endif %}>
+                        Prescription required for dispensing
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <div class="mf-actions">
+            <a class="mf-btn mf-cancel"
+               href="{{ url_for('pharmacy.admin_medicines') }}">Cancel</a>
+            <button class="mf-btn mf-save" type="submit">
+                {{ 'Save Medicine Changes' if medicine else 'Add Medicine to Catalogue' }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

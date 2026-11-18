@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Verify Email | MEDIVERA{% endblock %}
+{% block breadcrumb %}Email Verification{% endblock %}
+
+{% block content %}
+<div style="max-width:620px;margin:55px auto;padding:36px;background:#202329;color:#fff;border:1px solid #373b43;border-radius:18px;text-align:center;">
+    {% if valid %}
+        <h1>Verify your <span style="color:#ff9638;">email</span></h1>
+        <p>Hello <strong>{{ username }}</strong>,</p>
+        <p>Your verification link is valid. Confirm your email address to complete registration.</p>
+        <form method="POST" action="{{ url_for('auth.verify_email', token=token) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" style="padding:13px 24px;background:#f28c28;border:0;border-radius:8px;font-weight:bold;cursor:pointer;">Confirm Email Address</button>
+        </form>
+    {% else %}
+        <h1>Verification link unavailable</h1>
+        <p>This link may have expired, already been used, or is invalid.</p>
+        <a href="{{ url_for('auth.resend_verification') }}" style="color:#ffad61;">Request a new verification email</a>
+    {% endif %}
+    <p style="color:#ff9638;margin-top:25px;">MEDIVERA</p>
+    <p>Intelligent Healthcare. Connected Care. Better Tomorrow.</p>
+</div>
+{% endblock %}

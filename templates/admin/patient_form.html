@@ -1,0 +1,258 @@
+﻿{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ 'Edit Patient' if patient else 'Add Patient' }} | MEDIVERA{% endblock %}
+
+{% block content %}
+<style>
+.patient-form-page {
+    color: #f5f5f5;
+    max-width: 1050px;
+    margin: 0 auto;
+}
+.patient-form-heading {
+    margin-bottom: 25px;
+}
+.patient-form-heading h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+.patient-form-heading p {
+    color: #a8a8a8;
+}
+.patient-form-card {
+    background: #202126;
+    border: 1px solid #383940;
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.25);
+}
+.patient-section-title {
+    color: #ff9638;
+    font-size: 16px;
+    font-weight: 800;
+    margin: 25px 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #3a3a40;
+}
+.patient-section-title:first-child {
+    margin-top: 0;
+}
+.patient-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+.patient-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.patient-field.full {
+    grid-column: 1 / -1;
+}
+.patient-field label {
+    color: #dedede;
+    font-size: 13px;
+    font-weight: 700;
+}
+.patient-field input,
+.patient-field select,
+.patient-field textarea {
+    width: 100%;
+    background: #17181c;
+    border: 1px solid #41434a;
+    border-radius: 9px;
+    padding: 12px 13px;
+    color: #fff;
+    outline: none;
+}
+.patient-field input:focus,
+.patient-field select:focus,
+.patient-field textarea:focus {
+    border-color: #ff9638;
+    box-shadow: 0 0 0 3px rgba(255,150,56,.12);
+}
+.patient-field select option {
+    background: #202126;
+    color: #fff;
+}
+.patient-field textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+.patient-required {
+    color: #ff7777;
+}
+.patient-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid #3a3a40;
+}
+.patient-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 9px;
+    text-decoration: none;
+    font-weight: 800;
+    border: 0;
+    cursor: pointer;
+}
+.patient-btn-primary {
+    background: #ff9638;
+    color: #171717;
+}
+.patient-btn-secondary {
+    background: #34353b;
+    color: #fff;
+}
+.patient-help {
+    color: #92939a;
+    font-size: 11px;
+}
+@media(max-width:700px) {
+    .patient-grid { grid-template-columns: 1fr; }
+    .patient-form-card { padding: 18px; }
+    .patient-form-actions { flex-direction: column; }
+    .patient-btn { width: 100%; }
+}
+</style>
+
+<div class="patient-form-page">
+    <div class="patient-form-heading">
+        <h1>{{ 'Edit Patient Record' if patient else 'Register New Patient' }}</h1>
+        <p>
+            {{ 'Update the patient information carefully.' if patient
+               else 'Create a new patient record in the MEDIVERA system.' }}
+        </p>
+    </div>
+
+    <div class="patient-form-card">
+        <form method="POST"
+              action="{{ url_for('admin.edit_patient', patient_id=patient.patient_id) if patient else url_for('admin.add_patient') }}">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <h3 class="patient-section-title">01 — Personal Information</h3>
+
+            <div class="patient-grid">
+                <div class="patient-field">
+                    <label for="first_name">First Name <span class="patient-required">*</span></label>
+                    <input id="first_name" name="first_name" type="text"
+                           maxlength="50" required
+                           value="{{ patient.first_name if patient else '' }}"
+                           placeholder="Enter first name">
+                </div>
+
+                <div class="patient-field">
+                    <label for="last_name">Last Name <span class="patient-required">*</span></label>
+                    <input id="last_name" name="last_name" type="text"
+                           maxlength="50" required
+                           value="{{ patient.last_name if patient else '' }}"
+                           placeholder="Enter last name">
+                </div>
+
+                <div class="patient-field">
+                    <label for="date_of_birth">Date of Birth <span class="patient-required">*</span></label>
+                    <input id="date_of_birth" name="date_of_birth" type="date"
+                           required max="{{ today }}"
+                           value="{{ (patient.date_of_birth|string)[:10] if patient and patient.date_of_birth else '' }}">
+                </div>
+
+                <div class="patient-field">
+                    <label for="gender">Gender <span class="patient-required">*</span></label>
+                    <select id="gender" name="gender" required>
+                        <option value="">Select gender</option>
+                        {% for gender in genders %}
+                        <option value="{{ gender }}"
+                            {% if patient and patient.gender == gender %}selected{% endif %}>
+                            {{ gender }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="patient-field">
+                    <label for="blood_group">Blood Group</label>
+                    <select id="blood_group" name="blood_group">
+                        <option value="">I don't know / Not provided</option>
+                        {% for group in blood_groups %}
+                        <option value="{{ group }}"
+                            {% if patient and patient.blood_group == group %}selected{% endif %}>
+                            {{ group }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <span class="patient-help">You can leave this blank if the blood group is unknown.</span>
+                </div>
+            </div>
+
+            <h3 class="patient-section-title">02 — Contact Information</h3>
+
+            <div class="patient-grid">
+                <div class="patient-field">
+                    <label for="phone">Phone Number <span class="patient-required">*</span></label>
+                    <input id="phone" name="phone" type="tel"
+                           maxlength="15" required
+                           value="{{ patient.phone if patient else '' }}"
+                           placeholder="Enter phone number">
+                </div>
+
+                <div class="patient-field">
+                    <label for="email">Email Address</label>
+                    <input id="email" name="email" type="email"
+                           maxlength="100"
+                           value="{{ patient.email if patient and patient.email else '' }}"
+                           placeholder="patient@example.com">
+                </div>
+
+                <div class="patient-field full">
+                    <label for="address">Residential Address</label>
+                    <textarea id="address" name="address"
+                              maxlength="255"
+                              placeholder="Enter residential address">{{ patient.address if patient and patient.address else '' }}</textarea>
+                </div>
+            </div>
+
+            <h3 class="patient-section-title">03 — Emergency Contact</h3>
+
+            <div class="patient-grid">
+                <div class="patient-field">
+                    <label for="emergency_contact_name">Emergency Contact Name</label>
+                    <input id="emergency_contact_name"
+                           name="emergency_contact_name"
+                           type="text" maxlength="100"
+                           value="{{ patient.emergency_contact_name if patient and patient.emergency_contact_name else '' }}"
+                           placeholder="Contact person's name">
+                </div>
+
+                <div class="patient-field">
+                    <label for="emergency_contact_phone">Emergency Contact Phone</label>
+                    <input id="emergency_contact_phone"
+                           name="emergency_contact_phone"
+                           type="tel" maxlength="15"
+                           value="{{ patient.emergency_contact_phone if patient and patient.emergency_contact_phone else '' }}"
+                           placeholder="Emergency phone number">
+                </div>
+            </div>
+
+            <div class="patient-form-actions">
+                <a href="{{ url_for('admin.patients') }}"
+                   class="patient-btn patient-btn-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="patient-btn patient-btn-primary">
+                    {{ 'Save Patient Changes' if patient else 'Register Patient' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

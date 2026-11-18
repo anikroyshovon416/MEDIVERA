@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101113">
+
+    <title>{% block title %}MEDIVERA Admin{% endblock %}</title>
+
+    <link rel="icon" href="{{ url_for('static', filename='images/branding/medivera-logo.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/medivera-motion.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-skeuomorphic.css') }}">
+</head>
+
+<body class="mv-admin-skeuo">
+<div class="admin-shell">
+
+    <aside class="admin-sidebar" id="adminSidebar">
+
+       <a class="admin-brand"
+   href="{{ url_for('dashboard') }}">
+    <img src="{{ url_for('static', filename='images/branding/medivera-logo.png') }}"
+         alt="MEDIVERA">
+    <span>
+        <strong>MEDIVERA</strong>
+        <small>ADMINISTRATION</small>
+    </span>
+</a>
+        <div class="admin-sidebar-heading">WORKSPACE</div>
+
+        <nav class="admin-navigation">
+    {% for item in nav_items %}
+        <a href="{{ url_for(item.endpoint) if item.endpoint is defined else (url_for('admin.super_dashboard') if is_super_admin else url_for('admin.dashboard')) }}"
+          class="admin-nav-link {% if request.endpoint == item.endpoint or (item.endpoint is not defined and loop.first) %}active{% endif %}">
+            <span class="admin-nav-icon" aria-hidden="true">
+                {% if item.icon == "layout-dashboard" %}▦
+                {% elif item.icon == "users" %}♙
+                {% elif item.icon == "shield-check" %}◈
+                {% elif item.icon == "clipboard-check" %}✓
+                {% elif item.icon == "chart-no-axes-combined" %}▥
+                {% elif item.icon == "history" %}◷
+                {% elif item.icon == "settings" %}⚙
+                {% else %}•{% endif %}
+            </span>
+            <span class="admin-nav-label">{{ item.label }}</span>
+        </a>
+    {% endfor %}
+
+{% if is_super_admin %}
+    <a href="{{ url_for('pharmacy.admin_dashboard') }}"
+       class="admin-nav-link {% if request.endpoint and request.endpoint.startswith('pharmacy.admin_') %}active{% endif %}">
+        <span class="admin-nav-icon" aria-hidden="true">&#9877;</span>
+        <span class="admin-nav-label">Pharmacy</span>
+    </a>
+{% endif %}
+</nav>
+
+        <div class="admin-sidebar-bottom">
+            <span class="admin-secure-dot"></span>
+            <span>
+                <strong>Secure workspace</strong>
+                <small>Role-based access control</small>
+            </span>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-topbar">
+            <button type="button" class="admin-menu-toggle"
+                    onclick="document.getElementById('adminSidebar').classList.toggle('open')">
+                &#9776;
+            </button>
+
+            <div class="admin-breadcrumb">
+                MEDIVERA <span>/</span>
+                {% block breadcrumb %}Administration{% endblock %}
+            </div>
+
+            <a class="admin-home-link"
+               href="{{ url_for('dashboard') }}"
+               title="Return to your dashboard">
+                <span aria-hidden="true">&#8962;</span>
+                <span>Home</span>
+            </a>
+
+            <div class="admin-topbar-right">
+                <span class="admin-status">
+                    <span class="admin-secure-dot"></span>
+                    System online
+                </span>
+
+                <a class="admin-user-chip"
+                   href="{{ url_for('auth.profile') }}"
+                   title="View your account profile"
+                   aria-label="View profile for {{ user.username }}">
+                    <span class="admin-avatar">
+                        {{ (user.username or 'U')[:1]|upper }}
+                    </span>
+                    <span>{{ user.username }}</span>
+                </a>
+
+                <form method="post" action="{{ url_for('auth.logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="admin-logout" type="submit">Sign out</button>
+                </form>
+            </div>
+        </header>
+
+        <section class="admin-page-content">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="admin-flashes">
+                        {% for category, message in messages %}
+                            <div class="admin-flash admin-flash-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </section>
+
+        <footer class="admin-footer">
+            <span>&copy; 2026 MEDIVERA</span>
+            <span>Intelligent Healthcare. Connected Care.</span>
+        </footer>
+
+    </main>
+</div>
+    <script src="{{ url_for('static', filename='js/medivera-motion.js') }}" defer></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+﻿{% extends "base.html" %}
+{% block title %}Pharmacy Order #{{ order.pharmacy_order_id }} | MEDIVERA{% endblock %}
+{% block breadcrumb %}Order Details{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pharmacy.css') }}">
+{% endblock %}
+{% block content %}
+<div class="pharmacy-page"><div class="ph-wrap">
+    <section class="ph-hero">
+        <div class="ph-eyebrow">Order tracking</div>
+        <h1>Order #{{ order.pharmacy_order_id }}</h1>
+        <p>Submitted {{ order.ordered_at }}</p>
+        <span class="ph-status {{ order.order_status|lower }}">{{ order.order_status }}</span>
+    </section>
+
+    <div class="ph-two">
+        <section class="ph-card">
+            <h2>Order items</h2>
+            <div class="ph-table-wrap">
+                <table>
+                    <thead><tr><th>Medicine</th><th>Quantity</th><th>Unit price</th><th>Total</th></tr></thead>
+                    <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.medicine_name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₹{{ '%.2f'|format(item.unit_price) }}</td>
+                        <td>₹{{ '%.2f'|format(item.line_total) }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="ph-total"><span>Order subtotal</span><strong>₹{{ '%.2f'|format(order.subtotal) }}</strong></div>
+        </section>
+
+        <aside class="ph-card">
+            <h2>Delivery details</h2>
+            <p><strong>Method</strong><br>{{ order.delivery_method }}</p>
+            <p><strong>Location</strong><br>{{ order.delivery_location or 'Pharmacy counter' }}</p>
+            <p><strong>Last updated</strong><br>{{ order.updated_at }}</p>
+            <p><strong>Prescription attached</strong><br>{% if order.prescription_document_id %}Yes{% else %}No{% endif %}</p>
+            {% if order.order_notes %}
+            <p><strong>Your instructions</strong><br>{{ order.order_notes }}</p>
+            {% endif %}
+            <div class="ph-note">Order status is updated by pharmacy staff. A request is not a confirmation that the medicine has been dispensed or administered.</div>
+            <div class="ph-actions">
+                <a class="ph-btn secondary" href="{{ url_for('pharmacy.orders') }}">All Orders</a>
+                <a class="ph-btn" href="{{ url_for('pharmacy.store') }}">Pharmacy Store</a>
+            </div>
+        </aside>
+    </div>
+</div></div>
+{% endblock %}

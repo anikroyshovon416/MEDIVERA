@@ -1,0 +1,369 @@
+/* ==========================================================
+   MEDIVERA — SHARED APPLICATION SKEUOMORPHIC DESIGN
+   General, Patient, Laboratory and shared application pages
+   ========================================================== */
+
+:root {
+    --mv-bg: #111315;
+    --mv-sidebar: #17191d;
+    --mv-surface: #202328;
+    --mv-surface-light: #292d33;
+    --mv-orange: #f47721;
+    --mv-orange-light: #ff9a50;
+    --mv-white: #f5f6f7;
+    --mv-muted: #a4aab2;
+    --mv-green: #39c98a;
+    --mv-red: #ef6262;
+    --mv-blue: #65aaf0;
+}
+
+/* APPLICATION BACKGROUND */
+.mv-app-skeuo {
+    min-height: 100vh;
+    color: var(--mv-white);
+    background:
+        radial-gradient(ellipse at 15% 0%, rgba(244,119,33,.09), transparent 36%),
+        radial-gradient(ellipse at 90% 80%, rgba(73,105,140,.055), transparent 38%),
+        linear-gradient(145deg, #101214, #191c20 55%, #111315);
+}
+
+/* MAIN LAYOUT */
+.mv-app-skeuo .main-area {
+    background: transparent;
+    color: var(--mv-white);
+}
+
+.mv-app-skeuo .page-content {
+    color: var(--mv-white);
+}
+
+/* SIDEBAR */
+.mv-app-skeuo .sidebar {
+    background: linear-gradient(155deg, #22252a, #15171a 72%);
+    border-right: 1px solid rgba(255,255,255,.075);
+    box-shadow:
+        10px 0 32px rgba(0,0,0,.30),
+        inset -1px 0 0 rgba(255,255,255,.025);
+}
+
+.mv-app-skeuo .sidebar-label,
+.mv-app-skeuo .nav-section-label {
+    color: #9299a2;
+}
+
+.mv-app-skeuo .nav-link {
+    border: 1px solid transparent;
+    border-radius: 11px;
+    transition: background .22s ease,
+                border-color .22s ease,
+                transform .22s ease,
+                box-shadow .22s ease;
+}
+
+.mv-app-skeuo .nav-link:hover {
+    background: linear-gradient(145deg, #2c3036, #1c1f23);
+    border-color: rgba(244,119,33,.24);
+    transform: translateX(3px);
+    box-shadow:
+        4px 5px 12px rgba(0,0,0,.28),
+        inset 1px 1px 2px rgba(255,255,255,.04);
+}
+
+.mv-app-skeuo .nav-link.active {
+    background: linear-gradient(145deg, #3b2a20, #211a16);
+    border-color: rgba(244,119,33,.42);
+    box-shadow:
+        inset 2px 2px 5px rgba(0,0,0,.30),
+        0 4px 14px rgba(0,0,0,.22);
+}
+
+.mv-app-skeuo .nav-link.active .nav-icon {
+    color: var(--mv-orange-light);
+}
+
+/* TOPBAR */
+.mv-app-skeuo .topbar {
+    background: linear-gradient(135deg, rgba(34,37,42,.97), rgba(20,22,25,.97));
+    color: var(--mv-white);
+    border-bottom: 1px solid rgba(255,255,255,.075);
+    box-shadow: 0 8px 25px rgba(0,0,0,.22);
+    backdrop-filter: blur(14px);
+}
+
+.mv-app-skeuo .breadcrumb,
+.mv-app-skeuo .breadcrumb span {
+    color: #f1f2f3;
+}
+
+.mv-app-skeuo .breadcrumb i {
+    color: var(--mv-orange);
+}
+
+.mv-app-skeuo .system-status {
+    color: var(--mv-green);
+}
+
+.mv-app-skeuo .topbar-home-link,
+.mv-app-skeuo .user-chip,
+.mv-app-skeuo .icon-button,
+.mv-app-skeuo .button-quiet {
+    background: linear-gradient(145deg, #30343a, #1d2024);
+    color: #f5f5f5;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 10px;
+    box-shadow:
+        4px 5px 10px rgba(0,0,0,.25),
+        inset 1px 1px 2px rgba(255,255,255,.045);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.mv-app-skeuo .topbar-home-link:hover,
+.mv-app-skeuo .user-chip:hover,
+.mv-app-skeuo .icon-button:hover,
+.mv-app-skeuo .button-quiet:hover {
+    transform: translateY(-2px);
+    box-shadow: 3px 4px 9px rgba(0,0,0,.28);
+}
+
+/* WELCOME PANELS */
+.mv-app-skeuo .welcome-panel {
+    color: var(--mv-white);
+    background:
+        radial-gradient(ellipse at 90% 0%, rgba(244,119,33,.13), transparent 42%),
+        linear-gradient(145deg, #292d33, #191c20);
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 22px;
+    box-shadow:
+        12px 14px 30px rgba(0,0,0,.34),
+        -3px -3px 10px rgba(255,255,255,.018),
+        inset 1px 1px 2px rgba(255,255,255,.055);
+}
+
+.mv-app-skeuo .welcome-panel h1,
+.mv-app-skeuo .welcome-panel h2 {
+    color: #fff;
+}
+
+.mv-app-skeuo .welcome-panel p {
+    color: #b9bec5;
+}
+
+.mv-app-skeuo .welcome-panel .eyebrow {
+    color: var(--mv-orange-light);
+}
+
+/* REUSABLE RAISED PANELS AND CARDS */
+.mv-app-skeuo .page-content :is(
+    .metric-card,
+    .stat-card,
+    .dashboard-card,
+    .content-card,
+    .info-card,
+    .panel,
+    .card,
+    .summary-card,
+    .appointment-card,
+    .record-card,
+    .service-card,
+    .profile-card,
+    .patient-card,
+    .lab-card
+) {
+    background: linear-gradient(145deg, #292d33, #1c1f23);
+    color: var(--mv-white);
+    border: 1px solid rgba(255,255,255,.075);
+    border-radius: 16px;
+    box-shadow:
+        8px 9px 21px rgba(0,0,0,.31),
+        -2px -2px 8px rgba(255,255,255,.015),
+        inset 1px 1px 2px rgba(255,255,255,.045);
+    transition:
+        transform .23s ease,
+        border-color .23s ease,
+        box-shadow .23s ease;
+}
+
+.mv-app-skeuo .page-content :is(
+    .metric-card,
+    .stat-card,
+    .dashboard-card,
+    .content-card,
+    .info-card,
+    .summary-card,
+    .appointment-card,
+    .record-card,
+    .service-card,
+    .profile-card,
+    .patient-card,
+    .lab-card
+):hover {
+    transform: translateY(-3px);
+    border-color: rgba(244,119,33,.30);
+    box-shadow:
+        11px 14px 26px rgba(0,0,0,.36),
+        inset 1px 1px 2px rgba(255,255,255,.05);
+}
+
+/* CARD TEXT */
+.mv-app-skeuo .page-content :is(
+    .metric-card,
+    .stat-card,
+    .dashboard-card,
+    .content-card,
+    .info-card,
+    .summary-card,
+    .appointment-card,
+    .record-card,
+    .service-card,
+    .profile-card
+) :is(h1,h2,h3,h4,strong) {
+    color: #f6f6f6;
+}
+
+.mv-app-skeuo .page-content :is(
+    .metric-card,
+    .stat-card,
+    .dashboard-card,
+    .content-card,
+    .info-card,
+    .summary-card,
+    .appointment-card,
+    .record-card,
+    .service-card,
+    .profile-card
+) p {
+    color: #b4bac2;
+}
+
+/* BUTTONS */
+.mv-app-skeuo .page-content :is(
+    .button,
+    .btn,
+    button[type="submit"],
+    a.button,
+    a.btn
+) {
+    transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+}
+
+.mv-app-skeuo .page-content :is(
+    .button-primary,
+    .btn-primary,
+    .button-orange,
+    .btn-orange
+) {
+    background: linear-gradient(145deg, #ff963f, #df6415);
+    color: #171717;
+    border: 1px solid rgba(255,190,130,.35);
+    box-shadow:
+        0 5px 13px rgba(0,0,0,.25),
+        inset 1px 1px 2px rgba(255,255,255,.25);
+}
+
+.mv-app-skeuo .page-content :is(
+    .button,
+    .btn,
+    button[type="submit"],
+    a.button,
+    a.btn
+):hover {
+    filter: brightness(1.08);
+    transform: translateY(-2px);
+}
+
+/* TABLES */
+.mv-app-skeuo .page-content table {
+    color: var(--mv-white);
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.mv-app-skeuo .page-content table thead th {
+    background: linear-gradient(180deg, #30343a, #22252a);
+    color: #ffad70;
+    border-bottom: 1px solid rgba(244,119,33,.25);
+}
+
+.mv-app-skeuo .page-content table tbody tr {
+    transition: background .18s ease;
+}
+
+.mv-app-skeuo .page-content table tbody tr:hover {
+    background: rgba(244,119,33,.065);
+}
+
+.mv-app-skeuo .page-content table td {
+    border-color: rgba(255,255,255,.07);
+}
+
+/* INPUTS */
+.mv-app-skeuo .page-content :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    select,
+    textarea
+) {
+    background: linear-gradient(145deg, #171a1e, #22262b);
+    color: #f5f5f5;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 10px;
+    box-shadow:
+        inset 3px 3px 7px rgba(0,0,0,.30),
+        inset -1px -1px 2px rgba(255,255,255,.025);
+}
+
+.mv-app-skeuo .page-content :is(input,select,textarea)::placeholder {
+    color: #858d97;
+}
+
+.mv-app-skeuo .page-content :is(input,select,textarea):focus {
+    outline: none;
+    border-color: rgba(244,119,33,.72);
+    box-shadow: 0 0 0 3px rgba(244,119,33,.12),
+                inset 2px 2px 5px rgba(0,0,0,.25);
+}
+
+/* STATUS COLORS */
+.mv-app-skeuo .page-content :is(.text-success,.status-success,.success) {
+    color: var(--mv-green);
+}
+
+.mv-app-skeuo .page-content :is(.text-danger,.status-danger,.danger) {
+    color: var(--mv-red);
+}
+
+.mv-app-skeuo .page-content :is(.text-info,.status-info,.info) {
+    color: var(--mv-blue);
+}
+
+/* FOOTER */
+.mv-app-skeuo .app-footer {
+    background: transparent;
+    color: #9299a2;
+    border-top: 1px solid rgba(255,255,255,.075);
+}
+
+/* ACCESSIBILITY */
+.mv-app-skeuo :focus-visible {
+    outline: 2px solid var(--mv-orange-light);
+    outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+    .mv-app-skeuo .topbar {
+        gap: 9px;
+    }
+
+    .mv-app-skeuo .user-chip-name {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mv-app-skeuo *,
+    .mv-app-skeuo *::before,
+    .mv-app-skeuo *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

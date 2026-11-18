@@ -1,0 +1,141 @@
+﻿{% extends "admin/base_admin.html" %}
+{% block title %}Doctor Management | MEDIVERA{% endblock %}
+
+{% block content %}
+<style>
+.doctor-page{color:#f4f4f5}
+.doctor-page .hero{background:linear-gradient(120deg,#242426,#171719);border:1px solid #39393d;border-radius:20px;padding:26px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.doctor-page h1{font-size:27px;margin:0 0 7px;font-weight:800}
+.doctor-page .muted{color:#a1a1aa}
+.doctor-page .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 17px;border-radius:10px;text-decoration:none;font-weight:700;border:1px solid transparent;cursor:pointer}
+.doctor-page .primary{background:#f28b28;color:#171717}
+.doctor-page .secondary{background:#29292d;color:#eee;border-color:#444}
+.doctor-page .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-bottom:22px}
+.doctor-page .stat,.doctor-page .panel{background:#202023;border:1px solid #36363a;border-radius:16px;padding:19px}
+.doctor-page .stat small{color:#aaa}
+.doctor-page .stat strong{display:block;font-size:27px;margin-top:8px}
+.doctor-page .stat .accent{color:#f28b28}
+.doctor-page .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.doctor-page input,.doctor-page select{background:#151518;color:#eee;border:1px solid #424248;border-radius:9px;padding:11px 12px;min-width:150px}
+.doctor-page input:focus,.doctor-page select:focus{outline:1px solid #f28b28}
+.doctor-page .table-wrap{overflow-x:auto}
+.doctor-page table{width:100%;border-collapse:collapse;min-width:760px}
+.doctor-page th{text-align:left;color:#aaa;font-size:12px;text-transform:uppercase;letter-spacing:.07em;padding:13px;border-bottom:1px solid #3b3b40}
+.doctor-page td{padding:15px 13px;border-bottom:1px solid #333338}
+.doctor-page tbody tr:hover{background:#29292d}
+.doctor-page .name{font-weight:750;color:#fff}
+.doctor-page .pill{display:inline-block;padding:5px 10px;border-radius:30px;font-size:11px;font-weight:800;text-transform:capitalize}
+.doctor-page .available{background:#143c2c;color:#66e3a1}
+.doctor-page .unavailable{background:#482326;color:#ff9292}
+.doctor-page .actions{display:flex;gap:7px;flex-wrap:wrap}
+.doctor-page .action{color:#f5a34d;text-decoration:none;font-weight:700;font-size:13px}
+.doctor-page .empty{text-align:center;padding:45px;color:#aaa}
+.doctor-page .pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+.doctor-page .flash{padding:11px 14px;border-radius:9px;margin-bottom:12px;background:#482326;color:#ffc1c1}
+@media(max-width:700px){.doctor-page .stats{grid-template-columns:1fr}.doctor-page .hero{padding:20px}.doctor-page h1{font-size:23px}}
+</style>
+
+<div class="doctor-page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <section class="hero">
+        <div>
+            <div class="muted">MEDIVERA / SYSTEM ADMINISTRATION</div>
+            <h1>Doctor Management</h1>
+            <div class="muted">Manage doctor profiles, departments, consultation fees and availability.</div>
+        </div>
+        <a class="btn primary" href="{{ url_for('admin.add_doctor') }}">＋ Add New Doctor</a>
+    </section>
+
+    <section class="stats">
+        <div class="stat">
+            <small>Total registered doctors</small>
+            <strong>{{ summary.total_doctors|default(0) }}</strong>
+        </div>
+        <div class="stat">
+            <small>Available doctors</small>
+            <strong class="accent">{{ summary.available_doctors|default(0) }}</strong>
+        </div>
+        <div class="stat">
+            <small>Unavailable doctors</small>
+            <strong>{{ summary.unavailable_doctors|default(0) }}</strong>
+        </div>
+    </section>
+
+    <section class="panel">
+        <form method="GET" action="{{ url_for('admin.doctors') }}" class="filters">
+            <input type="search" name="q" placeholder="Search name, phone, email..." value="{{ search }}">
+            <select name="department">
+                <option value="">All departments</option>
+                {% for department in departments %}
+                <option value="{{ department.department_id }}" {% if department_filter|string == department.department_id|string %}selected{% endif %}>
+                    {{ department.department_name }}
+                </option>
+                {% endfor %}
+            </select>
+            <select name="availability">
+                <option value="">All availability</option>
+                <option value="available" {% if availability_filter == 'available' %}selected{% endif %}>Available</option>
+                <option value="unavailable" {% if availability_filter == 'unavailable' %}selected{% endif %}>Unavailable</option>
+            </select>
+            <button class="btn primary" type="submit">Apply filters</button>
+            <a class="btn secondary" href="{{ url_for('admin.doctors') }}">Reset</a>
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Doctor</th>
+                        <th>Department</th>
+                        <th>Specialization</th>
+                        <th>Experience</th>
+                        <th>Consultation fee</th>
+                        <th>Availability</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for doctor in doctors %}
+                    <tr>
+                        <td>
+                            <div class="name">{{ doctor.doctor_name }}</div>
+                            <small class="muted">{{ doctor.email or doctor.phone or 'No contact details' }}</small>
+                        </td>
+                        <td>{{ doctor.department_name or 'Unassigned' }}</td>
+                        <td>{{ doctor.specialization or 'General' }}</td>
+                        <td>{{ doctor.experience_years or 0 }} years</td>
+                        <td>₹{{ "%.2f"|format(doctor.consultation_fee or 0) }}</td>
+                        <td><span class="pill {{ doctor.availability_status }}">{{ doctor.availability_status }}</span></td>
+                        <td>
+                            <div class="actions">
+                                <a class="action" href="{{ url_for('admin.doctor_detail', doctor_id=doctor.doctor_id) }}">View</a>
+                                <a class="action" href="{{ url_for('admin.edit_doctor', doctor_id=doctor.doctor_id) }}">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="empty">No doctors found. Add a doctor or change your filters.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <span class="muted">Showing {{ doctors|length }} of {{ total_records }} records · Page {{ page }} of {{ total_pages }}</span>
+            <div class="actions">
+                {% if page > 1 %}
+                <a class="btn secondary" href="{{ url_for('admin.doctors', q=search, department=department_filter, availability=availability_filter, page=page-1) }}">Previous</a>
+                {% endif %}
+                {% if page < total_pages %}
+                <a class="btn primary" href="{{ url_for('admin.doctors', q=search, department=department_filter, availability=availability_filter, page=page+1) }}">Next</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

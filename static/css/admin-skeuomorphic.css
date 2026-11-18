@@ -1,0 +1,299 @@
+/* ==========================================================
+   MEDIVERA — SHARED SKEUOMORPHIC ADMIN DESIGN
+   Additive stylesheet. Existing admin.css remains untouched.
+   ========================================================== */
+
+.mv-admin-skeuo {
+    --mv-bg: #101113;
+    --mv-panel: #1a1c20;
+    --mv-panel-light: #22252a;
+    --mv-orange: #f47721;
+    --mv-orange-light: #ff9a48;
+    --mv-white: #f5f5f5;
+    --mv-muted: #a4a8ae;
+    --mv-green: #39c98a;
+    --mv-red: #ef6262;
+    --mv-blue: #62a9ed;
+    background:
+        radial-gradient(ellipse at 12% 0%, rgba(244,119,33,.10), transparent 35%),
+        linear-gradient(145deg, #111214, #17191d 55%, #101113);
+    color: var(--mv-white);
+}
+
+/* Main workspace */
+.mv-admin-skeuo .admin-main {
+    background: transparent;
+}
+
+.mv-admin-skeuo .admin-page-content {
+    position: relative;
+    isolation: isolate;
+}
+
+.mv-admin-skeuo .admin-sidebar {
+    background: linear-gradient(155deg, #202226, #131518 75%);
+    border-right: 1px solid rgba(255,255,255,.07);
+    box-shadow: 12px 0 35px rgba(0,0,0,.28),
+                inset -1px 0 0 rgba(255,255,255,.025);
+}
+
+.mv-admin-skeuo .admin-brand {
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.mv-admin-skeuo .admin-nav-link {
+    border: 1px solid transparent;
+    border-radius: 12px;
+    transition: background .22s ease, border-color .22s ease,
+                transform .22s ease, box-shadow .22s ease;
+}
+
+.mv-admin-skeuo .admin-nav-link:hover {
+    background: linear-gradient(145deg, #292c31, #1a1c20);
+    border-color: rgba(244,119,33,.22);
+    transform: translateX(3px);
+    box-shadow: 4px 5px 12px rgba(0,0,0,.28),
+                inset 1px 1px 2px rgba(255,255,255,.035);
+}
+
+.mv-admin-skeuo .admin-nav-link.active {
+    background: linear-gradient(145deg, #3a281d, #211a16);
+    border-color: rgba(244,119,33,.42);
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,.30),
+                0 4px 14px rgba(0,0,0,.22);
+}
+
+.mv-admin-skeuo .admin-nav-link.active .admin-nav-icon {
+    color: var(--mv-orange-light);
+    text-shadow: 0 0 12px rgba(244,119,33,.4);
+}
+
+/* Top bar */
+.mv-admin-skeuo .admin-topbar {
+    background: linear-gradient(135deg, rgba(30,32,36,.97), rgba(19,21,24,.97));
+    border-bottom: 1px solid rgba(255,255,255,.075);
+    box-shadow: 0 8px 24px rgba(0,0,0,.22);
+    backdrop-filter: blur(14px);
+}
+
+.mv-admin-skeuo .admin-home-link,
+.mv-admin-skeuo .admin-user-chip,
+.mv-admin-skeuo .admin-logout,
+.mv-admin-skeuo .admin-menu-toggle {
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 10px;
+    background: linear-gradient(145deg, #292c31, #1b1d21);
+    box-shadow: 4px 5px 10px rgba(0,0,0,.24),
+                inset 1px 1px 2px rgba(255,255,255,.045);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.mv-admin-skeuo .admin-home-link:hover,
+.mv-admin-skeuo .admin-user-chip:hover,
+.mv-admin-skeuo .admin-logout:hover,
+.mv-admin-skeuo .admin-menu-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 2px 3px 7px rgba(0,0,0,.25),
+                inset 1px 1px 2px rgba(255,255,255,.06);
+}
+
+.mv-admin-skeuo .admin-logout {
+    color: #ffaaaa;
+    border-color: rgba(239,98,98,.22);
+}
+
+.mv-admin-skeuo .admin-status {
+    color: var(--mv-green);
+}
+
+/* Reusable dimensional panels and cards */
+.mv-admin-skeuo .admin-welcome,
+.mv-admin-skeuo .emergency-panel,
+.mv-admin-skeuo .meal-panel,
+.mv-admin-skeuo .admin-assignment-item,
+.mv-admin-skeuo .admin-module-card,
+.mv-admin-skeuo .emergency-card,
+.mv-admin-skeuo .meal-stat,
+.mv-admin-skeuo .admin-card,
+.mv-admin-skeuo .dashboard-card,
+.mv-admin-skeuo .metric-card,
+.mv-admin-skeuo .stat-card {
+    background:
+        linear-gradient(145deg, rgba(42,45,50,.98), rgba(25,27,31,.99));
+    border: 1px solid rgba(255,255,255,.075);
+    border-radius: 17px;
+    box-shadow:
+        9px 10px 22px rgba(0,0,0,.34),
+        -3px -3px 10px rgba(255,255,255,.018),
+        inset 1px 1px 1px rgba(255,255,255,.055),
+        inset -1px -1px 2px rgba(0,0,0,.22);
+    transition: transform .24s ease, border-color .24s ease,
+                box-shadow .24s ease;
+}
+
+.mv-admin-skeuo .admin-assignment-item:hover,
+.mv-admin-skeuo .admin-module-card:hover,
+.mv-admin-skeuo .emergency-card:hover,
+.mv-admin-skeuo .meal-stat:hover,
+.mv-admin-skeuo .admin-card:hover,
+.mv-admin-skeuo .dashboard-card:hover,
+.mv-admin-skeuo .metric-card:hover,
+.mv-admin-skeuo .stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(244,119,33,.32);
+    box-shadow: 12px 16px 28px rgba(0,0,0,.38),
+                inset 1px 1px 2px rgba(255,255,255,.055);
+}
+
+/* Dashboard headings */
+.mv-admin-skeuo .admin-welcome h1,
+.mv-admin-skeuo .emergency-page h1,
+.mv-admin-skeuo .meal-page h1 {
+    color: #fff;
+    letter-spacing: -.035em;
+}
+
+.mv-admin-skeuo .admin-welcome p,
+.mv-admin-skeuo .emergency-page p,
+.mv-admin-skeuo .meal-page p {
+    color: var(--mv-muted);
+}
+
+/* Orange accent details */
+.mv-admin-skeuo .admin-welcome h1,
+.mv-admin-skeuo .emergency-page h1,
+.mv-admin-skeuo .meal-page h1 {
+    text-shadow: 0 3px 14px rgba(0,0,0,.35);
+}
+
+.mv-admin-skeuo .admin-module-card,
+.mv-admin-skeuo .admin-assignment-item {
+    position: relative;
+    overflow: hidden;
+}
+
+.mv-admin-skeuo .admin-module-card::before,
+.mv-admin-skeuo .admin-assignment-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 12%;
+    bottom: 12%;
+    width: 3px;
+    border-radius: 5px;
+    background: linear-gradient(180deg, var(--mv-orange-light), var(--mv-orange));
+    opacity: .8;
+}
+
+/* Buttons */
+.mv-admin-skeuo button,
+.mv-admin-skeuo .btn,
+.mv-admin-skeuo a.admin-action,
+.mv-admin-skeuo .admin-module-card a {
+    transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+}
+
+.mv-admin-skeuo button:hover,
+.mv-admin-skeuo .btn:hover {
+    filter: brightness(1.08);
+}
+
+.mv-admin-skeuo button:active,
+.mv-admin-skeuo .btn:active {
+    transform: translateY(1px);
+}
+
+/* Tables */
+.mv-admin-skeuo table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.mv-admin-skeuo table thead th {
+    background: linear-gradient(180deg, #292c31, #202226);
+    color: #f5a064;
+    border-bottom: 1px solid rgba(244,119,33,.22);
+}
+
+.mv-admin-skeuo table tbody tr {
+    transition: background .18s ease;
+}
+
+.mv-admin-skeuo table tbody tr:hover {
+    background: rgba(244,119,33,.055);
+}
+
+/* Form controls */
+.mv-admin-skeuo input,
+.mv-admin-skeuo select,
+.mv-admin-skeuo textarea {
+    background: linear-gradient(145deg, #141619, #202328);
+    color: #f5f5f5;
+    border: 1px solid rgba(255,255,255,.11);
+    border-radius: 10px;
+    box-shadow: inset 3px 3px 7px rgba(0,0,0,.32),
+                inset -1px -1px 2px rgba(255,255,255,.025);
+}
+
+.mv-admin-skeuo input:focus,
+.mv-admin-skeuo select:focus,
+.mv-admin-skeuo textarea:focus {
+    outline: none;
+    border-color: rgba(244,119,33,.72);
+    box-shadow: 0 0 0 3px rgba(244,119,33,.12),
+                inset 2px 2px 5px rgba(0,0,0,.25);
+}
+
+/* Status indicators */
+.mv-admin-skeuo .status-success,
+.mv-admin-skeuo .text-success {
+    color: var(--mv-green);
+}
+
+.mv-admin-skeuo .status-danger,
+.mv-admin-skeuo .text-danger {
+    color: var(--mv-red);
+}
+
+.mv-admin-skeuo .status-info,
+.mv-admin-skeuo .text-info {
+    color: var(--mv-blue);
+}
+
+/* Footer */
+.mv-admin-skeuo .admin-footer {
+    border-top: 1px solid rgba(255,255,255,.07);
+    color: #92969d;
+}
+
+/* Motion */
+@keyframes mv-admin-rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.mv-admin-skeuo .admin-welcome,
+.mv-admin-skeuo .emergency-page,
+.mv-admin-skeuo .meal-page {
+    animation: mv-admin-rise .48s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mv-admin-skeuo *,
+    .mv-admin-skeuo *::before,
+    .mv-admin-skeuo *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .mv-admin-skeuo .admin-topbar {
+        gap: 10px;
+    }
+
+    .mv-admin-skeuo .admin-user-chip span:last-child {
+        display: none;
+    }
+}

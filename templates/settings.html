@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% block title %}Account Settings | MediCare+{% endblock %}
+
+{% block breadcrumb %}
+    <span>Account</span>
+    <span>/</span>
+    <span>Settings</span>
+{% endblock %}
+
+{% block page_title %}Account Settings{% endblock %}
+
+{% block page_description %}
+    Manage your personal information, contact details and account password.
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show"
+                     role="alert">
+                    {{ message }}
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close">
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row g-4">
+
+        <!-- PERSONAL INFORMATION -->
+        <div class="col-12">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-1">
+                        <i class="fas fa-user-edit me-2"></i>
+                        Personal Information
+                    </h5>
+
+                    <small class="text-muted">
+                        Update your contact information.
+                    </small>
+                </div>
+
+                <div class="card-body">
+
+                    <form method="POST"
+                          action="{{ url_for('settings') }}">
+
+                        <input type="hidden"
+                               name="form_type"
+                               value="personal">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+
+                                <label for="username"
+                                       class="form-label">
+                                    Username
+                                </label>
+
+                                <input type="text"
+                                       id="username"
+                                       class="form-control"
+                                       value="{{ user.username or '' }}"
+                                       disabled>
+
+                                <small class="text-muted">
+                                    Your username cannot be changed here.
+                                </small>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label for="email"
+                                       class="form-label">
+                                    Email Address
+                                </label>
+
+                                <input type="email"
+                                       id="email"
+                                       name="email"
+                                       class="form-control"
+                                       value="{{ user.account_email or '' }}"
+                                       placeholder="Enter your email address"
+                                       required>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label for="phone"
+                                       class="form-label">
+                                    Phone Number
+                                </label>
+
+                                <input type="tel"
+                                       id="phone"
+                                       name="phone"
+                                       class="form-control"
+                                       value="{{ user.phone or '' }}"
+                                       placeholder="Enter your phone number">
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label for="address"
+                                       class="form-label">
+                                    Residential Address
+                                </label>
+
+                                <textarea id="address"
+                                          name="address"
+                                          class="form-control"
+                                          rows="3"
+                                          placeholder="Enter your address">{{ user.address or '' }}</textarea>
+
+                            </div>
+
+                        </div>
+
+                        <div class="mt-4">
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                Save Personal Information
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CHANGE PASSWORD -->
+        <div class="col-12">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-white py-3">
+
+                    <h5 class="mb-1">
+                        <i class="fas fa-lock me-2"></i>
+                        Change Password
+                    </h5>
+
+                    <small class="text-muted">
+                        Update your account password securely.
+                    </small>
+
+                </div>
+
+                <div class="card-body">
+
+                    <form method="POST"
+                          action="{{ url_for('settings') }}">
+
+                        <input type="hidden"
+                               name="form_type"
+                               value="password">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+
+                                <label for="current_password"
+                                       class="form-label">
+                                    Current Password
+                                </label>
+
+                                <input type="password"
+                                       id="current_password"
+                                       name="current_password"
+                                       class="form-control"
+                                       placeholder="Enter current password"
+                                       required>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label for="new_password"
+                                       class="form-label">
+                                    New Password
+                                </label>
+
+                                <input type="password"
+                                       id="new_password"
+                                       name="new_password"
+                                       class="form-control"
+                                       placeholder="Enter new password"
+                                       minlength="8"
+                                       required>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label for="confirm_password"
+                                       class="form-label">
+                                    Confirm New Password
+                                </label>
+
+                                <input type="password"
+                                       id="confirm_password"
+                                       name="confirm_password"
+                                       class="form-control"
+                                       placeholder="Confirm new password"
+                                       minlength="8"
+                                       required>
+
+                            </div>
+
+                        </div>
+
+                        <div class="alert alert-info mt-4">
+
+                            <i class="fas fa-info-circle me-2"></i>
+
+                            Your new password must contain at least
+                            8 characters.
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            <i class="fas fa-key me-2"></i>
+                            Update Password
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ACCOUNT INFORMATION -->
+        <div class="col-12">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-white py-3">
+
+                    <h5 class="mb-1">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Account Information
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted">
+                                Account ID
+                            </small>
+
+                            <h6>
+                                {{ user.user_id }}
+                            </h6>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted">
+                                Account Role
+                            </small>
+
+                            <h6>
+                                {{ user.role or 'User' }}
+                            </h6>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <small class="text-muted">
+                                Username
+                            </small>
+
+                            <h6>
+                                {{ user.username }}
+                            </h6>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

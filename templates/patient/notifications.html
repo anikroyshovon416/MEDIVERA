@@ -1,0 +1,731 @@
+
+{% extends "base.html" %}
+
+{% block title %}Notifications | MEDIVERA{% endblock %}
+{% block breadcrumb %}Patient / Notifications{% endblock %}
+{% block body_class %}patient-portal-body{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ==========================================================
+   MEDIVERA — PATIENT NOTIFICATION CENTRE
+========================================================== */
+.notification-page {
+    --n-bg: #17191d;
+    --n-panel: #202329;
+    --n-panel-2: #272c34;
+    --n-border: #373d47;
+    --n-white: #f4f5f7;
+    --n-muted: #a8afb9;
+    --n-orange: #f47721;
+    --n-orange-light: #ffad72;
+    --n-green: #36c58b;
+    --n-blue: #69a9ed;
+    --n-red: #f06b6b;
+
+    width: 100%;
+    max-width: 1450px;
+    margin: 0 auto;
+    color: var(--n-white);
+}
+
+.notification-page *,
+.notification-page *::before,
+.notification-page *::after {
+    box-sizing: border-box;
+}
+
+.notification-page a {
+    text-decoration: none;
+}
+
+.notification-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 22px;
+    padding: 30px;
+    margin-bottom: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(244,119,33,.3);
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at 90% 15%,rgba(244,119,33,.18),transparent 35%),
+        linear-gradient(120deg,#292d34,#1c1f24);
+    box-shadow: 0 14px 35px rgba(0,0,0,.15);
+}
+
+.notification-hero::after {
+    position: absolute;
+    content: "";
+    width: 220px;
+    height: 220px;
+    right: 7%;
+    top: -120px;
+    border: 1px solid rgba(244,119,33,.2);
+    border-radius: 50%;
+    box-shadow: 0 0 0 25px rgba(244,119,33,.025);
+    pointer-events: none;
+}
+
+.notification-hero-copy,
+.notification-hero-count {
+    position: relative;
+    z-index: 1;
+}
+
+.notification-eyebrow {
+    color: var(--n-orange-light);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.notification-hero h1 {
+    margin: 0 0 9px;
+    color: #fff;
+    font-size: clamp(25px,4vw,35px);
+    font-weight: 800;
+    letter-spacing: -.8px;
+}
+
+.notification-hero p {
+    max-width: 620px;
+    margin: 0;
+    color: #bbc1ca;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.notification-hero-count {
+    min-width: 145px;
+    padding: 17px 20px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 15px;
+    background: rgba(0,0,0,.2);
+    text-align: center;
+}
+
+.notification-hero-count strong {
+    display: block;
+    color: var(--n-orange-light);
+    font-size: 32px;
+    font-weight: 800;
+}
+
+.notification-hero-count span {
+    display: block;
+    margin-top: 4px;
+    color: var(--n-muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+}
+
+.notification-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 13px;
+    margin-bottom: 16px;
+    padding: 15px 17px;
+    border: 1px solid var(--n-border);
+    border-radius: 15px;
+    background: var(--n-panel);
+}
+
+.notification-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.notification-filter {
+    border: 1px solid var(--n-border);
+    border-radius: 30px;
+    padding: 8px 14px;
+    background: #292e36;
+    color: #c5cbd4;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 800;
+    transition: .2s ease;
+}
+
+.notification-filter:hover,
+.notification-filter.active {
+    border-color: var(--n-orange);
+    background: rgba(244,119,33,.13);
+    color: var(--n-orange-light);
+}
+
+.notification-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.notification-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 8px 13px;
+    border: 1px solid var(--n-border);
+    border-radius: 9px;
+    background: #2a2f37;
+    color: #f4f5f7;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 800;
+    transition: .2s ease;
+}
+
+.notification-button:hover {
+    border-color: var(--n-orange);
+    color: var(--n-orange-light);
+}
+
+.notification-button.primary {
+    border-color: var(--n-orange);
+    background: var(--n-orange);
+    color: #fff;
+}
+
+.notification-button.primary:hover {
+    background: #dc6418;
+    color: #fff;
+}
+
+.notification-list-panel {
+    padding: 21px;
+    border: 1px solid var(--n-border);
+    border-radius: 17px;
+    background: linear-gradient(145deg,#24282f,#1d2025);
+    box-shadow: 0 9px 25px rgba(0,0,0,.1);
+}
+
+.notification-list-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 13px;
+}
+
+.notification-list-heading h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.notification-list-heading span {
+    color: var(--n-muted);
+    font-size: 10px;
+}
+
+.notification-item {
+    display: grid;
+    grid-template-columns: 44px minmax(0,1fr) auto;
+    align-items: start;
+    gap: 13px;
+    padding: 17px 13px;
+    border-top: 1px solid #363c45;
+    border-radius: 9px;
+    transition: background .2s ease;
+}
+
+.notification-item:hover {
+    background: rgba(255,255,255,.025);
+}
+
+.notification-item.unread {
+    background: rgba(244,119,33,.045);
+}
+
+.notification-item[hidden] {
+    display: none !important;
+}
+
+.notification-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid rgba(244,119,33,.18);
+    border-radius: 12px;
+    background: rgba(244,119,33,.12);
+    color: var(--n-orange-light);
+    font-size: 17px;
+}
+
+.notification-icon.appointment {
+    color: var(--n-blue);
+    background: rgba(105,169,237,.12);
+    border-color: rgba(105,169,237,.2);
+}
+
+.notification-icon.system {
+    color: var(--n-green);
+    background: rgba(54,197,139,.12);
+    border-color: rgba(54,197,139,.2);
+}
+
+.notification-icon.alert {
+    color: var(--n-red);
+    background: rgba(240,107,107,.12);
+    border-color: rgba(240,107,107,.2);
+}
+
+.notification-content {
+    min-width: 0;
+}
+
+.notification-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.notification-title {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.notification-unread-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--n-orange);
+}
+
+.notification-message {
+    margin: 0;
+    color: #b8c0ca;
+    font-size: 11px;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+}
+
+.notification-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 9px;
+}
+
+.notification-type {
+    display: inline-flex;
+    padding: 4px 8px;
+    border-radius: 20px;
+    background: #303640;
+    color: #c6ced9;
+    font-size: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.notification-date {
+    color: #8993a0;
+    font-size: 9px;
+}
+
+.notification-item-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.notification-item-actions form {
+    margin: 0;
+}
+
+.notification-mark-button {
+    border: 1px solid #424a55;
+    border-radius: 8px;
+    padding: 7px 10px;
+    background: #292e36;
+    color: #d9dee5;
+    cursor: pointer;
+    font-size: 9px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.notification-mark-button:hover {
+    border-color: var(--n-green);
+    color: var(--n-green);
+}
+
+.notification-read-label {
+    color: var(--n-green);
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.notification-empty {
+    padding: 55px 15px;
+    text-align: center;
+}
+
+.notification-empty-icon {
+    display: grid;
+    width: 65px;
+    height: 65px;
+    margin: 0 auto 15px;
+    place-items: center;
+    border: 1px solid rgba(244,119,33,.2);
+    border-radius: 20px;
+    background: rgba(244,119,33,.1);
+    color: var(--n-orange-light);
+    font-size: 26px;
+}
+
+.notification-empty h3 {
+    margin: 0 0 7px;
+    color: #fff;
+    font-size: 15px;
+}
+
+.notification-empty p {
+    margin: 0;
+    color: var(--n-muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.notification-no-filter-results {
+    display: none;
+    padding: 30px 15px;
+    color: var(--n-muted);
+    text-align: center;
+    font-size: 11px;
+}
+
+.notification-no-filter-results.visible {
+    display: block;
+}
+
+.notification-security-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-top: 17px;
+    padding: 15px 17px;
+    border: 1px solid rgba(105,169,237,.2);
+    border-radius: 12px;
+    background: rgba(105,169,237,.05);
+}
+
+.notification-security-note strong {
+    display: block;
+    color: #dce9fb;
+    font-size: 10px;
+}
+
+.notification-security-note p {
+    margin: 5px 0 0;
+    color: #aebbd0;
+    font-size: 9px;
+    line-height: 1.7;
+}
+
+@media(max-width:750px) {
+    .notification-hero {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 23px;
+    }
+
+    .notification-hero-count {
+        width: 100%;
+        text-align: left;
+    }
+
+    .notification-hero-count strong {
+        font-size: 26px;
+    }
+
+    .notification-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .notification-toolbar-actions {
+        width: 100%;
+    }
+}
+
+@media(max-width:520px) {
+    .notification-list-panel {
+        padding: 13px;
+    }
+
+    .notification-item {
+        grid-template-columns: 36px minmax(0,1fr);
+        gap: 10px;
+        padding: 14px 5px;
+    }
+
+    .notification-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+
+    .notification-item-actions {
+        grid-column: 2;
+        justify-content: flex-start;
+    }
+
+    .notification-filters {
+        width: 100%;
+    }
+
+    .notification-filter {
+        padding: 7px 10px;
+        font-size: 9px;
+    }
+
+    .notification-toolbar-actions {
+        flex-wrap: wrap;
+    }
+}
+
+.notification-page button:focus-visible {
+    outline: 3px solid rgba(244,119,33,.65);
+    outline-offset: 3px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notification-page">
+
+    {% set unread_count = namespace(value=0) %}
+    {% for item in notifications %}
+        {% if not item.is_read %}
+            {% set unread_count.value = unread_count.value + 1 %}
+        {% endif %}
+    {% endfor %}
+
+    <section class="notification-hero">
+        <div class="notification-hero-copy">
+            <div class="notification-eyebrow">MEDIVERA PATIENT PORTAL</div>
+            <h1>Notification Centre</h1>
+            <p>
+                Stay informed about appointments, healthcare updates,
+                schedules and important messages from your hospital.
+            </p>
+        </div>
+
+        <div class="notification-hero-count">
+            <strong>{{ unread_count.value }}</strong>
+            <span>Unread notifications</span>
+        </div>
+    </section>
+
+    <section class="notification-toolbar">
+        <div class="notification-filters" role="group"
+             aria-label="Filter notifications">
+            <button type="button" class="notification-filter active"
+                    data-filter="all">All</button>
+            <button type="button" class="notification-filter"
+                    data-filter="unread">Unread</button>
+            <button type="button" class="notification-filter"
+                    data-filter="read">Read</button>
+            <button type="button" class="notification-filter"
+                    data-filter="appointment">Appointments</button>
+            <button type="button" class="notification-filter"
+                    data-filter="system">System</button>
+        </div>
+
+        <div class="notification-toolbar-actions">
+            <form method="POST"
+                  action="{{ url_for('patient.notifications_mark_all_read') }}">
+                <input type="hidden" name="csrf_token"
+                       value="{{ csrf_token() }}">
+                <button type="submit" class="notification-button primary"
+                        {% if unread_count.value == 0 %}disabled{% endif %}>
+                    ✓ Mark all as read
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <section class="notification-list-panel">
+        <div class="notification-list-heading">
+            <h2>Your notifications</h2>
+            <span>{{ notifications|length }} total</span>
+        </div>
+
+        {% if notifications %}
+            <div id="notificationList">
+                {% for item in notifications %}
+                    {% set type_name = (item.notification_type or 'General')|lower %}
+                    {% set is_appointment = 'appointment' in type_name %}
+                    {% set is_system = type_name in ['system', 'general', 'announcement'] %}
+                    {% set is_alert = type_name in ['leave', 'attendance'] %}
+
+                    <article class="notification-item
+                        {% if not item.is_read %}unread{% endif %}"
+                        data-read="{{ 'read' if item.is_read else 'unread' }}"
+                        data-category="{{ 'appointment' if is_appointment else ('system' if is_system else 'other') }}">
+
+                        <div class="notification-icon
+                            {% if is_appointment %}appointment
+                            {% elif is_system %}system
+                            {% elif is_alert %}alert{% endif %}">
+                            {% if is_appointment %}▦
+                            {% elif is_system %}✓
+                            {% elif is_alert %}! 
+                            {% else %}♢{% endif %}
+                        </div>
+
+                        <div class="notification-content">
+                            <div class="notification-title-row">
+                                <span class="notification-title">
+                                    {{ item.title or 'MEDIVERA Update' }}
+                                </span>
+                                {% if not item.is_read %}
+                                    <span class="notification-unread-dot"
+                                          title="Unread"></span>
+                                {% endif %}
+                            </div>
+
+                            <p class="notification-message">
+                                {{ item.message or 'You have a new notification.' }}
+                            </p>
+
+                            <div class="notification-meta">
+                                <span class="notification-type">
+                                    {{ item.notification_type or 'General' }}
+                                </span>
+                                <span class="notification-date">
+                                    {% if item.created_at %}
+                                        {{ item.created_at.strftime('%d %b %Y · %I:%M %p') }}
+                                    {% else %}
+                                        Date unavailable
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="notification-item-actions">
+                            {% if not item.is_read %}
+                                <form method="POST"
+                                      action="{{ url_for('patient.notification_mark_read',
+                                                         notification_id=item.notification_id) }}">
+                                    <input type="hidden" name="csrf_token"
+                                           value="{{ csrf_token() }}">
+                                    <button type="submit"
+                                            class="notification-mark-button">
+                                        Mark as read
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="notification-read-label">✓ Read</span>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            <div id="notificationNoResults"
+                 class="notification-no-filter-results">
+                No notifications match this filter.
+            </div>
+        {% else %}
+            <div class="notification-empty">
+                <div class="notification-empty-icon">♢</div>
+                <h3>You're all caught up</h3>
+                <p>
+                    There are no notifications in your account right now.
+                    New hospital updates will appear here.
+                </p>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="notification-security-note">
+        <div aria-hidden="true">ⓘ</div>
+        <div>
+            <strong>Your information is private</strong>
+            <p>
+                Notifications are displayed for your signed-in patient
+                account. Do not share your login details with anyone.
+                For urgent medical assistance, contact hospital emergency
+                services directly.
+            </p>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const filterButtons = document.querySelectorAll(".notification-filter");
+    const notificationItems = document.querySelectorAll(".notification-item");
+    const noResults = document.getElementById("notificationNoResults");
+
+    if (!filterButtons.length || !notificationItems.length) {
+        return;
+    }
+
+    function applyFilter(filter) {
+        let visibleCount = 0;
+
+        notificationItems.forEach(function (item) {
+            const readState = item.dataset.read;
+            const category = item.dataset.category;
+
+            let visible = true;
+
+            if (filter === "unread") {
+                visible = readState === "unread";
+            } else if (filter === "read") {
+                visible = readState === "read";
+            } else if (filter === "appointment") {
+                visible = category === "appointment";
+            } else if (filter === "system") {
+                visible = category === "system";
+            }
+
+            item.hidden = !visible;
+
+            if (visible) {
+                visibleCount++;
+            }
+        });
+
+        if (noResults) {
+            noResults.classList.toggle("visible", visibleCount === 0);
+        }
+    }
+
+    filterButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            filterButtons.forEach(function (item) {
+                item.classList.remove("active");
+            });
+
+            button.classList.add("active");
+            applyFilter(button.dataset.filter);
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+﻿{% extends "base.html" %}
+{% block title %}My Pharmacy Orders | MEDIVERA{% endblock %}
+{% block breadcrumb %}My Pharmacy Orders{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pharmacy.css') }}">
+{% endblock %}
+{% block content %}
+<div class="pharmacy-page"><div class="ph-wrap">
+    <section class="ph-hero">
+        <div class="ph-eyebrow">MEDIVERA Pharmacy</div>
+        <h1>My medicine orders</h1>
+        <p>Review your requests and follow their current processing status.</p>
+        <div class="ph-actions">
+            <a class="ph-btn" href="{{ url_for('pharmacy.store') }}">Browse Medicines</a>
+        </div>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="ph-alert {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    {% if orders %}
+    <div class="ph-table-wrap">
+        <table>
+            <thead><tr><th>Order</th><th>Date</th><th>Delivery</th><th>Location</th><th>Total</th><th>Status</th><th>Details</th></tr></thead>
+            <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.pharmacy_order_id }}</td>
+                <td>{{ order.ordered_at }}</td>
+                <td>{{ order.delivery_method }}</td>
+                <td>{{ order.delivery_location or 'Pharmacy counter' }}</td>
+                <td>₹{{ '%.2f'|format(order.subtotal) }}</td>
+                <td><span class="ph-status {{ order.order_status|lower }}">{{ order.order_status }}</span></td>
+                <td><a class="ph-btn secondary" href="{{ url_for('pharmacy.order_detail', order_id=order.pharmacy_order_id) }}">View</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="ph-card ph-empty">
+        <div class="symbol">📦</div>
+        <h2>No pharmacy orders yet</h2>
+        <p>Your submitted medicine requests will appear here.</p>
+        <a class="ph-btn" href="{{ url_for('pharmacy.store') }}">Explore Pharmacy</a>
+    </div>
+    {% endif %}
+</div></div>
+{% endblock %}

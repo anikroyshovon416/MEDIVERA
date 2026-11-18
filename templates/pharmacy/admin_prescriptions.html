@@ -1,0 +1,378 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Prescription Review | MEDIVERA{% endblock %}
+
+{% block content %}
+<style>
+.prescription-page {
+    color: #f5f5f5;
+    --orange: #f39a32;
+    --muted: #9ca3af;
+}
+.prescription-page .page-heading {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:24px;
+}
+.prescription-page .eyebrow {
+    color:var(--orange);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:2px;
+    text-transform:uppercase;
+}
+.prescription-page h1 {
+    font-size:27px;
+    margin:6px 0;
+    font-weight:800;
+}
+.prescription-page .muted {
+    color:var(--muted);
+    font-size:13px;
+}
+.prescription-page .stat-grid {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:15px;
+    margin-bottom:22px;
+}
+.prescription-page .stat-card,
+.prescription-page .panel {
+    background:linear-gradient(145deg,#22252b,#191b20);
+    border:1px solid #343840;
+    border-radius:15px;
+    padding:19px;
+}
+.prescription-page .stat-label {
+    color:#a8adb7;
+    font-size:12px;
+}
+.prescription-page .stat-value {
+    font-size:27px;
+    font-weight:800;
+    margin-top:9px;
+}
+.prescription-page .stat-icon {
+    color:var(--orange);
+    font-size:20px;
+}
+.prescription-page .filters {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+}
+.prescription-page input,
+.prescription-page select {
+    background:#111318;
+    color:#fff;
+    border:1px solid #3b404a;
+    border-radius:9px;
+    padding:11px 13px;
+    min-height:42px;
+}
+.prescription-page input {
+    flex:1;
+    min-width:220px;
+}
+.prescription-page button,
+.prescription-page .action-link {
+    background:var(--orange);
+    color:#171717;
+    border:0;
+    border-radius:9px;
+    padding:11px 16px;
+    font-weight:800;
+    text-decoration:none;
+    cursor:pointer;
+}
+.prescription-page .table-wrap {
+    overflow-x:auto;
+}
+.prescription-page table {
+    width:100%;
+    border-collapse:collapse;
+    min-width:850px;
+}
+.prescription-page th {
+    color:#9ca3af;
+    font-size:11px;
+    text-align:left;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    padding:14px 12px;
+    border-bottom:1px solid #383d46;
+}
+.prescription-page td {
+    padding:15px 12px;
+    border-bottom:1px solid #30343c;
+    font-size:13px;
+    vertical-align:middle;
+}
+.prescription-page tbody tr:hover {
+    background:#ffffff08;
+}
+.prescription-page .patient-name {
+    font-weight:750;
+    color:#fff;
+}
+.prescription-page .document-name {
+    color:#e8e8e8;
+    overflow-wrap:anywhere;
+    max-width:220px;
+}
+.prescription-page .status {
+    display:inline-flex;
+    padding:6px 10px;
+    border-radius:30px;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.5px;
+}
+.prescription-page .pending {
+    background:#f39a3220;
+    color:#ffbd69;
+    border:1px solid #f39a3250;
+}
+.prescription-page .linked {
+    color:#71d6a0;
+}
+.prescription-page .unlinked {
+    color:#aab1bc;
+}
+.prescription-page .empty {
+    text-align:center;
+    padding:45px 15px;
+    color:#a8adb7;
+}
+.prescription-page .pagination {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:18px;
+}
+.prescription-page .pagination a {
+    color:#ffb45b;
+    text-decoration:none;
+    margin-left:12px;
+}
+@media(max-width:760px) {
+    .prescription-page .stat-grid {
+        grid-template-columns:1fr;
+    }
+}
+</style>
+
+<div class="prescription-page">
+
+    <div class="page-heading">
+        <div>
+            <div class="eyebrow">Clinical document workspace</div>
+            <h1>Prescription Review</h1>
+            <div class="muted">
+                Review patient-uploaded prescriptions and their linked pharmacy orders.
+            </div>
+        </div>
+        <span class="status pending">READ-ONLY REVIEW MODE</span>
+    </div>
+
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-icon">▤</div>
+            <div class="stat-label">Total prescriptions</div>
+            <div class="stat-value">
+                {{ summary.total_prescriptions|default(0) }}
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">◷</div>
+            <div class="stat-label">Uploaded today</div>
+            <div class="stat-value">
+                {{ summary.uploaded_today|default(0) }}
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">↗</div>
+            <div class="stat-label">Uploaded in last 7 days</div>
+            <div class="stat-value">
+                {{ summary.uploaded_last_seven_days|default(0) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <form method="GET"
+              action="{{ url_for('pharmacy.admin_prescriptions') }}"
+              class="filters">
+
+            <input
+                type="search"
+                name="q"
+                value="{{ search }}"
+                placeholder="Search patient, document, ID or username..."
+            >
+
+            <select name="linkage">
+                <option value="all"
+                    {% if linkage == 'all' %}selected{% endif %}>
+                    All prescriptions
+                </option>
+
+                <option value="linked"
+                    {% if linkage == 'linked' %}selected{% endif %}>
+                    Linked to an order
+                </option>
+
+                <option value="unlinked"
+                    {% if linkage == 'unlinked' %}selected{% endif %}>
+                    Not linked to an order
+                </option>
+            </select>
+
+            <button type="submit">Apply filters</button>
+
+            <a class="action-link"
+               href="{{ url_for('pharmacy.admin_prescriptions') }}">
+                Reset
+            </a>
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Document</th>
+                        <th>Patient</th>
+                        <th>Uploaded by</th>
+                        <th>Upload date</th>
+                        <th>Linked orders</th>
+                        <th>Review state</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for item in prescriptions %}
+                    <tr>
+                        <td>
+                            <div class="document-name">
+                                {{ item.original_filename }}
+                            </div>
+                            <div class="muted">
+                                #{{ item.document_id }}
+                                · {{ item.mime_type or 'Unknown type' }}
+                                · {{ (item.file_size / 1024)|round(1) }} KB
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="patient-name">
+                                {{ item.first_name }} {{ item.last_name }}
+                            </div>
+                            <div class="muted">
+                                Patient #{{ item.patient_id }}
+                                {% if item.phone %} · {{ item.phone }}{% endif %}
+                            </div>
+                        </td>
+
+                        <td>{{ item.uploaded_by or 'Patient account' }}</td>
+
+                        <td>
+                            {% if item.created_at %}
+                                {{ item.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if item.linked_order_count %}
+                                <span class="linked">
+                                    {{ item.linked_order_count }} linked
+                                </span>
+                                {% if item.latest_order_id %}
+                                    <div class="muted">
+                                        Latest #{{ item.latest_order_id }}
+                                        · {{ item.latest_order_status }}
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <span class="unlinked">No linked order</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="status pending">
+                                AWAITING REVIEW
+                            </span>
+                            <div class="muted">
+                                Decision not stored
+                            </div>
+                        </td>
+
+                        <td>
+                            <a class="action-link"
+                               href="{{ url_for(
+                                   'pharmacy.admin_prescription_detail',
+                                   document_id=item.document_id
+                               ) }}">
+                                Examine
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="empty">
+                            <div style="font-size:30px;margin-bottom:10px;">▤</div>
+                            <strong>No prescriptions found</strong>
+                            <p>Try changing your search or linkage filter.</p>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <span class="muted">
+                Showing {{ prescriptions|length }} of {{ total }} prescriptions
+                · Page {{ page }} of {{ total_pages }}
+            </span>
+
+            <div>
+                {% if page > 1 %}
+                    <a href="{{ url_for(
+                        'pharmacy.admin_prescriptions',
+                        q=search,
+                        linkage=linkage,
+                        page=page-1
+                    ) }}">← Previous</a>
+                {% endif %}
+
+                {% if page < total_pages %}
+                    <a href="{{ url_for(
+                        'pharmacy.admin_prescriptions',
+                        q=search,
+                        linkage=linkage,
+                        page=page+1
+                    ) }}">Next →</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <p class="muted" style="margin-top:15px;">
+        Prescription documents are private medical records.
+        Review status is not persisted in this schema version.
+    </p>
+
+</div>
+{% endblock %}

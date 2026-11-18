@@ -1,0 +1,528 @@
+
+{% extends "admin/base_admin.html" %}
+
+{% block title %}System Settings | MEDIVERA{% endblock %}
+
+{% block breadcrumb %}System Settings{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-page {
+    color: #f4f4f5;
+    padding-bottom: 35px;
+}
+
+.settings-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.settings-heading h1 {
+    margin: 0 0 7px;
+    font-size: clamp(25px, 3vw, 34px);
+    font-weight: 800;
+}
+
+.settings-heading p {
+    margin: 0;
+    color: #a1a1aa;
+    font-size: 14px;
+}
+
+.settings-status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 16px;
+    border: 1px solid rgba(34, 197, 94, .25);
+    background: rgba(34, 197, 94, .08);
+    color: #4ade80;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.settings-alert {
+    padding: 13px 16px;
+    border-radius: 11px;
+    margin-bottom: 14px;
+    font-size: 14px;
+}
+
+.settings-alert.success {
+    color: #86efac;
+    background: rgba(34, 197, 94, .10);
+    border: 1px solid rgba(34, 197, 94, .25);
+}
+
+.settings-alert.danger {
+    color: #fca5a5;
+    background: rgba(239, 68, 68, .10);
+    border: 1px solid rgba(239, 68, 68, .25);
+}
+
+.settings-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+}
+
+.settings-card {
+    background: #171717;
+    border: 1px solid #303030;
+    border-radius: 17px;
+    padding: 24px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, .18);
+}
+
+.settings-card-header {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 23px;
+    padding-bottom: 17px;
+    border-bottom: 1px solid #303030;
+}
+
+.settings-icon {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: rgba(249, 115, 22, .12);
+    color: #fb923c;
+    font-size: 20px;
+}
+
+.settings-card-header h2 {
+    margin: 0 0 4px;
+    font-size: 17px;
+    font-weight: 750;
+}
+
+.settings-card-header p {
+    margin: 0;
+    color: #a1a1aa;
+    font-size: 12px;
+}
+
+.settings-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 19px;
+}
+
+.settings-field {
+    min-width: 0;
+}
+
+.settings-field.full {
+    grid-column: 1 / -1;
+}
+
+.settings-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: #e4e4e7;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.settings-field input,
+.settings-field select,
+.settings-field textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 13px;
+    color: #fafafa;
+    background: #202020;
+    border: 1px solid #3f3f46;
+    border-radius: 10px;
+    outline: none;
+    font: inherit;
+    font-size: 14px;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.settings-field input:focus,
+.settings-field select:focus,
+.settings-field textarea:focus {
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, .13);
+}
+
+.settings-field select option {
+    background: #202020;
+    color: #fff;
+}
+
+.settings-field textarea {
+    min-height: 95px;
+    resize: vertical;
+}
+
+.settings-help {
+    display: block;
+    margin-top: 7px;
+    color: #92929b;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.settings-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 23px;
+    padding-top: 20px;
+    border-top: 1px solid #303030;
+}
+
+.settings-footer p {
+    margin: 0;
+    color: #a1a1aa;
+    font-size: 12px;
+}
+
+.settings-save {
+    border: 0;
+    border-radius: 10px;
+    padding: 13px 23px;
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: white;
+    font-size: 14px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+}
+
+.settings-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(249, 115, 22, .25);
+}
+
+.settings-note {
+    margin-top: 20px;
+    padding: 17px 19px;
+    border-radius: 13px;
+    border: 1px solid rgba(59, 130, 246, .22);
+    background: rgba(59, 130, 246, .07);
+    color: #bfdbfe;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.settings-note strong {
+    color: #dbeafe;
+}
+
+@media (max-width: 700px) {
+    .settings-card {
+        padding: 18px;
+    }
+
+    .settings-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-field.full {
+        grid-column: auto;
+    }
+
+    .settings-save {
+        width: 100%;
+    }
+
+    .settings-footer {
+        align-items: stretch;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+
+    <div class="settings-heading">
+        <div>
+            <h1>System Configuration</h1>
+            <p>Manage MEDIVERA application preferences and hospital information.</p>
+        </div>
+
+        <div class="settings-status">
+            <span>●</span>
+            Database {{ database_status }}
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="settings-alert {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form
+        method="POST"
+        action="{{ url_for('admin.update_system_settings') }}"
+    >
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+        >
+
+        <div class="settings-layout">
+
+            <!-- APPLICATION SETTINGS -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-icon">⚙</div>
+                    <div>
+                        <h2>Application Identity</h2>
+                        <p>Control the name and presentation of MEDIVERA.</p>
+                    </div>
+                </div>
+
+                <div class="settings-fields">
+                    <div class="settings-field">
+                        <label for="APP_NAME">Application Name</label>
+                        <input
+                            id="APP_NAME"
+                            name="APP_NAME"
+                            type="text"
+                            maxlength="80"
+                            value="{{ settings.APP_NAME }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="settings-field">
+                        <label for="APP_FULL_NAME">Full Application Name</label>
+                        <input
+                            id="APP_FULL_NAME"
+                            name="APP_FULL_NAME"
+                            type="text"
+                            maxlength="150"
+                            value="{{ settings.APP_FULL_NAME }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="settings-field full">
+                        <label for="APP_TAGLINE">Application Tagline</label>
+                        <input
+                            id="APP_TAGLINE"
+                            name="APP_TAGLINE"
+                            type="text"
+                            maxlength="255"
+                            value="{{ settings.APP_TAGLINE }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="settings-field">
+                        <label for="TIMEZONE">Application Timezone</label>
+                        <input
+                            id="TIMEZONE"
+                            name="TIMEZONE"
+                            type="text"
+                            maxlength="80"
+                            value="{{ settings.TIMEZONE }}"
+                            placeholder="Asia/Kolkata"
+                            required
+                        >
+                        <small class="settings-help">
+                            Use an IANA timezone, for example Asia/Kolkata.
+                        </small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HOSPITAL PROFILE -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-icon">✚</div>
+                    <div>
+                        <h2>Hospital Profile</h2>
+                        <p>Maintain the hospital's contact information.</p>
+                    </div>
+                </div>
+
+                <div class="settings-fields">
+                    <div class="settings-field full">
+                        <label for="HOSPITAL_NAME">Hospital Name</label>
+                        <input
+                            id="HOSPITAL_NAME"
+                            name="HOSPITAL_NAME"
+                            type="text"
+                            maxlength="150"
+                            value="{{ settings.HOSPITAL_NAME }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="settings-field full">
+                        <label for="HOSPITAL_ADDRESS">Hospital Address</label>
+                        <textarea
+                            id="HOSPITAL_ADDRESS"
+                            name="HOSPITAL_ADDRESS"
+                            maxlength="500"
+                        >{{ settings.HOSPITAL_ADDRESS }}</textarea>
+                    </div>
+
+                    <div class="settings-field">
+                        <label for="HOSPITAL_PHONE">Contact Phone</label>
+                        <input
+                            id="HOSPITAL_PHONE"
+                            name="HOSPITAL_PHONE"
+                            type="tel"
+                            maxlength="30"
+                            value="{{ settings.HOSPITAL_PHONE }}"
+                        >
+                    </div>
+
+                    <div class="settings-field">
+                        <label for="HOSPITAL_EMAIL">Contact Email</label>
+                        <input
+                            id="HOSPITAL_EMAIL"
+                            name="HOSPITAL_EMAIL"
+                            type="email"
+                            maxlength="150"
+                            value="{{ settings.HOSPITAL_EMAIL }}"
+                        >
+                    </div>
+                </div>
+            </section>
+
+            <!-- UPLOAD SETTINGS -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-icon">⇧</div>
+                    <div>
+                        <h2>Upload Configuration</h2>
+                        <p>Set the maximum size allowed for uploaded files.</p>
+                    </div>
+                </div>
+
+                <div class="settings-fields">
+                    <div class="settings-field">
+                        <label for="MAX_UPLOAD_MB">Maximum Upload Size</label>
+                        <select id="MAX_UPLOAD_MB" name="MAX_UPLOAD_MB">
+                            <option value="5" {% if settings.MAX_UPLOAD_MB == 5 %}selected{% endif %}>5 MB</option>
+                            <option value="10" {% if settings.MAX_UPLOAD_MB == 10 %}selected{% endif %}>10 MB</option>
+                            <option value="20" {% if settings.MAX_UPLOAD_MB == 20 %}selected{% endif %}>20 MB</option>
+                            <option value="50" {% if settings.MAX_UPLOAD_MB == 50 %}selected{% endif %}>50 MB</option>
+                        </select>
+                        <small class="settings-help">
+                            Applies to the Flask request-size limit.
+                        </small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGINATION SETTINGS -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-icon">▤</div>
+                    <div>
+                        <h2>Pagination Preferences</h2>
+                        <p>Configure default and maximum list page sizes.</p>
+                    </div>
+                </div>
+
+                <div class="settings-fields">
+                    <div class="settings-field">
+                        <label for="ITEMS_PER_PAGE">Default Items Per Page</label>
+                        <input
+                            id="ITEMS_PER_PAGE"
+                            name="ITEMS_PER_PAGE"
+                            type="number"
+                            min="5"
+                            max="100"
+                            value="{{ settings.ITEMS_PER_PAGE }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="settings-field">
+                        <label for="MAX_ITEMS_PER_PAGE">Maximum Items Per Page</label>
+                        <input
+                            id="MAX_ITEMS_PER_PAGE"
+                            name="MAX_ITEMS_PER_PAGE"
+                            type="number"
+                            min="10"
+                            max="500"
+                            value="{{ settings.MAX_ITEMS_PER_PAGE }}"
+                            required
+                        >
+                    </div>
+                </div>
+            </section>
+
+            <!-- SESSION SETTINGS -->
+            <section class="settings-card">
+                <div class="settings-card-header">
+                    <div class="settings-icon">◷</div>
+                    <div>
+                        <h2>Session Preferences</h2>
+                        <p>Control the lifetime of user sessions.</p>
+                    </div>
+                </div>
+
+                <div class="settings-fields">
+                    <div class="settings-field">
+                        <label for="SESSION_DURATION_HOURS">Session Duration</label>
+                        <select
+                            id="SESSION_DURATION_HOURS"
+                            name="SESSION_DURATION_HOURS"
+                        >
+                            {% for hours in range(1, 25) %}
+                                <option
+                                    value="{{ hours }}"
+                                    {% if settings.SESSION_DURATION_HOURS == hours %}selected{% endif %}
+                                >
+                                    {{ hours }} hour{% if hours != 1 %}s{% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="settings-help">
+                            Applies to newly issued or refreshed sessions.
+                        </small>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <div class="settings-note">
+            <strong>Security notice:</strong>
+            Database credentials, secret keys, CSRF protection and
+            security-critical cookie settings are intentionally protected.
+            They must be managed through the deployment environment,
+            not through this dashboard.
+        </div>
+
+        <div class="settings-footer">
+            <p>Changes are saved persistently and loaded when MEDIVERA starts.</p>
+
+            <button class="settings-save" type="submit">
+                Save System Settings
+            </button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}
