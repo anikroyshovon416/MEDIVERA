@@ -223,7 +223,16 @@ def create_app(config_class=Config):
                 "production_config": bool(app.config.get("IS_PRODUCTION")),
                 "ssl_mode": (app.config.get("MYSQL_CUSTOM_OPTIONS") or {}).get("ssl_mode"),
                 "ssl_options_present": bool((app.config.get("MYSQL_CUSTOM_OPTIONS") or {}).get("ssl")),
-                "ca_file_exists": os.path.isfile(app.config.get("MYSQL_SSL_CA", "")),
+
+# Temporary runtime certificate diagnostics
+"ca_file_path": app.config.get("MYSQL_SSL_CA"),
+"ca_realpath": os.path.realpath(app.config.get("MYSQL_SSL_CA", "")),
+"ca_file_exists": os.path.isfile(app.config.get("MYSQL_SSL_CA", "")),
+"ca_file_size": (
+    os.path.getsize(app.config["MYSQL_SSL_CA"])
+    if os.path.isfile(app.config.get("MYSQL_SSL_CA", ""))
+    else None
+),
                 "ca_sha256": (
                     hashlib.sha256(
                         open(app.config["MYSQL_SSL_CA"], "rb").read()
