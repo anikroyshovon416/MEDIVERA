@@ -1,4 +1,4 @@
-
+﻿
 import logging
 import os
 from datetime import datetime
@@ -197,8 +197,8 @@ def create_app(config_class=Config):
                 "error_type": type(exc).__name__,
                 "error_message": str(exc),
                 "production_config": bool(app.config.get("IS_PRODUCTION")),
-                "ssl_mode": app.config.get("MYSQL_CUSTOM_OPTIONS", {}).get("ssl_mode"),
-                "ssl_options_present": bool(app.config.get("MYSQL_CUSTOM_OPTIONS", {}).get("ssl")),
+                "ssl_mode": (app.config.get("MYSQL_CUSTOM_OPTIONS") or {}).get("ssl_mode"),
+                "ssl_options_present": bool((app.config.get("MYSQL_CUSTOM_OPTIONS") or {}).get("ssl")),
                 "ca_file_exists": os.path.isfile(app.config.get("MYSQL_SSL_CA", "")),
             }), 503
 
@@ -413,4 +413,5 @@ def create_app(config_class=Config):
         ), 500
 
     return app
+
 
