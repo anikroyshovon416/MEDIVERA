@@ -84,6 +84,23 @@ def create_app(config_class=Config):
     logging.basicConfig(level=logging.INFO)
     app.logger.setLevel(logging.INFO)
 
+    # Configure mandatory TiDB Cloud TLS before MySQL initialization.
+    if app.config.get("IS_PRODUCTION"):
+        ca_path = os.getenv(
+            "MYSQL_SSL_CA",
+            "/etc/secrets/isrgrootx1.pem"
+        ).strip()
+
+        if not os.path.isfile(ca_path):
+            raise RuntimeError(
+                "TiDB TLS certificate is missing at: " + ca_path
+            )
+
+        app.config["MYSQL_SSL_CA"] = ca_path
+        app.config["MYSQL_CUSTOM_OPTIONS"] = {
+            "ssl": {"ca": ca_path},
+            "ssl_mode": "VERIFY_IDENTITY",
+        }
     # Initialize extensions.
     mysql.init_app(app)
     csrf.init_app(app)
@@ -413,5 +430,6 @@ def create_app(config_class=Config):
         ), 500
 
     return app
+
 
 
