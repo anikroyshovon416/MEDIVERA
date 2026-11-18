@@ -1,4 +1,5 @@
 ﻿
+import hashlib
 import logging
 import os
 from datetime import datetime
@@ -217,6 +218,13 @@ def create_app(config_class=Config):
                 "ssl_mode": (app.config.get("MYSQL_CUSTOM_OPTIONS") or {}).get("ssl_mode"),
                 "ssl_options_present": bool((app.config.get("MYSQL_CUSTOM_OPTIONS") or {}).get("ssl")),
                 "ca_file_exists": os.path.isfile(app.config.get("MYSQL_SSL_CA", "")),
+                "ca_sha256": (
+                    hashlib.sha256(
+                        open(app.config["MYSQL_SSL_CA"], "rb").read()
+                    ).hexdigest().upper()
+                    if os.path.isfile(app.config.get("MYSQL_SSL_CA", ""))
+                    else None
+                ),
             }), 503
 
         finally:
@@ -430,6 +438,8 @@ def create_app(config_class=Config):
         ), 500
 
     return app
+
+
 
 
 
