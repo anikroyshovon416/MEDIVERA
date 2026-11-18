@@ -94,3 +94,8 @@ pharmacy_schema_audit.py
 
 # Local development test helpers
 /lab_catalogue_helper_test.py
+
+/certs/*
+!/certs/isrgrootx1.pem
+
+/app/config.py.backup
