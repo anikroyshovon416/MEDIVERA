@@ -178,40 +178,32 @@ def create_app(config_class=Config):
 
     @app.get("/health/database")
     def database_health():
-
         cursor = None
-
         try:
             cursor = mysql.connection.cursor()
-
-            cursor.execute(
-                "SELECT 1 AS database_ok"
-            )
-
+            cursor.execute("SELECT 1 AS database_ok")
             row = cursor.fetchone()
 
             return jsonify({
                 "status": "ok" if row else "error",
-                "database": (
-                    "connected" if row else "unavailable"
-                ),
+                "database": "connected" if row else "unavailable",
             }), 200 if row else 503
 
-        except Exception:
-
-            app.logger.exception(
-                "Database health check failed."
-            )
-
+        except Exception as exc:
+            app.logger.exception("Database health check failed.")
             return jsonify({
                 "status": "error",
                 "database": "unavailable",
+                "error_type": type(exc).__name__,
+                "error_message": str(exc),
             }), 503
 
         finally:
-
             if cursor is not None:
-                cursor.close()
+                try:
+                    cursor.close()
+                except Exception:
+                    app.logger.exception("Database cursor cleanup failed.")
 
     # --------------------------------------------------
     # DASHBOARD DISPATCHER
